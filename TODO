@@ -5,7 +5,9 @@ Behaviours
 		dtc: mute/unmute
 	Rumeur
 		Avec un nick en argument, raconte des choses
-
+	Prefix
+		To prefix the commands to be given to manderlbot. To be done on
+		a per channel base. Prefix example : '!'
 
 Config
 	Be abble to launch a new bot instance on config re reading
@@ -13,6 +15,8 @@ Config
 	DTD
 	Behaviours lists, inheritance
 	Add new matching possibilities (cover all infos we have)
+		see mdb_dispatch for the available infos
 
 Others
 	Do regexp matchings case independant (Lower/Upper case)
+	Check the ping/pong sequences
