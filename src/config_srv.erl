@@ -179,29 +179,13 @@ build_behaviours_list([BC=#cfg_behaviour{name=Id,
 		      },
     build_behaviours_list(BClist, [Login|Acc]);
 
-build_behaviours_list([BC=#cfg_behaviour{}|BClist], Acc) ->
+build_behaviours_list([BC=#cfg_behaviour{action=Action}|BClist], Acc) ->
     %% Here we map the actions defined in the config file
     %% With the code to use in order to make the action
-    Fun = case BC#cfg_behaviour.action of
-	      "say"    -> {mdb_behaviours, say};
-	      "answer" -> {mdb_behaviours, answer};
-	      "random" -> {mdb_behaviours, random};
-	      "timer"  -> {mdb_behaviours, timer};
-	      "think"  -> {mdb_behaviours, action};
-	      "bloto"  -> {mdb_behaviours, bloto};
-	      "google" -> {mdb_behaviours, google};
-	      "dict"   -> {mdb_behaviours, dict};
-	      "mute"   -> {mdb_behaviours, mute};
-	      "debian_pkg"  -> {mdb_behaviours, debian_pkg};
-	      "debian_file" -> {mdb_behaviours, debian_file};
-	      "pyramid"     -> {mdb_behaviours, pyramid};
-	      Other    -> {mdb_behaviours, say}
-	  end,
-
     Behaviour = #behaviour{id       = BC#cfg_behaviour.name,
 			   pattern  = #data{body={regexp,
 						  BC#cfg_behaviour.pattern}},
-			   function = Fun,
+			   function = mdb_behaviours:getFun(Action),
 			   data     = BC#cfg_behaviour.data},
 
     build_behaviours_list(BClist, [Behaviour|Acc]).
