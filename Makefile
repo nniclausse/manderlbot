@@ -1,4 +1,4 @@
-# Make the html files from the chords one
+# Build the .beam erlang VM files
 OPT = -W
 INC = ./inc
 CC = erlc
