@@ -105,13 +105,12 @@ manage_reconnect(State) ->
     Port = State#state.port,
     Chan = State#state.channel,
     Pass = State#state.passwd,
-
-    %% FIXME : add the RealName in the State, and get it here
     Nick = State#state.nickname,
 
     {ok, Sock} = connect(Host, Port),
     log(Sock, Chan, Pass, Nick),
 
     {ok, State#state{socket = Sock,
-		     date   = calendar:local_time()
+		     date   = calendar:local_time(),
+		     joined = false
 		    }}.
