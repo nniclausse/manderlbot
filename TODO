@@ -12,6 +12,7 @@ Behaviours
 Config
 	DTD
 	Behaviours lists, inheritance
+	Be abble to launch a new bot instance on config re reading
 
 Others
 	Do regexp matchings case independant (Lower/Upper case)
