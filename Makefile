@@ -52,7 +52,7 @@ install: manderlbot builder.beam
 	erl -s builder go -s init stop
 # create startup script
 	@echo "#!/bin/sh" > $(SCRIPT)
-	@echo "erl -detached -boot $(RAW_INSTALL_DIR)/lib/$(APPLICATION)-$(VERSION)/priv/manderlbot" >> $(SCRIPT)
+	@echo "erl -noshell -sname manderlbot -setcookie mdb -boot $(RAW_INSTALL_DIR)/lib/$(APPLICATION)-$(VERSION)/priv/manderlbot" >> $(SCRIPT)
 	@chmod +x $(SCRIPT)
 # added for debian
 	@cp $(CONFFILE) $(DESTDIR)/etc/manderlbot.xml
