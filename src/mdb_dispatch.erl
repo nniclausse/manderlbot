@@ -25,7 +25,7 @@
 -vsn(' $Revision$ ').
 
 %% External exports (API)
--export([process_data/3, treat_recv/3]).
+-export([process_data/3, treat_recv/3, append_botname/2]).
 
 %% -- Includes --
 %% Configure debugging mode:
@@ -64,7 +64,7 @@ process_data(Sock, Data, State) ->
 %% If this is a PING from the server:
 %%----------------------------------------------------------------------
 treat_recv(Sock, <<$P, $I, $N, $G, $ , Rest/binary>>, State) ->
-    io:format("PING ~p~n", [binary_to_list(Rest)]),
+    %%io:format("PING ~p~n", [binary_to_list(Rest)]),
     irc_lib:pong(Sock, binary_to_list(Rest));
 
 %%----------------------------------------------------------------------
@@ -79,11 +79,12 @@ treat_recv(Sock, Data, State=#state{}) ->
 
     %% Get the list of behaviours that match to the current IRC line
     %% And for which the corresponding fun will be executed
+    {ok, BList} = config_srv:getBehaviours(State#state.behaviours),
     lists:map(fun(X) -> 
-		      {ok, BList} =
-			  config_srv:getBehaviours(State#state.behaviours),
-		      MatchingList = match_event(X, BList,
-						 State#state.nickname),
+		      io:format("~p~n", [X]),
+		      MatchingList =
+			  match_event(X, BList, State#state.nickname),
+		      io:format("   ~p~n", [MatchingList]),
 		      dispatch_message(MatchingList, X, State)
 		      end,
 	      Parsed_result),
@@ -206,20 +207,16 @@ parse_line(ServerData) ->
 %% Returns the list of behaviour that should be executed on an irc input
 %%----------------------------------------------------------------------
 match_event(Data, Behaviours, Nickname) ->
-    %% io:format("Nickname: ~p~n", [Nickname]),
-    match_event(Data, Behaviours, Nickname, []).
+    match_event(data_as_list(Data), Behaviours, Nickname, []).
 
 match_event(Data, [], Nickname, Acc) ->
     lists:reverse(Acc);
 
 match_event(Data, [Behaviour|Behaviours], Nickname, Acc) ->
-    DataList = data_as_list(Data),
-    MatchCritList = append_botname(
-		      data_as_list(Behaviour#behaviour.pattern), Nickname),
+    MatchCritList =
+	append_botname(data_as_list(Behaviour#behaviour.pattern), Nickname),
 
-    io:format("~p~n~p~n", [MatchCritList]),
-
-    case is_matching(DataList, MatchCritList) of
+    case is_matching(Data, MatchCritList) of
 	true ->
 	    match_event(Data, Behaviours, Nickname, [Behaviour|Acc]);
 	false ->
@@ -241,10 +238,13 @@ data_as_list(Data) ->
 %% Convert '%BOTNAME' wherever in the list by its real name
 %%----------------------------------------------------------------------
 append_botname(List, Botname) ->
-    lists:map(fun({regexp, String}) ->
+    lists:map(fun(Exp = {regexp, '_'}) -> Exp;
+
+		 ({regexp, String}) ->
 		      {ok, NewString, _C} =
 			  regexp:sub(String, ?BOTNAME, Botname),
 		      {regexp, NewString};
+
 		 (Other) ->
 		      Other
 	      end,
@@ -270,14 +270,12 @@ is_matching([Element|Elements], [Criterium|Criteria], Result) ->
 	'_' ->
 	    is_matching(Elements, Criteria, true);
 
-%	[] ->
-%	    is_matching(Elements, Criteria, true);
-
-	{regexp, []} ->
-	    is_matching(Elements, Criteria, false);
+	{regexp, '_'} ->
+	    is_matching(Elements, Criteria, true);
 
 	{regexp, Expr} ->
-	    is_matching(Elements, Criteria, is_matching_regexp(Element, Expr));
+	    is_matching(Elements, Criteria,
+			is_matching_regexp(Element, Expr));
 
 	%% Should tag the Criterium value as {exact, Criterium}	    
 	Element ->

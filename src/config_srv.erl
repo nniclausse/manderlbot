@@ -96,10 +96,13 @@ handle_call({reconf, Channel, BotName, ConfigFile}, From, Config) ->
     end;
 
 handle_call({getlist, Channel, BotName}, From, Conf) ->
+    io:format("~p ~p ~p~n", [Channel, BotName,
+			      getBehaviours(Conf, Channel, BotName)]),
     {reply, {ok, getBehaviours(Conf, Channel, BotName)}, Conf};
 
 
-handle_call({getBehaviours, BNames}, From, Conf = #config{behaviours=BList}) ->
+handle_call({getBehaviours, BNames}, From, Conf=#config{behaviours=BList}) ->
+    %% io:format("BNames: ~p~n", [BNames]),
     {reply,
      {ok, lists:filter(fun(Behaviour=#behaviour{id=Id}) ->
 			       lists:member(Id, BNames)
@@ -161,10 +164,13 @@ build_behaviours_list([], Acc) ->
 			data     = []
 			},
 
+    {ok, RootPath} = application:get_env(manderlbot, root_path),
+    {ok, Config}   = application:get_env(manderlbot, config_file),
+
     Reconf = #behaviour{id       = "reconf",
 			pattern  = #data{body={regexp, "^%BOTNAME.*reconf"}},
 			function = {mdb_behaviours, reconf},
-			data     = "../config.xml"
+			data     = RootPath ++ "/" ++ Config
 			},
 
     [Rejoin, Reconf | Acc];
@@ -185,13 +191,16 @@ build_behaviours_list([BC=#cfg_behaviour{name=Id,
 build_behaviours_list([BC=#cfg_behaviour{action=Action}|BClist], Acc) ->
     %% Here we map the actions defined in the config file
     %% With the code to use in order to make the action
-    Behaviour = #behaviour{id       = BC#cfg_behaviour.name,
-			   pattern  =
-			   #data{header_from={regexp, BC#cfg_behaviour.from},
-				 header_to  ={regexp, BC#cfg_behaviour.to},
-				 body={regexp, BC#cfg_behaviour.pattern}},
-			   function = mdb_behaviours:getFun(Action),
-			   data     = BC#cfg_behaviour.data},
+    Behaviour =
+	#behaviour{id       = BC#cfg_behaviour.name,
+
+		   pattern  = #data{
+		     header_from = {regexp, BC#cfg_behaviour.from},
+		     header_to   = {regexp, BC#cfg_behaviour.to},
+		     body        = {regexp, BC#cfg_behaviour.pattern}},
+
+		   function = mdb_behaviours:getFun(Action),
+		   data     = BC#cfg_behaviour.data},
 
     build_behaviours_list(BClist, [Behaviour|Acc]).
 
