@@ -1,8 +1,9 @@
 %%%----------------------------------------------------------------------
 %%% File    : mdb_behaviours_new.erl
-%%% Author  : Dimitri Fontaine <tapoueh@free.fr>
-%%% Purpose : 
-%%% Created : 27 Feb 2002 by Dimitri Fontaine <tapoueh@free.fr>
+%%% Author  : Dimitri Fontaine <dim@tuxfamily.org>
+%%% Purpose : Implements the bot generic behaviours, to be used in the
+%%%           config file.
+%%% Created : 27 Feb 2002 by Dimitri Fontaine <dim@tuxfamily.org>
 %%%----------------------------------------------------------------------
 
 -module(mdb_behaviours).
@@ -29,7 +30,7 @@ say(Input = #data{header_to=BotName}, BotName, Data, BotPid) ->
     [NickFrom|IpFrom] = string:tokens(Input#data.header_from, "!"),
 
     lists:map(fun(String) ->
-		      mdb_bot:say(NickFrom, BotPid, String)
+		      mdb_bot:say(BotPid, String, NickFrom)
 	      end,
 	      Data);
 
@@ -48,7 +49,7 @@ action(Input = #data{header_to=BotName}, BotName, Data, BotPid) ->
     [NickFrom|IpFrom] = string:tokens(Input#data.header_from, "!"),
 
     lists:map(fun(String) ->
-		      mdb_bot:action(NickFrom, BotPid, String)
+		      mdb_bot:action(BotPid, String, NickFrom)
 	      end,
 	      Data);
 
@@ -67,7 +68,7 @@ answer(Input = #data{header_to=BotName}, BotName, Data, BotPid) ->
     [NickFrom|IpFrom] = string:tokens(Input#data.header_from, "!"),
 
     lists:map(fun(String) ->
-		      mdb_bot:say(NickFrom, BotPid, String)
+		      mdb_bot:say(BotPid, String, NickFrom)
 	      end,
 	      Data);
 
@@ -88,8 +89,9 @@ random(Input = #data{header_to=BotName}, BotName, Data, BotPid) ->
 
     {A, B, C} = now(),
     random:seed(A, B, C),
-    mdb_bot:say(NickFrom, BotPid,
-		lists:nth(random:uniform(length(Data)), Data));
+    mdb_bot:say(BotPid,
+		lists:nth(random:uniform(length(Data)), Data),
+		NickFrom);
 
 random(Input, BotName, Data, BotPid) ->
     {A, B, C} = now(),
@@ -107,16 +109,16 @@ timer(Input = #data{header_to=BotName}, BotName, Data, BotPid) ->
     case length(Data) of
 	1 ->
 	    [String] = Data,
-	    mdb_bot:say(NickFrom, BotPid, String);
+	    mdb_bot:say(BotPid, String, NickFrom);
 
 	2 ->
 	    [H|T] = Data,
-	    mdb_bot:say(NickFrom, BotPid, H),
+	    mdb_bot:say(BotPid, H, NickFrom),
 	    %% we sleep for a random time
 	    {A, B, C} = now(),
 	    random:seed(A, B, C),
 	    timer:sleep(random:uniform(?RNDTIME) + ?TIME),
-	    mdb_bot:say(NickFrom, BotPid, T);
+	    mdb_bot:say(BotPid, T, NickFrom);
 
 	More ->
 	    say(Input, BotName, Data, BotPid)
