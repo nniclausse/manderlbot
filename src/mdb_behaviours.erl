@@ -305,9 +305,11 @@ pyramid(Input, BotName, Data, BotPid, Channel) ->
 	    mdb_bot:say(BotPid, SMsg);
 
 	_Whatever  ->
+	    %% That is a guess
 	    [Header, Word] =  string:tokens(Input#data.body, ": "),
 	    {_State, GMsg}  =
-		pyramid:guess(NickFrom, Channel, string:strip(Word)),
+		pyramid:guess(NickFrom, Channel,
+			      misc_tools:downcase(string:strip(Word))),
 
 	    mdb_bot:say(BotPid, GMsg)
     end.
