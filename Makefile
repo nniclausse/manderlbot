@@ -55,7 +55,7 @@ install: manderlbot builder.beam
 	erl -s builder go -s init stop
 # create startup script
 	@echo "#!/bin/sh" > $(SCRIPT)
-	@echo "$(ERL) $(RUN_OPTIONS) >> $(LOGFILE) 2>&1" >> $(SCRIPT)
+	@echo "$(ERL) $(RUN_OPTIONS)" >> $(SCRIPT)
 	@chmod +x $(SCRIPT)
 # added for debian
 	@cp $(CONFFILE) $(DESTDIR)/etc/manderlbot.xml
