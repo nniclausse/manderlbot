@@ -48,11 +48,11 @@ init([]) ->
     BServ  = {config_srv, {config_srv, start_link, [RootPath++"/"++Config]},
 	      permanent, 2000, worker, [config_srv]},
 
-    BLoto  = {bloto, {bloto, start_link, []},
-	      permanent, 2000, worker, [bloto]},
+    BLoto  = {mdb_bhv_bloto, {mdb_bhv_bloto, start_link, []},
+	      permanent, 2000, worker, [mdb_bhv_bloto]},
 
-    Pyramid = {pyramid, {pyramid, start_link, []},
-	       permanent, 2000, worker, [pyramid]},
+    Pyramid = {mdb_bhv_pyramid, {mdb_bhv_pyramid, start_link, []},
+	       permanent, 2000, worker, [mdb_bhv_pyramid]},
 
     BSearch = {mdb_search, {mdb_search, start_link, []},
 	      permanent, 2000, worker, [mdb_search]},

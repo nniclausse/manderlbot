@@ -181,12 +181,19 @@ build_behaviours_list([BC=#cfg_behaviour{action=Action}|BClist], Acc) ->
 		     header_options = {regexp, BC#cfg_behaviour.exl_option},
 		     body           = {regexp, BC#cfg_behaviour.exl_pattern}},
 
-		   function = mdb_behaviours:getFun(Action),
+		   function = getFun(Action),
 		   data     = BC#cfg_behaviour.data},
 
     build_behaviours_list(BClist, [Behaviour|Acc]).
 
-
+%%%----------------------------------------------------------------------
+%%% Function: getFun/1
+%%% Purpose:  Given the action name, returns the Module and Function to
+%%%           call.
+%%%----------------------------------------------------------------------
+getFun(Action) ->
+    %% calling list_to_atom, this may be dangerous (DoS)
+    {list_to_atom("mdb_bhv_" ++ Action), behaviour}.
 
 %%----------------------------------------------------------------------
 %% getBehaviours/3

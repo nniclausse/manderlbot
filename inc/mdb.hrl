@@ -31,6 +31,9 @@
                header_to      = ?nodata,
 	       header_options = ?nodata}).
 
+-define(TIME, 2000).
+-define(RNDTIME, 3000).
+
 %% Bot process state
 -record(state, {bot_pid = "",
 		channel = "",

@@ -1,20 +1,39 @@
-%%% File    : mdb_dict.erl
+%%% File    : mdb_bhv_dict.erl
 %%% Author  : Nicolas Niclausse <nico@niclux.org>
 %%% Purpose : search for word definition using the DICT protocol (RFC 2229)
 %%% Created : 16 Jul 2002 by Nicolas Niclausse <nico@niclux.org>
 
--module(mdb_dict).
+-module(mdb_bhv_dict).
 -author('nniclausse@idealx.com').
 -revision(' $Id$ ').
 -vsn(' $Revision$ ').
 
+-export([behaviour/5]). % MDB behaviour API
 -export([search/5, search/6, parse/1, set_request/1]).
 
 -include("mdb.hrl").
 
--define(dict_name, "localhost").
--define(dict_port, 2628).
--define(dict_default, "wn"). % Wordnet is the default dict
+%%%----------------------------------------------------------------------
+%%% Function: dict/5
+%%% Purpose:  ask dict for a word definition
+%%%----------------------------------------------------------------------
+behaviour(Input, BotName, Data, BotPid, Channel) ->
+    [DictName] = Data,
+    io:format("DICT input: ~p~n", [Input#data.body]),
+    io:format("DICT name:  ~p~n", [DictName]),
+
+    [Key | Args] = string:tokens(Input#data.body," "),
+    Criteria = string:strip(Args),
+   
+    io:format("DICT criteria: ~p~n", [Criteria]),
+
+    case DictName of
+	[] ->
+	    search(Criteria, Input, BotPid, BotName, Channel);
+	_ ->
+	    search(Criteria, Input,
+			    BotPid, BotName, Channel, DictName)
+    end.
 
 %% search with default dictionnary 
 search(Keywords, Input, BotPid, BotName, Channel) ->
@@ -58,13 +77,13 @@ parse(Data) ->
 	    {continue, lists:subtract(Data,"\r\n")}
     end.
 
-						%search using Dict dictionnary
+%%%search using Dict dictionnary
 set_request([Keyword, Dict]) ->
     set_request(Keyword, Dict);
 
-						%default dict is wordnet
+%%% get default dict configuration
 set_request(Keyword) ->
-    {ok, {_, _, Default}} =config_srv:getDictConf(),
+    {ok, {_, _, Default}} = config_srv:getDictConf(),
     set_request(Keyword, Default).
 
 set_request(Keyword, Dict) ->

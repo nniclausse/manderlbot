@@ -190,11 +190,11 @@ code_change(OldVsn, State, Extra) ->
 say(Input, BotName, [], BotPid, Channel) ->
     empty;
 
-%% list of strings to say in private, use mdb_behaviours function
+%% list of strings to say in private, use mdb_bhv_say behaviour
 say(Input = #data{header_to=BotName}, BotName, Data, BotPid, Channel) ->
     spawn_link(?MODULE, say_slow, [Input, BotName, Data, BotPid, Channel]);
 
-%%% to much lines, talk in private
+%%% too much lines, talk in private
 say(Input, BotName, Data, BotPid, Channel) when length(Data) > ?max_lines ->
     %% set header_to to say it in private
     mdb_bot:say(BotPid, "answer in private"),
@@ -205,7 +205,7 @@ say(Input, BotName, Data, BotPid, Channel) when length(Data) > ?max_lines ->
 
 %%% talk in the channel
 say(Input, BotName, Data, BotPid, Channel) ->
-    mdb_behaviours:say(Input, BotName, Data, BotPid, Channel).
+    mdb_bhv_say:behaviour(Input, BotName, Data, BotPid, Channel).
 
 %%----------------------------------------------------------------------
 %% Func: say_slow/4
@@ -215,7 +215,7 @@ say_slow(Input, BotName, [], BotPid, Channel) ->
     empty;
 
 say_slow(Input, BotName, [String | Data], BotPid, Channel) ->
-    mdb_behaviours:say(Input, BotName, [String], BotPid, Channel),
+    mdb_bhv_say:behaviour(Input, BotName, [String], BotPid, Channel),
     timer:sleep(?say_sleep),
     say_slow(Input, BotName, Data, BotPid, Channel).
 

@@ -1,11 +1,11 @@
 %%%----------------------------------------------------------------------
-%%% File    : bloto.erl
+%%% File    : mdb_bhv_bloto.erl
 %%% Author  : Dimitri Fontaine <tapoueh@free.fr>
 %%% Purpose : Count the buzzwords and give a winner
 %%% Created :  6 Mar 2002 by Dimitri Fontaine <tapoueh@free.fr>
 %%%----------------------------------------------------------------------
 
--module(bloto).
+-module(mdb_bhv_bloto).
 -author('tapoueh@free.fr').
 
 %%-compile(export_all).
@@ -14,11 +14,14 @@
 -behaviour(gen_server).
 
 %% External exports
+-export([behaviour/5]). % MDB behaviour API
 -export([start_link/0, add/2, reset/2]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
 	 terminate/2, code_change/3]).
+
+-include("mdb.hrl").
 
 -define(timeout, 5000).
 -define(MAX, 4). %% put here MAX-1
@@ -26,6 +29,21 @@
 %%%----------------------------------------------------------------------
 %%% API
 %%%----------------------------------------------------------------------
+%%%----------------------------------------------------------------------
+%%% Function: behaviour/5
+%%% Purpose:  Play to business loto...
+%%%----------------------------------------------------------------------
+behaviour(Input, BotName, Data, BotPid, Channel) ->
+    [NickFrom|IpFrom] = string:tokens(Input#data.header_from, "!"),
+
+    case bloto:add(NickFrom, Channel) of
+	{winner, Nick} ->
+	    mdb_bot:say(BotPid, Nick ++ " " ++ Data);
+
+	Other ->
+	    ok
+    end.
+
 start_link() ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
 

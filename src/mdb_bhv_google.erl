@@ -1,19 +1,35 @@
-%%% File    : google.erl
+%%% File    : mdb_bhv_google.erl
 %%% Author  : Nicolas Niclausse <nico@niclux.org>
 %%% Purpose : ask google for the first match of a given keyword
 %%% Created : 16 Jul 2002 by Nicolas Niclausse <nico@niclux.org>
 
--module(google).
+-module(mdb_bhv_google).
 -author('nico@niclux.org').
 -revision(' $Id$ ').
 -vsn(' $Revision$ ').
 
+-export([behaviour/5]). % MDB behaviour API
 -export([search/5, parse/1, set_request/1]).
 
 -include("mdb.hrl").
 
 -define(google_name, "www.google.com").
 -define(google_port, 80).
+
+%%%----------------------------------------------------------------------
+%%% Function: behaviour/5
+%%% Purpose:  ask google and give the first response
+%%%----------------------------------------------------------------------
+behaviour(Input, BotName, Data, BotPid, Channel) ->
+    io:format("GOOGLE input: ~p~n", [Input#data.body]),
+
+    [Key | Args] = string:tokens(Input#data.body," "),
+    Criteria= misc_tools:join("+", Args),
+	
+    io:format("GOOGLE criteria: ~p~n", [Criteria]),
+
+    search(Criteria, Input, BotPid, BotName, Channel).
+
 
 search(Keywords, Input, BotPid, BotName, Channel) ->
     mdb_search:search({Keywords,

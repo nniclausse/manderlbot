@@ -1,20 +1,21 @@
 %%%-------------------------------------------------------------------
-%%% File    : pyramid.erl
+%%% File    : mdb_bhv_pyramid.erl
 %%% Author  : Dimitri Fontaine <dfontaine@mail.cvf.fr>
 %%% Description : Implementation of french TV game « Pyramide »
 %%%
 %%% Created :  7 Nov 2002 by Dimitri Fontaine <dfontaine@mail.cvf.fr>
 %%%-------------------------------------------------------------------
--module(pyramid).
+-module(mdb_bhv_pyramid).
 
 -behaviour(gen_server).
 %%--------------------------------------------------------------------
 %% Include files
 %%--------------------------------------------------------------------
+-include("mdb.hrl").
 
 %%--------------------------------------------------------------------
 %% External exports
--export([start_link/0, setWord/3, start/4, guess/3]).
+-export([start_link/0, setWord/3, start/4, guess/3, behaviour/5]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
@@ -42,6 +43,62 @@ start(Nick, Channel, Player2, Nguess) ->
 
 guess(Nick, Channel, Word) ->
     gen_server:call(?MODULE, {guess, Nick, Channel, Word}, ?timeout).
+
+%%%----------------------------------------------------------------------
+%%% Function: pyramid/5
+%%% Purpose:  implements a pyramid game, see comments
+%%%----------------------------------------------------------------------
+behaviour(Input = #data{header_to=BotName}, BotName, Data, BotPid, Channel) ->
+    %%  - first player giving the bot the answer, before beginning the game,
+    %%    in private dialog
+    [NickFrom|IpFrom] = string:tokens(Input#data.header_from, "!"),
+    [Header, Word] =  string:tokens(Input#data.body, ": "),
+
+    case setWord(NickFrom, Channel,
+			 misc_tools:downcase(string:strip(Word))) of
+	{ok, Message} ->
+	    mdb_bot:say(BotPid, Message, NickFrom),
+	    mdb_bot:say(BotPid, NickFrom ++ " has set a word to guess !");
+
+	{error, Reason} ->
+	    mdb_bot:say(BotPid, Reason, NickFrom)
+    end;
+
+behaviour(Input, BotName, Data, BotPid, Channel) ->
+    %% For this game, we have to detect some different cases on the
+    %% same behaviour, that is :
+    %%
+    %%  - beginning of game, first player inviting second and giving the
+    %%    number of tries
+    %%
+    %%  - second player guess
+
+    [NickFrom|IpFrom] = string:tokens(Input#data.header_from, "!"),
+
+    io:format("body: ~p~n", [Input#data.body]),
+
+    case regexp:match(Input#data.body, "[A-za-z]+/[0-9]") of
+	{match, S, L} ->
+	    [Player2, Nguess] =
+		string:tokens(string:substr(Input#data.body, S, L), "/"),
+
+	    {ok, [{integer, 1, Iguess}],1} = erl_scan:string(Nguess),
+	    
+	    io:format("pyramid: ~p invite ~p in ~p~n",
+		      [NickFrom, Player2, Iguess]),
+
+	    {_ok, SMsg} = start(NickFrom, Channel, Player2, Iguess),
+	    mdb_bot:say(BotPid, SMsg);
+
+	_Whatever  ->
+	    %% That is a guess
+	    [Header, Word] =  string:tokens(Input#data.body, ": "),
+	    {_State, GMsg}  =
+		pyramid:guess(NickFrom, Channel,
+			      misc_tools:downcase(string:strip(Word))),
+
+	    mdb_bot:say(BotPid, GMsg)
+    end.
 
 %%====================================================================
 %% Server functions
