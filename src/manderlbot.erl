@@ -59,7 +59,7 @@ init() ->
 				       channels = ChanList}) ->
 
 			  StartBot = fun(Chan = #channel{}) ->
-					     mdb_bot_sup:start_child(Name,
+					     mdb_botlist:add(Name,
 							     Controler,
 							     Host,
 							     Port,

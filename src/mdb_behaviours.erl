@@ -21,7 +21,6 @@
 %% Fun(Input, BotName, Data, BotPid)
 
 
-
 %%%----------------------------------------------------------------------
 %%% Function: say/4
 %%% Purpose:  Say the data in the channel or to the speaker

@@ -23,7 +23,8 @@
 -include("config.hrl").
 -include("mdb.hrl").
 
--define(timeout, 5000).
+%% We need a big timeout in order to be able to launch new bots.
+-define(timeout, 10000).
 
 %%%----------------------------------------------------------------------
 %%% API
@@ -76,6 +77,10 @@ handle_call({getConf}, From, Config) ->
 handle_call({reconf, Channel, ConfigFile}, From, Config) ->
     case config:read(ConfigFile) of
 	{ok, NewConfig = #config{}} ->
+	    %% Don't forget to check for new chans to join
+	    %% In order to avoid a re-entrance which faults in timeout,
+	    %% we pass directly from here the new bot BList !
+	    checkForNewChans(NewConfig),
 	    {reply, {ok, getBehaviours(NewConfig, Channel)}, NewConfig};
 
 	Error ->
@@ -214,3 +219,35 @@ getBehaviours([#channel{name=Name}|CTail], Chan) ->
 
 getBehaviours([], Chan) ->
     notfound.
+
+
+%%----------------------------------------------------------------------
+%% checkForNewChans/3
+%%   For each server/chan in the config, add it to the mdb_botlist.
+%%   If no bot instance is connected, a new one will be started, 
+%%   calling mdb_botlist:add(Name, Controler, Host, Port, Chan)
+%%----------------------------------------------------------------------
+checkForNewChans(Config) ->
+    checkForNewChans(Config, [], Config).
+
+checkForNewChans(#config{name=Name, controler=Ctlr, servers=SList},
+		 Params,
+		 Config
+		) ->
+    checkForNewChans(SList, [Name, Ctlr], Config);
+
+checkForNewChans([#server{host=Host, port=Port, channels=CList}|Stail],
+		 [Name, Ctlr],
+		 Config
+		) ->
+    checkForNewChans(CList, [Name, Ctlr, Host, Port], Config),
+    checkForNewChans(Stail, [Name, Ctlr], Config);
+
+checkForNewChans([Channel=#channel{name=Chan}|CTail],
+		 [Name, Ctlr, Host, Port],
+		 Config) ->
+    mdb_botlist:add(Name, Ctlr, Host, Port, Channel, getBehaviours(Config, Chan)),
+    checkForNewChans(CTail, [Name, Ctlr, Host, Port], Config);
+
+checkForNewChans([], Params, Config) ->
+    done.

@@ -33,8 +33,13 @@
 -include("mdb.hrl").
 
 %%----------------------------------------------------------------------
-%% log/2
+%% log/3
 %% Start an IRC bot and connect it to a given channel
+%%
+%% FIXME:
+%%  Try to re use the Sock when connecting several bots on the same
+%%  host:port. This would allow for RealName / Nickname usage again. 
+%%
 %%----------------------------------------------------------------------
 log(Sock, Channel = #channel{}, RealName) ->
     %% Logging in
@@ -42,6 +47,13 @@ log(Sock, Channel = #channel{}, RealName) ->
 
     %% Join the given channel
     irc_lib:join(Sock, Channel#channel.name),
+    ok;
+
+log(Sock, Channame, Botname) ->
+    _Motd = log_in(Sock, Botname, Botname),
+
+    %% Join the given channel
+    irc_lib:join(Sock, Channame),
     ok.
 
 %%----------------------------------------------------------------------
@@ -60,10 +72,12 @@ connect(Server, Ip_port) ->
 	      end,
 
     case Connect() of
-	%% If everything went ok
-	{ok, Sock} -> {ok, Sock};
-	%% If there is an error, wait 30 secondes and try to reconnect
+	{ok, Sock} ->
+	    ?dbg("Connected to ~p", [Server]),
+	    {ok, Sock};
+
 	{error, Reason} ->
+	    %% If there is an error, wait 30 secondes and try to reconnect
 	    ?dbg("Server connection error: ~p", [Reason]),
 	    timer:sleep(30000),
 	    connect(Server, Ip_port)
@@ -76,10 +90,10 @@ connect(Server, Ip_port) ->
 %%log_in(Sock, Nickname, RealName, Password) ->
 log_in(Sock, Nickname, RealName) ->
     log_in_nick(Sock, Nickname),
-    log_in_pong(Sock),
-    log_in_pass(Sock, "Password"),
-    log_in_user(Sock, Nickname, RealName),
-    Motd = wait_for_motd(5000).
+    %%log_in_pong(Sock),
+    %%log_in_pass(Sock, "Password"),
+    log_in_user(Sock, Nickname, RealName).
+    %% Motd = wait_for_motd(5000).
 
     %% TODO: Add an event notification: logged in as Realname aka Nick
 
@@ -121,6 +135,7 @@ log_in_pass(Sock, Password) ->
 %%----------------------------------------------------------------------
 %% log_in_nick/3
 %% Send the user information to terminate the log in phase
+%%
 %%----------------------------------------------------------------------
 log_in_user(Sock, Nickname, Realname) ->
     UserCommand = lists:concat(["USER ", Nickname,
@@ -162,15 +177,16 @@ testPingPong(Sock, Data) ->
 %% When something fails, automatically reconnects the bot
 %%----------------------------------------------------------------------
 manage_reconnect(State) ->
-    %% TODO: Implement this function.
-    %% When I am not connected, the connection/reconnection process is
-    %% already handled by the irc server (irc_srv)
-
     Host = State#state.host,
     Port = State#state.port,
+    Chan = State#state.channel,
+
+    %% FIXME : add the RealName in the State, and get it here
+    Nick = State#state.nickname,
 
     {ok, Sock} = connect(Host, Port),
-    
-    {ok, State#state{socket=Sock}}.
+    log(Sock, Chan, Nick),
 
-
+    {ok, State#state{socket = Sock,
+		     date   = calendar:local_time()
+		    }}.

@@ -57,7 +57,7 @@ action(BotPid, Message) ->
 
 %% Rejoin the channel (Use it when you have been kicked)
 rejoin(BotPid) ->
-    gen_server:call(BotPid, rejoin).
+    gen_server:call(BotPid, rejoin, ?timeout).
 
 reconf(BotPid, NickName, ConfigFile) ->
     gen_server:call(BotPid, {reconf, NickName, ConfigFile}, ?timeout).
@@ -73,14 +73,21 @@ reconf(BotPid, NickName, ConfigFile) ->
 %%          ignore               |
 %%          {stop, Reason}
 %%----------------------------------------------------------------------
-init([RealName, Controler, Host, Port, Channel]) ->
+init([RealName, Controler, Host, Port, Channel, BList]) ->
+    io:format("launching a new bot: ~p~n", [Channel]),
+
     {ok, Sock} = mdb_connection:connect(Host, Port),
 
     ok = mdb_connection:log(Sock, Channel, RealName),
-%%    io:format("~p joined ~p (~p)~n", [Channel#channel.botname,
-%%				      Channel#channel.name, Sock]),
 
-    {ok, BList} = config_srv:getBList(Channel#channel.name),
+    %% To avoid some re-entrance issue when starting bot from a reconf,
+    %% we may start the bot giving it its behaviours list...
+    {ok, RealBList} = case BList of
+			  [] ->
+			      config_srv:getBList(Channel#channel.name);
+			  List ->
+			      {ok, BList}
+		      end,
 
     State = #state{bot_pid=self(),
 		   channel    = Channel#channel.name,
@@ -88,7 +95,7 @@ init([RealName, Controler, Host, Port, Channel]) ->
 		   socket     = Sock,
 		   nickname   = Channel#channel.botname,
 		   date       = calendar:local_time(),
-		   behaviours = BList,
+		   behaviours = RealBList,
 		   host       = Host,
 		   port       = Port
 		  },
@@ -170,15 +177,15 @@ handle_info({tcp, Socket, Data}, State) ->
     Buffer = State#state.buffer,
     List = lists:append(binary_to_list(Buffer), binary_to_list(Data)),
 	    
-	case mdb_dispatch:process_data(Socket, List, State) of
-	    ok   ->
-		%% This was just a 'ping' request
-		{noreply, State};
-
-	    Rest ->
-		NewState = State#state{buffer=list_to_binary(Rest)},
-		{noreply, NewState}
-	end;
+    case mdb_dispatch:process_data(Socket, List, State) of
+	ok   ->
+	    %% This was just a 'ping' request
+	    {noreply, State};
+	
+	Rest ->
+	    NewState = State#state{buffer=list_to_binary(Rest)},
+	    {noreply, NewState}
+    end;
 
 handle_info({tcp_einval, Socket}, State) ->
     {noreply, State};
