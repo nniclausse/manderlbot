@@ -33,7 +33,7 @@
 -author('dim@tuxfamily.org').
 
 -include("config.hrl").
--include("xmerl.hrl").
+-include_lib("xmerl/inc/xmerl.hrl").
 -include("log.hrl").
 
 -define(default_passwd, "h4ckd4w0rld").
@@ -47,13 +47,16 @@
 %%%----------------------------------------------------------------------
 read(Filename) ->
     case xmerl_scan:file(Filename) of
-        {ok, Root = #xmlElement{}} ->
+        {ok, Root = #xmlElement{}} ->  % xmerl-0.15
             mdb_logger:debug("root: ~p~n~p~n", [Root#xmlElement.name,
-						Root#xmlElement.content]),
-	    {ok, parse(Root, #config{})};
-
-	Error ->
-	    {error, Error}
+                                                Root#xmlElement.content]),
+            {ok, parse(Root, #config{})};
+        {Root = #xmlElement{}, Tail} -> % xmerl-0.19
+            mdb_logger:debug("root: ~p~n~p~n", [Root#xmlElement.name,
+                                                Root#xmlElement.content]),
+            {ok, parse(Root, #config{})};
+        Error ->
+            {error, Error}
     end.
 
 
