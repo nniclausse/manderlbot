@@ -102,6 +102,7 @@ init([RealName, Controler, Host, Port, Passwd, Channel, BList]) ->
 		   behaviours = RealBList,
 		   host       = Host,
 		   port       = Port,
+		   joined     = false,
 		   mode       = unmuted
 		  },
     {ok, State}.
@@ -204,8 +205,22 @@ handle_info({tcp, Socket, Data}, State) ->
 	    
     case mdb_dispatch:process_data(Socket, List, State) of
 	ok   ->
-	    %% This was just a 'ping' request
 	    {noreply, State};
+
+	{joined, Rest} ->
+	    {noreply, State#state{joined = true,
+				  buffer=list_to_binary(Rest)}};
+
+	{pong, Rest} ->
+	    %% This was just a 'ping' request
+	    case State#state.joined of
+		true  -> ok;
+		false ->
+		    %% We can now join the channel
+		    irc_lib:join(Socket, State#state.channel)
+	    end,
+	    {noreply, State#state{joined = true,
+				  buffer=list_to_binary(Rest)}};
 	
 	Rest ->
 	    NewState = State#state{buffer=list_to_binary(Rest)},

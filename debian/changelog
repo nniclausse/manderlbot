@@ -1,3 +1,9 @@
+manderlbot (0.8-2) unstable; urgency=low
+
+  * Adapted the login mecanism to support different server behaviours.
+
+ -- Dimitri Fontaine <dim@tuxfamily.org>  Sat, 21 Dec 2002 02:57:50 +0100
+
 manderlbot (0.8-1) unstable; urgency=low
 
   * Some more options in config file, adding possibility to match user

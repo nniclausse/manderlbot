@@ -32,7 +32,6 @@
 -include("config.hrl").
 -include("mdb.hrl").
 
-
 %%----------------------------------------------------------------------
 %% connect/2
 %% Physically connects to the IRC server

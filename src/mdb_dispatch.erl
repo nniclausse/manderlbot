@@ -42,15 +42,44 @@
 %% Parse the incoming data into lines,
 %% and spawn a treat_recv process on each one
 %%----------------------------------------------------------------------
-process_data(Sock, Data, State=#state{}) -> 
-    Pos = string:str(Data, "\r\n"),
-    case Pos of 
-	0 -> Data ;
-	_ ->
-	    Line = string:substr( Data, 1, Pos-1 ),
-	    Rest = string:substr( Data, Pos+2, string:len(Data) - (Pos-1) ), 
+process_data(Sock, [$P, $I, $N, $G, $ , $: | Tail], State=#state{}) -> 
+    %% We consider PING separately
+    {Id, Rest} = cut_line(Tail),
+    io:format("PING ~p~n", [Id]),
+    irc_lib:pong(Sock, Id),
 
-	    %% treat_recv(Sock, list_to_binary(Line), State),
+    %% we return the atom 'pong' in this case
+    {pong, Rest};
+
+process_data(Sock, Data, State=#state{joined = false}) -> 
+    %% When we do not have joined, we have to test for a join chan
+    %% response. This can occurs when server require a pong before
+    %% anything else
+    {Line, Rest} = cut_line(Data),
+    
+    %%Name = [$: | State#state.nickname],
+    Chan = [$: | State#state.channel],
+
+    io:format("~p ~p~n", [Chan, Line]),
+    
+    case string:tokens(Line, " ") of
+	[_Name, "JOIN", Chan | Tail] ->
+	    io:format("JOINED Channel ~p~n", [State#state.channel]),
+	    {joined, Rest};
+	_ ->
+	    case Rest of
+		[] ->
+		    ok;
+		_ ->
+		    process_data(Sock, Rest, State)
+	    end
+    end;
+
+process_data(Sock, Data, State=#state{}) -> 
+    case cut_line(Data) of
+	{Data, []}   -> Data;
+
+	{Line, Rest} ->
 	    proc_lib:spawn(?MODULE, treat_recv,
 			   [Sock, list_to_binary(Line), State]),
 	    process_data(Sock, Rest, State)
@@ -59,13 +88,17 @@ process_data(Sock, Data, State=#state{}) ->
 process_data(Sock, Data, State) ->
     io:format("process_data: ~p ~p ~p ~n", [Sock, Data, State]).
 
-%%----------------------------------------------------------------------
-%% treat_recv/3
-%% If this is a PING from the server:
-%%----------------------------------------------------------------------
-treat_recv(Sock, <<$P, $I, $N, $G, $ , $:, Rest/binary>>, State) ->
-    %%io:format("PING ~p~n", [binary_to_list(Rest)]),
-    irc_lib:pong(Sock, binary_to_list(Rest));
+cut_line(Data) ->
+    Pos = string:str(Data, "\r\n"),
+    case Pos of 
+	0 -> {Data, []};
+
+	_ ->
+	    Line = string:substr( Data, 1, Pos-1 ),
+	    Rest = string:substr( Data, Pos+2, string:len(Data) - (Pos-1) ),
+	    
+	    {Line, Rest}
+    end.
 
 %%----------------------------------------------------------------------
 %% treat_recv/3

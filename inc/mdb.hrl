@@ -43,6 +43,7 @@
 		date={},
 		host = "",
 		port = "",
+		joined = false,
 		mode = unmuted % will either be muted or unmuted atom
 	       }).
 
