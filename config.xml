@@ -37,7 +37,7 @@
 
 	<server host="irc.tuxfamily.org" port="6667">
 		<channel name="#tuxfamily" botname="lebeau"
-			behaviours="google shadok boitacoucou prout boulet">
+			behaviours="google shadok boitacoucou prout boulet bofh">
 		</channel>
 	</server>
 

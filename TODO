@@ -6,6 +6,9 @@ Behaviours
 	Rumeur
 		Avec un nick en argument, raconte des choses
 
+	Mute
+		dtc: mute/unmute
+
 Config
 	DTD
 	Behaviours lists, inheritance
