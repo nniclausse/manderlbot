@@ -8,17 +8,19 @@
 -revision(' $Id$ ').
 -vsn(' $Revision$ ').
 
--export([search/2, parse/1, set_request/1]).
+-export([search/4, parse/1, set_request/1]).
 
 -include("mdb.hrl").
 
 -define(google_name, "www.google.com").
 -define(google_port, 80).
 
-search(Keywords, From) ->
-    mdb_search:search({Keywords, From, #search_param{type   = ?MODULE, 
-                                              server = ?google_name,
-                                              port   = ?google_port }
+search(Keywords, Input, BotPid, BotName) ->
+    mdb_search:search({Keywords,
+                       Input, BotPid, BotName,
+                       #search_param{type   = ?MODULE, 
+                                     server = ?google_name,
+                                     port   = ?google_port }
                       }).
 
 %%----------------------------------------------------------------------

@@ -43,8 +43,8 @@ stop() ->
     gen_server:cast(?MODULE, {stop}).
 
 %% asynchronous search
-search({Keywords, From, Params}) ->
-    gen_server:cast(?MODULE, {search, Keywords, From, Params}).
+search({Keywords, Input, BotPid, BotName, Params}) ->
+    gen_server:cast(?MODULE, {search, Keywords, Input, BotPid, BotName, Params}).
 
 %%%----------------------------------------------------------------------
 %%% Callback functions from gen_server
@@ -78,7 +78,7 @@ handle_call(Args, From, State) ->
 %%          {noreply, State, Timeout} |
 %%          {stop, Reason, State}            (terminate/2 is called)
 %%----------------------------------------------------------------------
-handle_cast({search, Keywords, From, Params}, State) ->
+handle_cast({search, Keywords, Input, BotPid, BotName, Params}, State) ->
     case gen_tcp:connect(Params#search_param.server, Params#search_param.port,
                          [list,
                           {packet, line},
@@ -88,11 +88,13 @@ handle_cast({search, Keywords, From, Params}, State) ->
             gen_tcp:send(Socket, Request),
             %% the request is identified by the Socket
             {noreply, State#search_state{requests=[{Socket,
-													From , 
+													Input, BotPid , BotName,
 													Params#search_param.type}
-                                            | State#search_state.requests]}};
+                                                   | State#search_state.requests]}};
         {error, Reason} ->
-			mdb_bot:say(atom_to_list(Params#search_param.type) ++" connection failed"),
+            say(Input, BotName, 
+                atom_to_list(Params#search_param.type) ++ " connection failed",
+                BotPid),
             {noreply, State}
     end;
 
@@ -107,15 +109,15 @@ handle_cast({stop}, State) ->
 %%----------------------------------------------------------------------
 handle_info({tcp, Socket, Data}, State) ->
     case lists:keysearch(Socket, 1 , State#search_state.requests) of 
-        {value, {Socket, Pid, Type}} ->
+        {value, {Socket, Input, BotPid, BotName, Type}} ->
             case apply(Type, parse, [Data]) of
                 {stop, Result} -> %% stop this connection and say result
                     NewState = remove(Socket, State),
-                    mdb_bot:say(Pid, Result),
+                    say(Input, BotName, Result, BotPid),
 					timer:sleep(?say_sleep),
                     {noreply, NewState};
                 {continue, Result} -> %% say result and continue to read data
-                    mdb_bot:say(Pid, Result),
+                    say(Input, BotName, Result, BotPid),
 					timer:sleep(?say_sleep),
                     {noreply, State};
                 {continue} -> %% continue to read
@@ -157,6 +159,16 @@ code_change(OldVsn, State, Extra) ->
 %%%----------------------------------------------------------------------
 %%% Internal functions
 %%%----------------------------------------------------------------------
+
+%%----------------------------------------------------------------------
+%% Func: remove/2
+%% Purpose: say a string to chan or to private
+%%%----------------------------------------------------------------------
+say(Input = #data{header_to=BotName}, BotName, Data, BotPid) ->
+    [NickFrom|IpFrom] = string:tokens(Input#data.header_from, "!"),
+    mdb_bot:say(BotPid, Data, NickFrom) ;
+say(Input, BotName, Data, BotPid) ->
+    mdb_bot:say(BotPid, Data).
 
 %%----------------------------------------------------------------------
 %% Func: remove/2

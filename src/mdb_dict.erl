@@ -8,7 +8,7 @@
 -revision(' $Id$ ').
 -vsn(' $Revision$ ').
 
--export([search/2, search/3, parse/1, set_request/1]).
+-export([search/4, search/5, parse/1, set_request/1]).
 
 -include("mdb.hrl").
 
@@ -17,15 +17,17 @@
 -define(dict_default, "wn"). % Wordnet is the default dict
 
 %% search with default dictionnary 
-search(Keywords, From) ->
-    mdb_search:search({Keywords, From, #search_param{type   = ?MODULE, 
-													 server = ?dict_name,
-													 port   = ?dict_port }
+search(Keywords, Input, BotPid, BotName) ->
+    mdb_search:search({Keywords,
+                       Input, BotPid, BotName, 
+                       #search_param{type   = ?MODULE, 
+                                     server = ?dict_name,
+                                     port   = ?dict_port }
                       }).
 
-search(Keywords, From, Dict) ->
+search(Keywords, Input, BotPid, BotName, Dict) ->
     mdb_search:search({[Keywords, Dict], 
-					   From,
+					   Input, BotPid, BotName, 
 					   #search_param{type   = ?MODULE, 
 									 server = ?dict_name,
 									 port   = ?dict_port }
@@ -39,12 +41,18 @@ search(Keywords, From, Dict) ->
 %%      stop     -> stop parsing of incoming data
 %%      Result   -> String to be printed by mdb
 %%----------------------------------------------------------------------
-parse("250" ++ Data) ->
+parse("250" ++ Data) -> %% completed
     {stop};
-parse("552" ++ Data) ->
-    {stop};
+parse("552" ++ Data) -> %% no match
+    {stop, "not found"};
+parse("150" ++ Data) -> %% response headers (n def. found)
+    {continue};
+parse("151" ++ Data) -> %% response headers (database name)
+    {continue};
 parse("") ->
     {continue};
+parse("     5:" ++Date) -> %% skip if more than 5 def
+    {stop, "etc."};
 parse(".\r\n") ->
     {continue};
 parse(Data) ->

@@ -190,7 +190,7 @@ google(Input, BotName, ConfigFile, BotPid) ->
 	
     io:format("GOOGLE criteria: ~p~n", [Criteria]),
 
-    google:search(Criteria,  BotPid).
+    google:search(Criteria, Input, BotPid, BotName).
 
 %%%----------------------------------------------------------------------
 %%% Function: dict/4
@@ -203,7 +203,7 @@ dict(Input, BotName, ConfigFile, BotPid) ->
 											string:len("dict") + 1)),
    
     io:format("DICT criteria: ~p~n", [Criteria]),
-    mdb_dict:search(Criteria, BotPid).
+    mdb_dict:search(Criteria, Input, BotPid , BotName).
 
 %%%----------------------------------------------------------------------
 %%% Function: jargon/4
@@ -216,4 +216,4 @@ jargon(Input, BotName, ConfigFile, BotPid) ->
 											string:len("jargon") + 1)),
    
     io:format("JARGON criteria: ~p~n", [Criteria]),
-    mdb_dict:search(Criteria, BotPid, "jargon").
+    mdb_dict:search(Criteria, Input, BotPid, BotName, "jargon").
