@@ -40,7 +40,7 @@
 
 %% External exports
 -export([start_link/0]).
--export([add/6, add/7]).
+-export([add/6, add/7, list/0]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2]).
@@ -66,6 +66,9 @@ add(Name, Controler, Host, Port, Passwd, Chan, BList) ->
     gen_server:call(?MODULE,
 		    {add, Name, Controler, Host, Port, Passwd, Chan, BList},
 		    ?timeout).
+
+list() ->
+    gen_server:call(?MODULE, {list}, ?timeout).
 
 %%%----------------------------------------------------------------------
 %%% Callback functions from gen_server
@@ -115,6 +118,9 @@ handle_call(
 		{error, Reason} -> {reply, {error, Reason}, State}
 	    end
     end;
+
+handle_call({list}, From, State) ->
+    {reply, {ok, State}, State};
 
 handle_call(Request, From, State) ->
     Reply = ok,
