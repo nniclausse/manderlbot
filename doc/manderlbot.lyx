@@ -190,41 +190,11 @@ $ sudo make install
 And manderlbot will be ready to be launched !
 \layout Section
 
-Launch
+Launch and stop
 \layout Standard
 
-You've got two ways of running 
-\family typewriter 
-manderlbot
-\layout Subsection
-
-Interactive
-\layout Standard
-
-So you have to start an erlang shell and say it to run the erlang application
- named 
-\family typewriter 
-manderlbot
-\family default 
-, as shown here\SpecialChar ~
-:
-\layout LyX-Code
-
-erl
-\layout LyX-Code
-
-1> application:start(manderlbot).
-\layout Standard
-
-Then you will get a lot of output, some debugging and logging informations
- given by the software.
-\layout Subsection
-
-In background
-\layout Standard
-
-From the 0.9.0 release of manderlbot, you can start manderlbot in background,
- by just invoking the given 
+As of the 0.9.1 release of manderlbot, you can control manderlbot using the
+ given 
 \family typewriter 
 /usr/bin/manderlbot
 \family default 
@@ -233,13 +203,24 @@ From the 0.9.0 release of manderlbot, you can start manderlbot in background,
 \layout LyX-Code
 
 $ manderlbot
+\layout LyX-Code
+
+manderlbot start|stop|restart|status
+\layout LyX-Code
+
+$ manderlbot start
+\layout Standard
+
+The stop option will kill the running manderlbot, and if started the status
+ will list all the running bots, indicating the servers and channels where
+ it is connected.
 \layout Standard
 
 If you want to redirect outputs, you'll then prefer that way\SpecialChar ~
 :
 \layout LyX-Code
 
-$ manderlbot >/var/log/manderlbot.log 2>&1 &
+$ manderlbot start >/var/log/manderlbot.log 2>&1 &
 \layout Standard
 
 Please make sure you are allowed to write in your log file !
@@ -683,64 +664,6 @@ timer will say the first argument, then wait for a random time, and say
 \family default 
 ' char.
 \layout Section
-
-Control
-\layout Subsection
-
-How to stop the bot
-\layout Standard
-
-To stop 
-\family typewriter 
-manderlbot
-\family default 
-, you'll have to tell the erlang system to stop the application.
- By the time of this writting, the 
-\family typewriter 
-manderlbot
-\family default 
- control script wich would handle that automatically for you is not yet
- written\SpecialChar ~
-!
-\layout Standard
-
-So if you have started 
-\family typewriter 
-manderlbot
-\family default 
- the interactive way, juste type in
-\layout LyX-Code
-
-2> application:stop(manderlbot).
-\layout Standard
-
-In the case you ran it in background, you will have to obtain a shell on
- the erlang node where it is running, then call the application stop function,
- like this\SpecialChar ~
-:
-\layout LyX-Code
-
-erl -setcookie mdb -sname control
-\layout LyX-Code
-
-(control@node)1>
-\layout Standard
-
-Then you hit ^G and connect to the manderlbot VM: 
-\layout LyX-Code
-
-User switch command
-\layout LyX-Code
-
- --> r manderlbot@node
-\layout LyX-Code
-
- --> c 3
-\layout LyX-Code
-
-(manderlbot@node)1> application:stop(manderlbot).
- 
-\layout Subsection
 
 Interacting with the running bot, from irc
 \layout Standard
