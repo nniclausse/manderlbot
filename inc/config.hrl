@@ -1,11 +1,11 @@
 %%%----------------------------------------------------------------------
 %%% File    : config.hrl
-%%% Author  : Dimitri Fontaine <tapoueh@free.fr>
-%%% Purpose : 
-%%% Created : 19 Feb 2002 by Dimitri Fontaine <tapoueh@free.fr>
+%%% Author  : Dimitri Fontaine <dim@tuxfamily.org>
+%%% Purpose : Define some config element as erlang structures
+%%% Created : 19 Feb 2002 by Dimitri Fontaine <dim@tuxfamily.org>
 %%%----------------------------------------------------------------------
 
--author('tapoueh@free.fr').
+-author('dim@tuxfamily.org').
 
 
 -record(config,	{name,                          % the name of the bot
