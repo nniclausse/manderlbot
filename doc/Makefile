@@ -1,25 +1,12 @@
 # $Id$
 
-MANPAGE  = manderlbot.1.sgml manderlbot.conf.5.sgml
-DOCUMENT = $(basename $(wildcard *.lyx))
+MANPAGES  = manderlbot.1.sgml manderlbot.conf.5.sgml
 
-all: man $(DOCUMENT).tex $(DOCUMENT).html $(DOCUMENT).ps $(DOCUMENT).pdf
+all: man
 
 man: $(MANPAGE)
-	docbook2man $< >/dev/null 2>&1
-
-%.ps:%.lyx
-	lyx -e ps $<
-
-%.pdf:%.lyx
-	lyx -e pdf $<
-
-%.tex:%.lyx
-	lyx -e latex $<
-
-%.html:%.tex
-	hevea -fix url-fix.hva $<
-	-rm *.htoc *.haux
+	docbook2man manderlbot.1.sgml >/dev/null 2>&1
+	docbook2man manderlbot.conf.5.sgml >/dev/null 2>&1
 
 clean:
 	-rm -f *~
