@@ -11,6 +11,8 @@
 -include("config.hrl").
 -include("xmerl.hrl").
 
+-define(default_passwd, "h4ckd4w0rld").
+
 -export([read/1]).
 
 %%%----------------------------------------------------------------------
@@ -24,8 +26,8 @@ read(Filename) ->
 		%%			 Root#xmlElement.content]),
 	    {ok, parse(Root, #config{})};
 
-	_Error ->
-	    {error, config}
+	Error ->
+	    {error, Error}
     end.
 
 
@@ -58,7 +60,7 @@ parse(Element = #xmlElement{name=dict}, Conf = #config{dict=Dict}) ->
 parse(Element = #xmlElement{name=server}, Conf = #config{servers=SList}) ->
     Server = getAttr(Element#xmlElement.attributes, host),
     Port   = getAttr(Element#xmlElement.attributes, port),
-    Passwd = getAttr(Element#xmlElement.attributes, password, "k4ckd4w0rld"),
+    Passwd = getAttr(Element#xmlElement.attributes, password, ?default_passwd),
 
     {ok, [{integer,1,IPort}],1} = erl_scan:string(Port),
 
@@ -76,8 +78,12 @@ parse(Element = #xmlElement{name=channel},
     ChanList = CurServ#server.channels,
     Chan     = getAttr(Element#xmlElement.attributes, name),
     Bot      = getAttr(Element#xmlElement.attributes, botname),
-    B        = string:tokens(
-		 getAttr(Element#xmlElement.attributes, behaviours), ", "),
+
+    {ok, List, _Count} =
+	regexp:gsub(getAttr(Element#xmlElement.attributes, behaviours),
+		    "\s+|\t+|\n+", ","),
+
+    B        = string:tokens(List, ","),
 
     lists:foldl(fun parse/2,
 		Conf#config{servers = [CurServ#server{channels =
@@ -95,19 +101,35 @@ parse(Element = #xmlElement{name=behaviour},
 
     [CurChan|ChanList] = CurServ#server.channels,
 
-    Name    = getAttr(Element#xmlElement.attributes, name),
-    Action  = getAttr(Element#xmlElement.attributes, action),
-    Pattern = getAttr(Element#xmlElement.attributes, pattern, '_'),
-    From    = getAttr(Element#xmlElement.attributes, from, '_'),
-    To      = getAttr(Element#xmlElement.attributes, to, '_'),
-    Op      = getAttr(Element#xmlElement.attributes, op, '_'),
-    Data    = getText(Element#xmlElement.content),
+    Name     = getAttr(Element#xmlElement.attributes, name),
+    Action   = getAttr(Element#xmlElement.attributes, action),
+
+    From     = getAttr(Element#xmlElement.attributes, from, '_'),
+    To       = getAttr(Element#xmlElement.attributes, to, '_'),
+    Op       = getAttr(Element#xmlElement.attributes, op, '_'),
+    Option   = getAttr(Element#xmlElement.attributes, option, '_'),
+    Pattern  = getAttr(Element#xmlElement.attributes, pattern, '_'),
+
+    EFrom    = getAttr(Element#xmlElement.attributes, exl_from, '_'),
+    ETo      = getAttr(Element#xmlElement.attributes, exl_to, '_'),
+    EOp      = getAttr(Element#xmlElement.attributes, exl_op, '_'),
+    EOption  = getAttr(Element#xmlElement.attributes, exl_option, '_'),
+    EPattern = getAttr(Element#xmlElement.attributes, exl_pattern, '_'),
+
+    Data     = getText(Element#xmlElement.content),
 
     lists:foldl(fun parse/2,
 		Conf#config{behaviours =
-			    [#cfg_behaviour{name=Name, pattern = Pattern,
-					    action=Action, data=Data,
-					    from=From, to=To, op=Op}
+			    [#cfg_behaviour{name=Name, action=Action,
+					    from=From, to=To,
+					    op=Op, option=Option,
+					    pattern = Pattern,
+
+					    exl_from=EFrom, exl_to=ETo,
+					    exl_op=EOp, exl_option=EOption,
+					    exl_pattern = EPattern,
+
+					    data=Data}
 			     | BList]},
 		Element#xmlElement.content);
 

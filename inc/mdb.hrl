@@ -24,11 +24,12 @@
 %% Used by mdb_bot.erl
 
 %% Parsed incoming IRC data
--record(data, {body = '_',
-               header_from = '_',
-               header_op = '_',
-               header_to = '_',
-	       header_options = '_'}).
+-define(nodata, '_').
+-record(data, {body           = ?nodata,
+               header_from    = ?nodata,
+               header_op      = ?nodata,
+               header_to      = ?nodata,
+	       header_options = ?nodata}).
 
 %% Bot process state
 -record(state, {bot_pid = "",
@@ -50,6 +51,7 @@
 %% Behaviour description
 -record(behaviour, {id="",
                     pattern,
+		    exclude_pattern,
 		    function,
 		    data}).
 

@@ -35,6 +35,7 @@
 -include("mdb.hrl").
 -include("config.hrl").
 
+-define(NL, "\r\n").
 -define(BOTNAME, "%BOTNAME").
 
 %%----------------------------------------------------------------------
@@ -42,42 +43,42 @@
 %% Parse the incoming data into lines,
 %% and spawn a treat_recv process on each one
 %%----------------------------------------------------------------------
+process_data(Sock, [], State=#state{}) -> 
+    {ok, []};
+
 process_data(Sock, [$P, $I, $N, $G, $ , $: | Tail], State=#state{}) -> 
     %% We consider PING separately
     {Id, Rest} = cut_line(Tail),
     io:format("PING ~p~n", [Id]),
     irc_lib:pong(Sock, Id),
 
-    %% we return the atom 'pong' in this case
     {pong, Rest};
 
 process_data(Sock, Data, State=#state{joined = false}) -> 
     %% When we do not have joined, we have to test for a join chan
     %% response. This can occurs when server require a pong before
     %% anything else
+    %% So this code will manage the MOTD of the server
+
     {Line, Rest} = cut_line(Data),
+    io:format("MOTD ~p~n", [Line]),
     
-    %%Name = [$: | State#state.nickname],
     Chan = [$: | State#state.channel],
 
-    io:format("~p ~p~n", [Chan, Line]),
-    
     case string:tokens(Line, " ") of
 	[_Name, "JOIN", Chan | Tail] ->
 	    io:format("JOINED Channel ~p~n", [State#state.channel]),
+	    %% There could be some behaviours on login
+	    process_data(Sock, Line ++ ?NL, State#state{joined=true}),
 	    {joined, Rest};
 	_ ->
-	    case Rest of
-		[] ->
-		    ok;
-		_ ->
-		    process_data(Sock, Rest, State)
-	    end
+	    process_data(Sock, Rest, State)
     end;
 
-process_data(Sock, Data, State=#state{}) -> 
+process_data(Sock, Data, State=#state{joined = true}) -> 
     case cut_line(Data) of
-	{Data, []}   -> Data;
+	%% If we don't find ?NL in the data, then we add it in the buffer
+	{Data, []}   -> {ok, Data};
 
 	{Line, Rest} ->
 	    proc_lib:spawn(?MODULE, treat_recv,
@@ -86,10 +87,11 @@ process_data(Sock, Data, State=#state{}) ->
     end;
 
 process_data(Sock, Data, State) ->
-    io:format("process_data: ~p ~p ~p ~n", [Sock, Data, State]).
+    io:format("process_data: ~p ~p ~p ~n", [Sock, Data, State]),
+    {ok, []}.
 
 cut_line(Data) ->
-    Pos = string:str(Data, "\r\n"),
+    Pos = string:str(Data, ?NL),
     case Pos of 
 	0 -> {Data, []};
 
@@ -113,6 +115,7 @@ treat_recv(Sock, Data, State=#state{}) ->
     %% Get the list of behaviours that match to the current IRC line
     %% And for which the corresponding fun will be executed
     {ok, BList} = config_srv:getBehaviours(State#state.behaviours),
+    %%io:format("BList: ~p~n", [State#state.behaviours]),
     lists:map(fun(X) -> 
 		      MatchingList =
 			  match_event(X, BList, State#state.nickname),
@@ -164,7 +167,7 @@ dispatch_message(Behaviours, Input, State = #state{}) ->
 %% Convert a given input to a list of preparsed data records
 %%----------------------------------------------------------------------
 input_to_record(ServerData) ->
-    Lines = string:tokens(ServerData, "\r\n"),
+    Lines = string:tokens(ServerData, ?NL),
     parse_lines(Lines, []).
 
 %%----------------------------------------------------------------------
@@ -189,31 +192,19 @@ parse_line([$: | ServerData]) ->
 	    Body    = string:substr(ServerData, BodyPos + 1),
 	    Result  = string:tokens(Header, " "),
 
-	    case length(Result) of
-		1 ->
-		    Header_from = lists:nth(1, Result),
-		    #data{header_from = Header_from,
-			  body = Body};
-
-		2 ->
-		    Header_from = lists:nth(1, Result),
-		    Header_op = lists:nth(2,Result),
-		    #data{header_from = Header_from,
-			  header_op = Header_op,
-			  body = Body};
-
-		Other ->
-		    Header_from = lists:nth(1, Result),
-		    Header_op = lists:nth(2,Result),
-		    Header_to = lists:nth(3, Result),
-		    Header_options = lists:flatten(lists:nthtail(3, Result)),
-
-		    #data{header_from = Header_from,
-			  header_op = Header_op,
-			  header_to = Header_to,
-			  header_options = Header_options,
-			  body = Body}
-	    end;
+	    [Header_from, Header_op, Header_to, Header_options] =
+		case Result of
+		    [From]     -> [From, ?nodata, ?nodata, ?nodata];
+		    [From, Op] -> [From, Op, ?nodata, ?nodata];
+		    [From, Op, To | Options] ->
+			[From, Op, To, lists:flatten(Options)]
+		end,
+	    
+	    #data{header_from    = Header_from,
+		  header_op      = Header_op,
+		  header_to      = Header_to,
+		  header_options = Header_options,
+		  body           = Body};
 
 	false ->
 	    [Header_from, Header_op, Header_to | _Rest] =
@@ -247,19 +238,18 @@ match_event(Data, [Behaviour|Behaviours], Nickname, Acc) ->
     MatchCritList =
 	append_botname(data_as_list(Behaviour#behaviour.pattern), Nickname),
 
-    case {Behaviour#behaviour.id, Data}  of
-	{"rejoin", ["dim" | Rest ]} ->
-	    io:format("Data: ~p~nCrit: ~p~nRes : ~p~n",
-		      [Data, MatchCritList,
-		       is_matching(Data, MatchCritList)]);
-	_ ->
-	    ok
-    end,
+    ExlCritList = 
+	append_botname(
+	  data_as_list(Behaviour#behaviour.exclude_pattern), Nickname),
 
-    case is_matching(Data, MatchCritList) of
-	true ->
+    %% We react on the behaviour only when the pattern is matched and
+    %% the exclude pattern is not
+    case {is_matching(Data, MatchCritList),
+	  is_matching(Data, ExlCritList, exclude)} of
+	{true, false} ->
 	    match_event(Data, Behaviours, Nickname, [Behaviour|Acc]);
-	false ->
+
+	_DontMatch ->
 	    match_event(Data, Behaviours, Nickname, Acc)
     end.
 
@@ -291,48 +281,61 @@ append_botname(List, Botname) ->
 	      List).
 
 %%----------------------------------------------------------------------
-%% is_matching/2
+%% is_matching/3
 %% Check if the first list (data record field values) match the 
 %% Criterium
+%%
+%% The last parameter is the mathing mode.
+%%
 %%----------------------------------------------------------------------
 is_matching(Data, Criterium) ->
-    is_matching(Data, Criterium, true).
+    is_matching(Data, Criterium, true, normal).
 
-is_matching(_Data, _Criterium, false) ->
-    false;
+is_matching(Data, Criterium, exclude) ->
+    %% Weh excluding, we fail the test by default
+    is_matching(Data, Criterium, false, exclude).
 
-is_matching([],[], Result) ->
+is_matching(_Data, _Criterium, Result = false, normal) ->
+    %% We cut the tests when in normal mode and found false result
     Result;
 
-is_matching([Element|Elements], [Criterium|Criteria], Result) ->
-    %% io:format("is_matching: ~p ~p~n", [Criterium, Element]),
-    case Criterium of
-	'_' ->
-	    is_matching(Elements, Criteria, true);
+is_matching(_Data, _Criterium, Result = true, exclude) ->
+    %% We cut the tests when in exclude mode and found true result
+    Result;
 
-	{regexp, '_'} ->
-	    is_matching(Elements, Criteria, true);
+is_matching([],[], Result, Mode) ->
+    Result;
+
+is_matching([E|Elements], [C|Criteria], Result, Mode) ->
+    %%io:format("is_matching: ~p ~p~n", [C, E]),
+    %%
+    %% When we have no criterium, in exclude mode, we consider
+    %% the match has failed.
+    NoCrit = case Mode of
+		 normal -> true;
+		 exclude -> false
+	     end,
+		     
+    case C of
+	?nodata ->
+	    is_matching(Elements, Criteria, lop(NoCrit, Result, Mode), Mode);
+
+	{regexp, ?nodata} ->
+	    is_matching(Elements, Criteria, lop(NoCrit, Result, Mode), Mode);
 
 	{regexp, Expr} ->
 	    is_matching(Elements, Criteria,
-			is_matching_regexp(Element, Expr));
+			misc_tools:is_matching_regexp(E, Expr), Mode);
 
 	%% Should tag the Criterium value as {exact, Criterium}	    
-	Element ->
-	    is_matching(Elements, Criteria, true);
+	E ->
+	    is_matching(Elements, Criteria, lop(true, Result, Mode), Mode);
 
 	_Other ->
-	    is_matching(Elements, Criteria, false)
+	    is_matching(Elements, Criteria, lop(false, Result, Mode), Mode)
     end.
 
-%%----------------------------------------------------------------------
-%% is_matching_regexp/2
-%% Check the match based on a regexp expression
-%%----------------------------------------------------------------------
-is_matching_regexp(String, Regexp) ->
-    %% io:format("is_matching_regexp: ~p ~p~n", [String, Regexp]),
-    case regexp:match(misc_tools:downcase(String), Regexp) of
-	{match, _Start, _Length} ->  true;
-	nomatch                  ->  false;
-	{error, Error}           ->  false
-    end.
+%% Logic Operator
+%% When excluding, keep current state if there is no criterium
+lop(false, true, exclude) -> true;
+lop(Bool, State, Mode)    -> Bool.

@@ -32,7 +32,9 @@
 	 last_event/1,
 	 lower_string/1,
 	 upper_string/1,
-	 downcase/1]).
+	 downcase/1,
+	 is_matching_regexp/2,
+	 is_matching_regexp/3]).
 
 %%----------------------------------------------------------------------
 %% Function: nth/2
@@ -183,3 +185,21 @@ downcase(String) ->
 	      end,
 	      String).
 		     
+
+%%----------------------------------------------------------------------
+%% is_matching_regexp/2
+%% is_matching_regexp/3
+%% Check the match based on a regexp expression
+%% Here again you can pass in arguments the true and false values to be
+%% used.
+%%----------------------------------------------------------------------
+is_matching_regexp(String, Regexp) ->
+    is_matching_regexp(String, Regexp, {true, false}).
+
+is_matching_regexp(String, Regexp, {True, False}) ->
+    %% io:format("is_matching_regexp: ~p ~p~n", [String, Regexp]),
+    case regexp:match(misc_tools:downcase(String), Regexp) of
+	{match, _Start, _Length} ->  True;
+	nomatch                  ->  False;
+	{error, Error}           ->  False
+    end.

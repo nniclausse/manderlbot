@@ -28,7 +28,7 @@
 -vsn(' $Revision$ ').
 
 %% IRC operations
--export([pong/2, join/2, say/3, action/3, login/4, who/4]).
+-export([pong/2, join/2, quit/2, say/3, action/3, login/4, who/4]).
 
 %% IRC helper functions
 -export([is_chanop/1,
@@ -51,10 +51,18 @@ pong(Sock, Id)->
 
 %%----------------------------------------------------------------------
 %% join/2
-%% Format an IRC join command: Used to join a discussion channel
+%% Join a discussion channel
 %%----------------------------------------------------------------------
 join(Sock, Channel) ->
     Command = lists:append("JOIN ", Channel),
+    command(Sock, Command).
+
+%%----------------------------------------------------------------------
+%% quit/2
+%% Inform the server we are quitting
+%%----------------------------------------------------------------------
+quit(Sock, Message) ->
+    Command = lists:append("QUIT :", Message),
     command(Sock, Command).
 
 %%----------------------------------------------------------------------

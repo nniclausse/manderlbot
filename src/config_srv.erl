@@ -85,9 +85,8 @@ handle_call({reconf, Channel, BotName, ConfigFile}, From, Config) ->
     case config:read(ConfigFile) of
 	{ok, NewConfig = #config{}} ->
 	    %% Don't forget to check for new chans to join
-	    %% In order to avoid a re-entrance which faults in timeout,
-	    %% we pass directly from here the new bot BList !
 	    checkForNewChans(NewConfig),
+
 	    {reply,
 	     {ok, getBehaviours(NewConfig, Channel, BotName)}, NewConfig};
 
@@ -100,6 +99,9 @@ handle_call({getlist, Channel, BotName}, From, Conf) ->
 			      getBehaviours(Conf, Channel, BotName)]),
     {reply, {ok, getBehaviours(Conf, Channel, BotName)}, Conf};
 
+
+handle_call({getBehaviours, notfound}, From, Conf) ->
+    {reply, {ok, []}, Conf};
 
 handle_call({getBehaviours, BNames}, From, Conf=#config{behaviours=BList}) ->
     %% io:format("BNames: ~p~n", [BNames]),
@@ -166,10 +168,18 @@ build_behaviours_list([BC=#cfg_behaviour{action=Action}|BClist], Acc) ->
 	#behaviour{id       = BC#cfg_behaviour.name,
 
 		   pattern  = #data{
-		     header_from = {regexp, BC#cfg_behaviour.from},
-		     header_to   = {regexp, BC#cfg_behaviour.to},
-		     header_op   = {regexp, BC#cfg_behaviour.op},
-		     body        = {regexp, BC#cfg_behaviour.pattern}},
+		     header_from    = {regexp, BC#cfg_behaviour.from},
+		     header_to      = {regexp, BC#cfg_behaviour.to},
+		     header_op      = {regexp, BC#cfg_behaviour.op},
+		     header_options = {regexp, BC#cfg_behaviour.option},
+		     body           = {regexp, BC#cfg_behaviour.pattern}},
+
+		   exclude_pattern = #data{
+		     header_from    = {regexp, BC#cfg_behaviour.exl_from},
+		     header_to      = {regexp, BC#cfg_behaviour.exl_to},
+		     header_op      = {regexp, BC#cfg_behaviour.exl_op},
+		     header_options = {regexp, BC#cfg_behaviour.exl_option},
+		     body           = {regexp, BC#cfg_behaviour.exl_pattern}},
 
 		   function = mdb_behaviours:getFun(Action),
 		   data     = BC#cfg_behaviour.data},
@@ -229,6 +239,8 @@ checkForNewChans([Channel=#channel{name=Chan, botname=BotName}|CTail],
 		 [Name, Ctlr, Host, Port, Pass],
 		 Config) ->
     
+    %% In order to avoid a re-entrance which faults in timeout,
+    %% we pass directly from here the new bot BList !
     mdb_botlist:add(Name, Ctlr, Host, Port, Pass, Channel,
 		    getBehaviours(Config, Chan, BotName)),
 

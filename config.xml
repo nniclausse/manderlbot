@@ -4,8 +4,8 @@
 
 	<server host="irc.tuxfamily.org" port="6667">
 		<channel name="#manderlbot-test" botname="mdb"
-			behaviours="rejoin reconf login mute prout hop dict jargon  
-			 google pyramid deb dfile bofh ">
+			behaviours="rejoin reconf login mute prout hop dict jargon
+			google pyramid deb dfile bofh rtfm">
 		</channel>
 	</server>
 
@@ -15,7 +15,7 @@
 		</behaviour>
 
 		<behaviour name="reconf" action="reconf" pattern="^%BOTNAME:.*reconf">
-			/etc/config.xml
+			/etc/manderlbot.xml
 		</behaviour>
 
 		<behaviour name="login" action="say" op="join" from="%BOTNAME">
@@ -59,6 +59,18 @@
 			plic plic plic
 		</behaviour>
 
+        <behaviour name="rtfm" action="random"
+                        pattern="(aide|help|plz|comprend|comment)"
+						exl_pattern="[çc]a va">
+%R.T.F.M.
+%I do not like newbies
+%http://www.tuxedo.org/~esr/faqs/smart-questions.html
+%http://www.gnurou.org/documents/smart-questions-fr.html
+%http://michel.arboi.free.fr/humeur/nioubis.html
+%http://www.readthefuckingmanual.com
+        </behaviour>
+
+		<!--
 		<behaviour name="bofh" action="random" pattern="(bofh|BOFH|excuse)">
 %clock speed
 %solar flares
@@ -447,9 +459,10 @@
 %Trojan horse ran out of hay
 %Zombie processess detected, machine is haunted.
 %overflow error in /dev/null
-%Browser's cookie is corrupted -- someone's been nibbling on it.
+%Browser's cookie is corrupted - someone's been nibbling on it.
 %Mailer-daemon is busy burning your message in hell.
 %vi needs to be upgraded to vii
 		</behaviour>
+		-->
 	</behaviours>
 </manderlbot>

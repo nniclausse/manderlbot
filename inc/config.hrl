@@ -29,12 +29,23 @@
 		 }).
 		  
 
+%% The behavior as found in the config file
+%% With some patterns and some exclude patterns
 -record(cfg_behaviour, {name,
 			action,
-			pattern,
+
 			from,
 			to,
 			op,
+			option,
+			pattern,
+
+			exl_from,
+			exl_to,
+			exl_op,
+			exl_option,
+			exl_pattern,
+
 		       data = []
 		      }).
 
