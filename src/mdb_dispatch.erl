@@ -33,6 +33,7 @@
 
 %% Include record description
 -include("mdb.hrl").
+-include("config.hrl").
 
 -define(BOTNAME, "%BOTNAME").
 
@@ -213,8 +214,10 @@ match_event(Data, [], Nickname, Acc) ->
 
 match_event(Data, [Behaviour|Behaviours], Nickname, Acc) ->
     DataList = data_as_list(Data),
-    MatchCritList = append_botname(data_as_list(Behaviour#behaviour.pattern),
-				   Nickname),
+    MatchCritList = append_botname(
+		      data_as_list(Behaviour#behaviour.pattern), Nickname),
+
+    io:format("~p~n~p~n", [MatchCritList]),
 
     case is_matching(DataList, MatchCritList) of
 	true ->
@@ -222,6 +225,7 @@ match_event(Data, [Behaviour|Behaviours], Nickname, Acc) ->
 	false ->
 	    match_event(Data, Behaviours, Nickname, Acc)
     end.
+
 
 %%----------------------------------------------------------------------
 %% data_as_list/1
@@ -266,6 +270,9 @@ is_matching([Element|Elements], [Criterium|Criteria], Result) ->
 	'_' ->
 	    is_matching(Elements, Criteria, true);
 
+%	[] ->
+%	    is_matching(Elements, Criteria, true);
+
 	{regexp, []} ->
 	    is_matching(Elements, Criteria, false);
 
@@ -291,4 +298,3 @@ is_matching_regexp(String, Regexp) ->
 	nomatch                  ->  false;
 	{error, Error}           ->  false
     end.
-

@@ -2,12 +2,8 @@
 	<dict host="localhost" port="2628" default="wn">
 	</dict>
 
+	<!--
 	<server host="irc.openprojects.net" port="6667">
-		<channel name="#manderlbot" botname="mdb"
-			behaviours="ouca foutaises prout hop google mute bloto pyramid">
-		</channel>
-
-		<!--
 		<channel name="#manderlbot" botname="mdbis"
 			behaviours="tictac foutaises prout hop google mute bloto">
 		</channel>
@@ -15,9 +11,7 @@
 		<channel name="#mdbtest" botname="manderlbot-devel"
 			behaviours="ouca foutaises prout hop google dict jargon ">
 		</channel>
-		-->
 
-		<!--
 		<channel name="#AAI" botname="lebeau"
 			behaviours="helo ouca loutre chinois JCVD suceur branleur
 			 sodom baise reunion boitacoucou coin plutot gl
@@ -40,9 +34,8 @@
 			 c++ tusors bofh nmibook dimbook quake3 zope seduire 
 			 goudale camarche sanantonio openbsd google roulmain ">
 		</channel>
-		-->
-
 	</server>
+	-->
 
 	<!--
 	<server host="admprs.dev75.cvf" port="6667">
@@ -53,13 +46,19 @@
 			bonnasse bloto heidi shadok tusors">
 		</channel>
 	</server>
+	-->
 
 	<server host="irc.tuxfamily.org" port="6667">
+		<channel name="#manderlbot" botname="mdb"
+			behaviours="ouca foutaises prout hop google mute bloto pyramid">
+		</channel>
+
+		<!--
 		<channel name="#tuxfamily" botname="lebeau"
 			behaviours="google shadok boitacoucou prout boulet bofh">
 		</channel>
+		-->
 	</server>
-	-->
 
 
 	<behaviours>
@@ -372,7 +371,7 @@ http://www.isty-info.uvsq.fr/~fontaine/gli/sort.gif
 			http://maleloria.org/pictures/nmi_book.jpg
 		</behaviour>
 
-		<behaviour name="prout" action="say" pattern="pra?out">
+		<behaviour name="prout" action="say" pattern="pra?out" from="^dim">
 			plic plic plic
 		</behaviour>
 

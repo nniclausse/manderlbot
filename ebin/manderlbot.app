@@ -12,7 +12,8 @@
 	     pyramid]},
   {registered, []},
   {applications, [kernel, stdlib]},
-  {env, [{root_path, "/usr/lib/erlang/lib/manderlbot-0.7"},
+%%  {env, [{root_path, "/usr/lib/erlang/lib/manderlbot-0.7"},
+  {env, [{root_path, ".."},
 	 {config_file, "config.xml"}]},
   {mod, {manderlbot, []}}
  ]

@@ -170,11 +170,13 @@ build_behaviours_list([], Acc) ->
     [Rejoin, Reconf | Acc];
 
 build_behaviours_list([BC=#cfg_behaviour{name=Id,
+					 to=To,
 					 data=Data,
 					 action="login"}|BClist], Acc) ->
     Login = #behaviour{id       = Id,
 		       pattern  = #data{header_op   = "JOIN",
-					header_from = "%BOTNAME.*"},
+					header_to   = {regexp, To},
+					header_from = {regexp, "%BOTNAME.*"}},
 		       function = {mdb_behaviours, say},
 		       data     = Data
 		      },
@@ -184,8 +186,10 @@ build_behaviours_list([BC=#cfg_behaviour{action=Action}|BClist], Acc) ->
     %% Here we map the actions defined in the config file
     %% With the code to use in order to make the action
     Behaviour = #behaviour{id       = BC#cfg_behaviour.name,
-			   pattern  = #data{body={regexp,
-						  BC#cfg_behaviour.pattern}},
+			   pattern  =
+			   #data{header_from={regexp, BC#cfg_behaviour.from},
+				 header_to  ={regexp, BC#cfg_behaviour.to},
+				 body={regexp, BC#cfg_behaviour.pattern}},
 			   function = mdb_behaviours:getFun(Action),
 			   data     = BC#cfg_behaviour.data},
 

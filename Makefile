@@ -37,7 +37,7 @@ clean:
 # We also have to install the xmerl lib
 xmerl:
 	cp -r contrib/xmerl-0.15 $(ERLANG_INSTALL_DIR)
-	find $(ERLANG_INSTALL_DIR)/xmerl-0.15 -type f -exec chmod a-x \;
+	find $(ERLANG_INSTALL_DIR)/xmerl-0.15 -type f -exec chmod a-x {} \;
 	chmod a+x $(ERLANG_INSTALL_DIR)/xmerl-0.15/src/compile_grammar.sh
 
 install: xmerl clean manderlbot
@@ -46,11 +46,10 @@ install: xmerl clean manderlbot
 	-cp -r . $(TARGETDIR)
 
 	# no file should be executable
-	find $(TARGETDIR) -type f -exec chmod a-x \;
+	find $(TARGETDIR) -type f -exec chmod a-x {} \;
 
 	# added for debian
-	mv $(CONFFILE) $(DESTDIR)/etc/manderlbot.xml
-	ln -s $(DESTDIR)/etc/manderlbot.xml $(CONFFILE)
+	cp $(CONFFILE) $(DESTDIR)/etc/manderlbot.xml
 
 uninstall:
 	rm -rf $(TARGETDIR)

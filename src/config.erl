@@ -96,8 +96,8 @@ parse(Element = #xmlElement{name=behaviour},
     Name    = getAttr(Element#xmlElement.attributes, name),
     Pattern = getAttr(Element#xmlElement.attributes, pattern),
     Action  = getAttr(Element#xmlElement.attributes, action),
-    From    = getAttr(Element#xmlElement.attributes, from),
-    To      = getAttr(Element#xmlElement.attributes, to),
+    From    = getAttr(Element#xmlElement.attributes, from, '_'),
+    To      = getAttr(Element#xmlElement.attributes, to, '_'),
     Data    = getText(Element#xmlElement.content),
 
     lists:foldl(fun parse/2,
@@ -122,14 +122,19 @@ parse(Element, Conf = #config{}) ->
 %%% Function: getAttr/2
 %%% Purpose:  search the attibute list for the given one
 %%%----------------------------------------------------------------------
-getAttr([Attr = #xmlAttribute{name=Name}|Tail], Name) ->
-    Attr#xmlAttribute.value;
+getAttr(Attr, Name) -> getAttr(Attr, Name, "").
 
-getAttr([H|T], Name) ->
-    getAttr(T, Name);
+getAttr([Attr = #xmlAttribute{name=Name}|Tail], Name, Default) ->
+    case Attr#xmlAttribute.value of
+	[] -> Default;
+	A  -> A
+    end;
 
-getAttr([], Name) ->
-    "".
+getAttr([H|T], Name, Default) ->
+    getAttr(T, Name, Default);
+
+getAttr([], Name, Default) ->
+    Default.
 
 
 %%%----------------------------------------------------------------------

@@ -25,6 +25,17 @@ set -e
 
 case "$1" in
     configure)
+	# Take care about the config file
+	if [ "x$2" = "x" ]; then
+	    version=0.7
+	else
+	    version=`echo $2 | sed -e 's/\(.*\)-.*/\1/'`
+	fi
+	cfile_dest=/usr/lib/erlang/lib/manderlbot-$version/config.xml
+	cfile_orig=/etc/manderlbot.xml
+	
+	rm $cfile_dest
+	ln -s $cfile_orig $cfile_dest
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
