@@ -169,12 +169,23 @@ getData(Sock, Buffer) ->
 %% internal who/4 function, used to build the records from the irc line.
 %%----------------------------------------------------------------------
 parseUserLine(Line) ->    
-    List = string:tokens(Line, ": "),
-    #user{login = lists:nth(5, List),
-	  from  = lists:nth(6, List),
-	  nick  = lists:nth(8, List),
-	  name  = lists:nthtail(10, List)}.
+    %% sample irc line received here
+    %% :calvino.freenode.net 311 asr_ asr ~gaetan 2001:7a8:26cc:0:0:0:0:1 * :Gaetan RYCKEBOER
+    %% :calvino.freenode.net 352 asr_ #manderlbot gaetan leeloo.lee-loo.net irc.freenode.net asr___ H :0 Gaetan RYCKEBOER
 
+    [[$:|Server], Command, NickName, Channel, Login, From, To | Tail] =
+	string:tokens(Line, " "),
+
+    RealName = case Tail of
+		   [[$:|First], Last] -> First ++ " " ++ Last;
+		   [Nick, Status, _, First, Last] -> First ++ " " ++ Last;
+		   Other -> Other
+	       end,
+
+    #user{login = Login,
+	  from  = From,
+	  nick  = NickName,
+	  name  = RealName}.
 
 %%----------------------------------------------------------------------
 %% command/2
