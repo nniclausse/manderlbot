@@ -13,6 +13,7 @@ ERLANG_INSTALL_DIR = $(DESTDIR)/$(RAW_INSTALL_DIR)/lib
 APPLICATION = manderlbot
 VERSION = 0.9.2
 
+TARGETDIR= $(ERLANG_INSTALL_DIR)/$(APPLICATION)-$(VERSION)
 BINDIR   = $(DESTDIR)/usr/bin
 CONFFILE = config.xml
 LOGFILE  = /var/log/manderlbot.log
@@ -25,12 +26,14 @@ TARGET   = $(addsuffix .beam, $(basename \
              $(addprefix $(EBIN)/, $(notdir $(SRC)))))
 EMAKE    = $(addsuffix \'., $(addprefix \'../, $(SRC)))
 
-SRC_APPFILES = $(wildcard $(ESRC)/*src)
-TGT_APPFILES = $(addprefix $(EBIN)/, $(basename $(notdir $(SRC_APPFILES))))
+SRC_APPFILES   = $(ESRC)/$(APPLICATION).app.src $(ESRC)/$(APPLICATION).rel.src
+TGT_APPFILES_E = $(EBIN)/$(APPLICATION).app
+TGT_APPFILES_P = $(wildcard priv/$(APPLICATION)*)
 
 SCRIPT   = $(BINDIR)/manderlbot
 BUILD_OPTIONS =	'[{systools, [{variables,[{"ROOT","$(RAW_INSTALL_DIR)"}]}]}, \
-	{sh_script, none}, {report, verbose}, {make_app, true }].'
+	{sh_script, none}, {report, verbose}, {app_vsn, "$(VERSION)"}, \
+        {make_app, true }, {make_rel, true}].'
 BUILD_OPTIONS_FILE = ./BUILD_OPTIONS 
 
 .PHONY: doc
@@ -45,17 +48,24 @@ emake:
 
 clean:
 	-@rm -f $(TARGET) $(TMP) $(BUILD_OPTIONS_FILE) builder.beam
+	-@rm -f $(TGT_APPFILES)
 	-@make -C doc clean
 
 install: build manderlbot.sh
 	-rm -f $(TMP)
+
+	install -d $(TARGETDIR)/priv
 	install -d $(TARGETDIR)/ebin
 	install -d $(TARGETDIR)/src
 	install -d $(TARGETDIR)/include
+
 	@cp $(INC_FILES) $(TARGETDIR)/include
 	@cp $(TARGET) $(TARGETDIR)/ebin
-	@cp $(TGT_APPFILES) $(TARGETDIR)/ebin
-	@cp $(SRC) $(APPFILES) $(TARGETDIR)/src
+
+	@cp $(TGT_APPFILES_E) $(TARGETDIR)/ebin
+	@cp $(TGT_APPFILES_P) $(TARGETDIR)/priv
+
+	@cp $(SRC) $(SRC_APPFILES) $(TARGETDIR)/src
 
 # create startup script
 	@cp manderlbot.sh $(SCRIPT)
@@ -67,7 +77,7 @@ install: build manderlbot.sh
 uninstall:
 	rm -rf $(TARGETDIR) $(SCRIPT)
 
-build: manderlbot builder.beam
+build: manderlbot builder.beam $(SRC_APPFILES)
 # use builder to make boot file
 	(cd .. && ln -sf $(APPLICATION) $(APPLICATION)-$(VERSION))
 	(cd ../$(APPLICATION)-$(VERSION) \
@@ -97,7 +107,7 @@ builder.beam: priv/builder.erl
 ebin/%.beam: src/%.erl 
 	$(CC) $(OPT) -I $(INC) -o ebin $<
 
-manderlbot.sh: manderlbot.sh.in
+manderlbot.sh: manderlbot.sh.in Makefile
 	@$(SED) \
 		-e 's;%INSTALL_DIR%;${RAW_INSTALL_DIR};g' \
 		-e 's;%VERSION%;${VERSION};g' < $< > $@
