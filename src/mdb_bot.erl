@@ -20,9 +20,9 @@
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
 	 terminate/2, code_change/3]).
 
--export([say/1, say/2, action/1, rejoin/0, reconf/2]).
+-export([say/2, say/3, action/2, rejoin/1, reconf/3]).
 
--define(timeout, 5000).
+-define(timeout, 10000).
 
 %% Configure debugging mode:
 -include("mdb_macros.hrl").
@@ -36,31 +36,31 @@
 %%% API
 %%%----------------------------------------------------------------------
 start_link() ->
-    gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
+    gen_server:start_link(?MODULE, [], []).
 
 start_link(Args) ->
-    gen_server:start_link({local, ?MODULE}, ?MODULE, Args, []).
+    gen_server:start_link(?MODULE, Args, []).
 
 stop() ->
     gen_server:cast(?MODULE, {stop}).
 
 %% Controling the bot environment
 %% Send a message a the channel the bot is connected to
-say(Message) ->
-    gen_server:call(?MODULE, {say, Message}, ?timeout).
+say(BotPid, Message) ->
+    gen_server:call(BotPid, {say, Message}, ?timeout).
 
-say(Message, To) ->
-    gen_server:call(?MODULE, {say, Message, To}, ?timeout).
+say(BotPid, Message, To) ->
+    gen_server:call(BotPid, {say, Message, To}, ?timeout).
 
-action(Message) ->
-    gen_server:call(?MODULE, {action, Message}, ?timeout).
+action(BotPid, Message) ->
+    gen_server:call(BotPid, {action, Message}, ?timeout).
 
 %% Rejoin the channel (Use it when you have been kicked)
-rejoin() ->
-    gen_server:call(?MODULE, rejoin, ?timeout).
+rejoin(BotPid) ->
+    gen_server:call(BotPid, rejoin).
 
-reconf(NickName, ConfigFile) ->
-    gen_server:call(?MODULE, {reconf, NickName, ConfigFile}).
+reconf(BotPid, NickName, ConfigFile) ->
+    gen_server:call(BotPid, {reconf, NickName, ConfigFile}, ?timeout).
 
 %%%----------------------------------------------------------------------
 %%% Callback functions from gen_server
@@ -77,8 +77,8 @@ init([RealName, Controler, Host, Port, Channel]) ->
     {ok, Sock} = mdb_connection:connect(Host, Port),
 
     ok = mdb_connection:log(Sock, Channel, RealName),
-    io:format("~p joined ~p (~p)~n", [Channel#channel.botname,
-				      Channel#channel.name, Sock]),
+%%    io:format("~p joined ~p (~p)~n", [Channel#channel.botname,
+%%				      Channel#channel.name, Sock]),
 
     {ok, BList} = config_srv:getBList(Channel#channel.name),
 
@@ -109,7 +109,7 @@ handle_call({say, Message}, From, State) ->
 
     irc_lib:say(Sock, Channel, Message),
 
-    {noreply, State};
+    {reply, ok, State};
 
 handle_call({say, Message, To}, From, State) ->
     Channel = State#state.channel,
@@ -118,21 +118,21 @@ handle_call({say, Message, To}, From, State) ->
     io:format("DANS TON CUL: ~p~n", [To]),
     
     irc_lib:say(Sock, To, Message),
-    {noreply, State};
+    {reply, ok, State};
 
 handle_call({action, Message}, From, State) ->
     Channel = State#state.channel,
     Sock = State#state.socket,
 
     irc_lib:action(Sock, Channel, Message),
-    {noreply, State};
+    {reply, ok, State};
 
 handle_call(rejoin, From, State) ->
     Channel = State#state.channel,
     Sock = State#state.socket,
 
     irc_lib:join(Sock, Channel),
-    {noreply, State};
+    {reply, ok, State};
 
 handle_call({reconf, NickName, ConfigFile}, From, State) ->
     %% First read the conf file given
@@ -140,20 +140,16 @@ handle_call({reconf, NickName, ConfigFile}, From, State) ->
     case State#state.controler of
 	NickName ->
 	    case config_srv:reconf(State#state.channel, ConfigFile) of
-		{ok, BList} -> {noreply, State#state{behaviours=BList}};
-		_Error      -> {noreply, State}
+		{ok, BList} -> {reply, ok, State#state{behaviours=BList}};
+		_Error      -> {reply, {error, reconf}, State}
 	    end;
 
 	Other ->
 	    irc_lib:say(State#state.socket, State#state.channel,
 			NickName ++ ": " ++
 			"Who do you think you are to 'reconf' me ?"),
-	    {noreply, State}
-    end;
-
-handle_call(Request, From, State) ->
-    Reply = ok,
-    {reply, Reply, State}.
+	    {reply, {error, controller}, State}
+    end.
 
 %%----------------------------------------------------------------------
 %% Func: handle_cast/2
