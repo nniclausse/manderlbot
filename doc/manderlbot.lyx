@@ -44,15 +44,14 @@ Dimitri Fontaine
 Introduction
 \layout Standard
 
-This document provides some helpfull informations (or I hope so) about the
- manderlbot irc bot, on how to use and configure it and some developper
- information too.
+This document provides some helpfull information (or I hope so) about the
+ manderlbot irc bot, on how to use and configure it.
 \layout Section*
 
 A bit of history
 \layout Standard
 
-But why did we wrotte this software ?
+But why did we wrote this software ?
 \layout Standard
 
 Well, I wanted an irc bot to play with, in order to have it say some silly
@@ -78,7 +77,7 @@ You can see it on
 
 The existing project was on early stage of development, and I wanted the
  bot to do more and more things.
- So I wrotte some code to make it fit my needs.
+ So I wrote some code to make it fit my needs.
  As the original authors would not consider my patches, I forked the project,
  keeping the name (they seemed not to work on their version at all), and
  hosting it on the TuxFamily services
@@ -120,8 +119,7 @@ Otherwise, you'll have to get the last available manderlbot release on
 \family typewriter 
 manderlbot.tuxfamily.org
 \family default 
-, and the necessary tools, that is\SpecialChar ~
-:
+, and the necessary tools, that is:
 \layout Itemize
 
 erlang system, see 
@@ -157,7 +155,7 @@ manderlbot
 \family default 
 .
  But I did never try that, and do not plan to do it ever.
- Good luck !
+ Good luck!
 \layout Standard
 
 \SpecialChar ~
@@ -177,8 +175,7 @@ xmerl
 /usr/lib/erlang/lib/xmerl-0.15
 \family default 
 ).
- You now can type the usual following\SpecialChar ~
-:
+ You now can type the usual following:
 \layout LyX-Code
 
 $ make
@@ -187,7 +184,7 @@ $ make
 $ sudo make install
 \layout Standard
 
-And manderlbot will be ready to be launched !
+And manderlbot will be ready to be launched!
 \layout Section
 
 Launch and stop
@@ -198,8 +195,7 @@ As of the 0.9.1 release of manderlbot, you can control manderlbot using the
 \family typewriter 
 /usr/bin/manderlbot
 \family default 
- script\SpecialChar ~
-:
+ script:
 \layout LyX-Code
 
 $ manderlbot
@@ -216,14 +212,13 @@ The stop option will kill the running manderlbot, and if started the status
  it is connected.
 \layout Standard
 
-If you want to redirect outputs, you'll then prefer that way\SpecialChar ~
-:
+If you want to redirect outputs, you'll then prefer that way:
 \layout LyX-Code
 
 $ manderlbot start >/var/log/manderlbot.log 2>&1 &
 \layout Standard
 
-Please make sure you are allowed to write in your log file !
+Please make sure you are allowed to write in your log file!
 \layout Section
 
 Configure
@@ -244,8 +239,7 @@ manderlbot
 Configuration file
 \layout Standard
 
-The configuration file is an XML file containing the following elements\SpecialChar ~
-:
+The configuration file is an XML file containing the following elements:
 \layout Description
 
 manderlbot is the opening XML element of the configuration, and contains
@@ -356,8 +350,7 @@ name
 action
 \family default 
 , defining what will be done, and one or more of the followings pattern
- elements\SpecialChar ~
-: 
+ elements: 
 \family typewriter 
 pattern
 \family default 
@@ -459,8 +452,7 @@ See the
 
 \end_inset 
 
-)\SpecialChar ~
-:
+):
 \layout Description
 
 pattern will try to match the user input, that is what your ordinary irc
@@ -563,7 +555,7 @@ action
 manderlbot
 \family default 
  to take an action not described here, you will have to write some erlang
- code to teach him what you want !
+ code to teach him what you want!
 \layout Standard
 
 The argument of the 
@@ -589,8 +581,7 @@ answer send the line prefixed with the sender name and a colon.
 
 bloto this will count the matched lines per user, and first obtaining 5
  points has won the business loto game.
- Just define your buzzwords set and make it a regexp\SpecialChar ~
-!
+ Just define your buzzwords set and make it a regexp!
 \layout Description
 
 debian_file will search the irc given file using the debian web site cgi.
@@ -634,8 +625,8 @@ random will say one of the sentences listed in the arguments randomly.
 
 reconf will ask the bot to re-read its configuration.
  It allows you to handle dynamically your configuration, no need to restart
- the bot, and irc control ! You have to be in the controler list to use
- this action.
+ the bot, and irc control! You have to be in the controler list to use this
+ action.
 \layout Description
 
 rejoin allows you te rejoin a channel (useful on kick, just add a 
@@ -697,8 +688,7 @@ You should now be abble to install, run and configure your manderlbot, and
 \layout Standard
 
 If you miss some action, please consider playing with the code (in erlang)
- or sending us some feature request, we may or may not implement your ideas
- !
+ or sending us some feature request, we may or may not implement your ideas!
 \layout Standard
 
 If you want to contribute, send a patch, and you may obtain a write access
@@ -706,5 +696,5 @@ If you want to contribute, send a patch, and you may obtain a write access
  first).
 \layout Standard
 
-Enjoy manderlbot, enjoy free software !
+Enjoy manderlbot, enjoy free software!
 \the_end

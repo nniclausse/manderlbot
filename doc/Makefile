@@ -14,7 +14,7 @@ all: $(DOCUMENT).tex $(DOCUMENT).html $(DOCUMENT).ps $(DOCUMENT).pdf
 	lyx -e latex $<
 
 %.html:%.tex
-	hevea -fix -francais url-fix.hva $<
+	hevea -fix url-fix.hva $<
 	-rm *.htoc *.haux
 
 clean:
