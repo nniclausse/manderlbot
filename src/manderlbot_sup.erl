@@ -42,7 +42,10 @@ init([]) ->
     BotLst = {mdb_botlist, {mdb_botlist, start_link, []},
 	      permanent, 2000, worker, [mdb_botlist]},
 
-    BServ  = {config_srv, {config_srv, start_link, ["../config.xml"]},
+    {ok, RootPath} = application:get_env(manderlbot, root_path),
+    {ok, Config}   = application:get_env(manderlbot, config_file),
+
+    BServ  = {config_srv, {config_srv, start_link, [RootPath++"/"++Config]},
 	      permanent, 2000, worker, [config_srv]},
 
     BLoto  = {bloto, {bloto, start_link, []},

@@ -9,7 +9,6 @@
 -author('dim@tuxfamily.org').
 
 -include("config.hrl").
--define(CONFIG_FILE, "../config.xml").
 
 -behaviour(application).
 
