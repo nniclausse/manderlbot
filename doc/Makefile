@@ -6,7 +6,7 @@ DOCUMENT = $(basename $(wildcard *.lyx))
 all: man $(DOCUMENT).tex $(DOCUMENT).html $(DOCUMENT).ps $(DOCUMENT).pdf
 
 man: $(MANPAGE)
-	docbook2man $< >/dev/null 2>&1
+	docbook-to-man $< >/dev/null 2>&1
 
 %.ps:%.lyx
 	lyx -e ps $<
