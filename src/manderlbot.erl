@@ -33,6 +33,7 @@
 -author('dim@tuxfamily.org').
 
 -include("config.hrl").
+-include("log.hrl").
 
 -behaviour(application).
 
@@ -51,13 +52,13 @@
 %%----------------------------------------------------------------------
 start(Type, StartArgs) ->
     %% First read args
-    {Config_file, Log_file} = read_args(),
+    {Config_file, Log_file, Log_level} = read_args(),
 
     case manderlbot_sup:start_link(Config_file, Log_file) of
-	{ok, Pid} -> 
+		{ok, Pid} -> 
 	    %% Init first the logger
-	    mdb_logger:add_handler(Log_file),
-	    mdb_logger:log("Manderlbot started with ~s~n", [Config_file]),
+	    mdb_logger:add_handler({Log_file, Log_level}),
+	    mdb_logger:log("Manderlbot started with ~s~n", [Config_file], ?NOTICE),
 
 	    %% Then init the manderlbot system
 	    init(),
@@ -108,26 +109,9 @@ init() ->
 %%----------------------------------------------------------------------
 read_args() ->
     %% We take the manderlbot application defaults
-    {ok, RootPath} = application:get_env(manderlbot, root_path),
-    {ok, Config}   = application:get_env(manderlbot, config_file),
-    {ok, Logfile}  = application:get_env(manderlbot, log_file),
+    {ok, ConfigFile} = application:get_env(manderlbot, config_file),
+    {ok, LogFile}  = application:get_env(manderlbot, log_file),
+    {ok, LogLevel} = application:get_env(manderlbot, log_level),
 
-    %% We look for our args in the command line options
-    Args = init:get_arguments(),
-    
-    MdbConf = case lists:keysearch(?arg_conffile, 1, Args) of
-		  {value, {?arg_conffile, Cf}} ->
-		      Cf;
-		  false ->
-		      RootPath ++ "/" ++ Config
-	      end,
-
-    MdbLog  = case lists:keysearch(?arg_logfile, 1, Args) of
-		  {value, {?arg_conffile, Lf}} ->
-		      Lf;
-		  false ->
-		      Logfile
-	      end,
-
-    {MdbConf, MdbLog}.
+    {ConfigFile, LogFile, LogLevel}.
 

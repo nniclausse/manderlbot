@@ -18,9 +18,11 @@
 	     mdb_bot_sup, mdb_search]},
   {registered, []},
   {applications, [kernel, stdlib]},
-  {env, [{root_path, "/etc"},
-	 {config_file, "manderlbot.xml"},
-	 {log_file, "/var/log/manderlbot.log"}]},
+  {env, [
+         {config_file, "/etc/manderlbot.xml"},
+         {log_file,    "/var/log/manderlbot.log"},
+         {log_level,   notice}
+        ]},
   {mod, {manderlbot, []}}
  ]
 }.

@@ -35,6 +35,7 @@
 -export([behaviour/5]). % MDB behaviour API
 
 -include("mdb.hrl").
+-include("log.hrl").
 
 %%%----------------------------------------------------------------------
 %%% Function: behaviour/5
@@ -42,5 +43,5 @@
 %%%----------------------------------------------------------------------
 behaviour(Input, BotName, Data, BotPid, Channel) ->
     [NickFrom|IpFrom] = string:tokens(Input#data.header_from, "!"),
-    io:format("mute ~n", []),
+    mdb_logger:log("mute ~n", [], ?DEBUG),
     mdb_bot:mute(BotPid, NickFrom).		     

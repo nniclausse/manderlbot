@@ -35,22 +35,23 @@
 -export([behaviour/5]). % MDB behaviour API
 
 -include("mdb.hrl").
+-include("log.hrl").
 
 %%%----------------------------------------------------------------------
 %%% Function: behaviour/5
 %%% Purpose:  search for debian packages
 %%%----------------------------------------------------------------------
 behaviour(Input, BotName, Data, BotPid, Channel) ->
-    io:format("DEBIAN package input: ~p~n", [Input#data.body]),
+    mdb_logger:log("DEBIAN package input: ~p~n", [Input#data.body], ?INFO),
 	[Key, String | Args] = string:tokens(Input#data.body," "),
 	case Args of 
 	    [] ->
-		io:format("DEBIAN criteria: ~p~n", [String]),
+		mdb_logger:log("DEBIAN criteria: ~p~n", [String], ?INFO),
 		debian:search([package, String],
 			      Input, BotPid, BotName, Channel);
 
 	    [Version | _] -> % which debian distrib
-		io:format("DEBIAN criteria: ~p,~p~n", [String, Version]),
+		mdb_logger:log("DEBIAN criteria: ~p,~p~n", [String, Version], ?INFO),
 		debian:search([package, String, Version],
 			      Input, BotPid, BotName, Channel)
     end.

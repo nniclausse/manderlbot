@@ -34,6 +34,7 @@
 
 -include("config.hrl").
 -include("xmerl.hrl").
+-include("log.hrl").
 
 -define(default_passwd, "h4ckd4w0rld").
 
@@ -45,9 +46,9 @@
 %%%----------------------------------------------------------------------
 read(Filename) ->
     case xmerl_scan:file(Filename) of
-	{ok, Root = #xmlElement{}} ->
-	    %% io:format("root: ~p~n~p~n", [Root#xmlElement.name,
-		%%			 Root#xmlElement.content]),
+        {ok, Root = #xmlElement{}} ->
+            mdb_logger:log("root: ~p~n~p~n", [Root#xmlElement.name,
+											  Root#xmlElement.content], ?DEBUG),
 	    {ok, parse(Root, #config{})};
 
 	Error ->

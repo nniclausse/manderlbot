@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 #
 # This script allows to launch manderlbot and control it while running
@@ -10,7 +10,7 @@ INSTALL_DIR=%INSTALL_DIR%
 VERSION=%VERSION%
 
 BOOT_SCRIPT="$INSTALL_DIR/lib/manderlbot-$VERSION/priv/manderlbot"
-RUN_OPTIONS="-noshell -setcookie mdb"
+RUN_OPTIONS="-detached -setcookie mdb"
 
 usage() {
     prog=`basename $1`
@@ -18,7 +18,10 @@ usage() {
 }
 
 start() {
-    erl -sname manderlbot $RUN_OPTIONS -boot $BOOT_SCRIPT
+    echo "erl -sname manderlbot $RUN_OPTIONS -boot $BOOT_SCRIPT $CONF_OPT $LOG_OPT \
+	    $LOG_LEVEL_OPT"
+    erl -sname manderlbot $RUN_OPTIONS -boot $BOOT_SCRIPT $CONF_OPT $LOG_OPT \
+	    $LOG_LEVEL_OPT
 }
 
 stop() {
@@ -30,11 +33,25 @@ status() {
 
     if [ "zz$pid" != "zz" ]; then
 	erl -sname control $RUN_OPTIONS -s mdb_control status
+	echo $LOG_OPT
+	echo $CONF_OPT
     else
 	echo "manderlbot is not running"
+	echo $LOG_OPT
+	echo $CONF_OPT
     fi
 }
 
+while getopts ":c:l:f:" Option
+do
+    case $Option in
+        c) CONF_OPT="-manderlbot config_file \"$OPTARG\" ";;
+        f) LOG_OPT="-manderlbot log_file \"$OPTARG\" ";;
+        l) LOG_LEVEL_OPT="-manderlbot log_level '$OPTARG' ";;
+		*) usage ;;
+    esac
+done	
+shift $(($OPTIND - 1))	
 case $1 in
     start) start;;
 

@@ -37,11 +37,17 @@
 -behaviour(gen_event).
 
 %% External exports
--export([start_link/0, add_handler/1, log/2]).
+-export([start_link/0, add_handler/1, log/2, log/3, change_level/1]).
 
 %% gen_event callbacks
 -export([init/1, handle_event/2, handle_call/2, handle_info/2,
 	 terminate/2, code_change/3]).
+
+%% 
+-include("log.hrl").
+-record(log, {fd,
+			  level
+			 }).
 
 %%%----------------------------------------------------------------------
 %%% API
@@ -49,11 +55,18 @@
 start_link() ->
     gen_event:start_link({local, ?MODULE}). 
 
-add_handler(LogFile) ->
-    gen_event:add_handler(?MODULE, ?MODULE, [LogFile]).
+add_handler({LogFile, Level}) ->
+    gen_event:add_handler(?MODULE, ?MODULE, [LogFile, Level]).
+
+change_level(Level) ->
+    gen_event:notify(?MODULE, {level, Level}).
 
 log(Mesg, Args) ->
-    gen_event:notify(?MODULE, {Mesg, Args}).
+    gen_event:notify(?MODULE, {log, Mesg, Args}).
+
+%% log with given level
+log(Mesg, Args, Level) ->
+    gen_event:notify(?MODULE, {log, Mesg, Args, Level}).
 
 %%%----------------------------------------------------------------------
 %%% Callback functions from gen_event
@@ -64,9 +77,10 @@ log(Mesg, Args) ->
 %% Returns: {ok, State}          |
 %%          Other
 %%----------------------------------------------------------------------
-init([LogFile]) ->
+init([LogFile, Level]) ->
     {ok, Fd} = file:open(LogFile, write),
-    {ok, Fd}.
+	Level_num = lvl2numeric(Level),
+    {ok, #log{fd=Fd, level=Level_num}}.
 
 %%----------------------------------------------------------------------
 %% Func: handle_event/2
@@ -74,11 +88,18 @@ init([LogFile]) ->
 %%          {swap_handler, Args1, State1, Mod2, Args2} |
 %%          remove_handler                              
 %%----------------------------------------------------------------------
-handle_event({Mesg, Args}, Fd) ->
-    {{Y, Mth, D}, {H, Min, S}} = calendar:local_time(),
-    io:format(Fd, "~p/~p/~p ~p:~p:~p ", [Y, Mth, D, H, Min, S]),
-    io:format(Fd, Mesg, Args),
-    {ok, Fd};
+handle_event({level, Level}, State) when integer(Level), 
+										Level =< ?DEBUG, Level >= ?EMERG->
+    {ok, State#log{level=Level}};
+
+handle_event({log, Mesg, Args}, State) ->
+	do_log(Mesg, Args, State#log.fd),
+    {ok, State};
+
+%% when the loglevel is given, log only if the level is high enough
+handle_event({log, Mesg, Args, Level}, State) when State#log.level >= Level ->
+	do_log(Mesg, Args, State#log.fd),
+    {ok, State};
 
 handle_event(Event, State) ->
     {ok, State}.
@@ -107,8 +128,8 @@ handle_info(Info, State) ->
 %% Purpose: Shutdown the server
 %% Returns: any
 %%----------------------------------------------------------------------
-terminate(Reason, Fd) ->
-    file:close(Fd).
+terminate(Reason, State) ->
+    file:close(State#log.fd).
 
 %%----------------------------------------------------------------------
 %% Func: code_change/3
@@ -119,3 +140,17 @@ code_change(OldVsn, State, Extra) ->
 %%%----------------------------------------------------------------------
 %%% Internal functions
 %%%----------------------------------------------------------------------
+do_log(Mesg, Args, Fd) ->
+    {{Y, Mth, D}, {H, Min, S}} = calendar:local_time(),
+    io:format(Fd, "~p/~p/~p ~p:~p:~p ", [Y, Mth, D, H, Min, S]),
+    io:format(Fd, Mesg, Args).
+
+lvl2numeric(emerg)  -> 0;
+lvl2numeric(alert)  -> 1;
+lvl2numeric(crit)   -> 2;
+lvl2numeric(err)    -> 3;
+lvl2numeric(warn)   -> 4;
+lvl2numeric(notice) -> 5;
+lvl2numeric(info)   -> 6;
+lvl2numeric(debug)  -> 7;
+lvl2numeric(_)      -> 8.

@@ -11,6 +11,7 @@
 -export([stop/0, status/0]).
 
 -include("config.hrl").
+-include("log.hrl").
 -define(mdb_node, "manderlbot").
 
 %%
@@ -26,10 +27,10 @@ status() ->
     {ok, List} = rpc:call(getNode(), mdb_botlist, list, []),
     
     lists:map(fun({Host, Chan = #channel{}}) ->
-		      io:format("~s connected on ~s ~s~n", 
+		      mdb_logger:log("~s connected on ~s ~s~n", 
 				[Chan#channel.botname,
 				 Host,
-				 Chan#channel.name])
+				 Chan#channel.name], ?NOTICE)
 	      end, List),
     init:stop().
 

@@ -47,6 +47,7 @@
 -export([code_change/3]).
 
 -include("config.hrl").
+-include("log.hrl").
 
 %% We need a big timeout in order to be able to connect to the server.
 -define(timeout, 10000).
@@ -105,13 +106,13 @@ handle_call(
     case length(lists:filter(AlreadyStarted, State)) of
 	1 ->
 	    %% This Bot is already running
-	    io:format(
-	      "Bot ~p already running on ~p ~n", [Name, Chan#channel.name]),
+	    mdb_logger:log(
+	      "Bot ~p already running on ~p ~n", [Name, Chan#channel.name],?NOTICE),
 	    {reply, {error, running}, State};
 	
 	NotFound ->
 	    %% We have to start this bot
-	    io:format("starting bot ~p on ~p~n", [Name, Chan#channel.name]),
+	    mdb_logger:log("starting bot ~p on ~p~n", [Name, Chan#channel.name],?NOTICE),
 	    case mdb_bot_sup:start_child(Name, Controler,
 					 Host, Port, Pass, Chan, BList) of
 		{ok, Sock}      -> {reply, ok, State ++ [{Host, Chan}]};

@@ -43,6 +43,7 @@
 	 split_nick_user/1]).
 
 -include("irc.hrl").
+-include("log.hrl").
 
 %%----------------------------------------------------------------------
 %% Function: pong/2
@@ -151,11 +152,11 @@ getData(Sock, Buffer) ->
 	    end;
 	
 	{Error, Sock} ->
-	    io:format("Error: ~p~n", [Error]),
+	    mdb_logger:log("Error: ~p~n", [Error], ?ERR),
 	    {error, Buffer};
 	
 	Whatever ->
-	    io:format("Whatever: ~p~n", [Whatever]),
+	    mdb_logger:log("Whatever: ~p~n", [Whatever], ?NOTICE),
 	    getData(Sock, Buffer)
     
     after 10000 ->
@@ -180,7 +181,7 @@ parseUserLine(Line) ->
 %%----------------------------------------------------------------------
 command(Sock, Command) ->
     CompleteCmd = [Command, "\r\n"],
-    %% io:format("COMMAND: ~p~n", [Command]),
+    mdb_logger:log("COMMAND: ~p~n", [Command], ?DEBUG),
     %gen_tcp:send(Sock, "\r\n"), % FIXME: Workaround: The first message of a
                                 % sequence does not seem to be received by the
                                 % server ...

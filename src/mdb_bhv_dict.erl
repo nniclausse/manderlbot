@@ -37,6 +37,7 @@
 -export([search/5, search/6, parse/1, set_request/1]).
 
 -include("mdb.hrl").
+-include("log.hrl").
 
 %%%----------------------------------------------------------------------
 %%% Function: dict/5
@@ -44,13 +45,13 @@
 %%%----------------------------------------------------------------------
 behaviour(Input, BotName, Data, BotPid, Channel) ->
     [DictName] = Data,
-    io:format("DICT input: ~p~n", [Input#data.body]),
-    io:format("DICT name:  ~p~n", [DictName]),
+    mdb_logger:log("DICT input: ~p~n", [Input#data.body], ?INFO),
+    mdb_logger:log("DICT name:  ~p~n", [DictName], ?INFO),
 
     [Key | Args] = string:tokens(Input#data.body," "),
     Criteria = string:strip(Args),
    
-    io:format("DICT criteria: ~p~n", [Criteria]),
+    mdb_logger:log("DICT criteria: ~p~n", [Criteria], ?INFO),
 
     case DictName of
 	[] ->
@@ -62,11 +63,11 @@ behaviour(Input, BotName, Data, BotPid, Channel) ->
 
 %% search with default dictionnary 
 search(Keywords, Input, BotPid, BotName, Channel) ->
-    io:format("params: ~p~n", [getConf()]),
+    mdb_logger:log("params: ~p~n", [getConf()], ?DEBUG),
     mdb_search:search({Keywords, Input, BotPid, BotName, Channel, getConf()}).
 
 search(Keywords, Input, BotPid, BotName, Channel, Dict) ->
-    io:format("params: ~p~n", [getConf()]),
+    mdb_logger:log("params: ~p~n", [getConf()], ?DEBUG),
     mdb_search:search({[Keywords, Dict],
 		       Input, BotPid, BotName, Channel, getConf()}).
 

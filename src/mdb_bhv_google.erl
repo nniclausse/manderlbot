@@ -37,6 +37,7 @@
 -export([search/5, parse/1, set_request/1]).
 
 -include("mdb.hrl").
+-include("log.hrl").
 
 -define(google_name, "www.google.com").
 -define(google_port, 80).
@@ -48,12 +49,12 @@
 %%% Purpose:  ask google and give the first response
 %%%----------------------------------------------------------------------
 behaviour(Input, BotName, Data, BotPid, Channel) ->
-    io:format("GOOGLE input: ~p~n", [Input#data.body]),
+    mdb_logger:log("GOOGLE input: ~p~n", [Input#data.body], ?DEBUG),
 
     [Key | Args] = string:tokens(Input#data.body," "),
     Criteria= misc_tools:join("+", Args),
 	
-    io:format("GOOGLE criteria: ~p~n", [Criteria]),
+    mdb_logger:log("GOOGLE criteria: ~p~n", [Criteria], ?DEBUG),
 
     search(Criteria, Input, BotPid, BotName, Channel).
 

@@ -54,6 +54,7 @@
 %% Include record description
 -include("mdb.hrl").
 -include("config.hrl").
+-include("log.hrl").
 
 
 %%%----------------------------------------------------------------------
@@ -101,7 +102,7 @@ reconf(BotPid, NickName, ConfigFile) ->
 %%          {stop, Reason}
 %%----------------------------------------------------------------------
 init([RealName, Controler, Host, Port, Passwd, Channel, BList]) ->
-    %% io:format("launching a new bot: ~p~n", [Channel]),
+    mdb_logger:log("launching a new bot: ~p~n", [Channel], ?DEBUG),
 
     {ok, Sock} = mdb_connection:connect(Host, Port),
     mdb_connection:log(Sock, Channel, Passwd, RealName),
@@ -268,8 +269,8 @@ handle_info({tcp_closed, Socket}, State) ->
 %% Returns: any (ignored by gen_server)
 %%----------------------------------------------------------------------
 terminate(Reason, State) ->
-    io:format("~p is quitting ~p [~p]~n",
-	      [State#state.nickname, State#state.channel, Reason]),
+    mdb_logger:log("~p is quitting ~p [~p]~n",
+	      [State#state.nickname, State#state.channel, Reason], ?NOTICE),
     irc_lib:quit(State#state.socket, Reason),
     ok.
 

@@ -47,6 +47,7 @@
 
 -include("config.hrl").
 -include("mdb.hrl").
+-include("log.hrl").
 
 %% We need a big timeout in order to be able to launch new bots.
 -define(timeout, 10000).
@@ -126,7 +127,7 @@ handle_call({getBehaviours, notfound}, From, Conf) ->
     {reply, {ok, []}, Conf};
 
 handle_call({getBehaviours, BNames}, From, Conf=#config{behaviours=BList}) ->
-    %% io:format("BNames: ~p~n", [BNames]),
+    mdb_logger:log("BNames: ~p~n", [BNames], ?DEBUG),
     {reply,
      {ok, lists:filter(fun(Behaviour=#behaviour{id=Id}) ->
 			       lists:member(Id, BNames)
