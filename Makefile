@@ -7,9 +7,12 @@ ERL = erl
 ESRC = ./src
 EBIN = ./ebin
 
-ERLANG_INSTALL_DIR = /usr/lib/erlang/lib
+ERLANG_INSTALL_DIR = $(DESTDIR)/usr/lib/erlang/lib
 APPLICATION = manderlbot
 VERSION = 0.7
+
+TARGETDIR= $(ERLANG_INSTALL_DIR)/$(APPLICATION)-$(VERSION)
+CONFFILE = $(TARGETDIR)/config.xml
 
 SRC      = $(wildcard src/*.erl)
 TMP      = $(wildcard src/*~) $(wildcard inc/*~)
@@ -31,12 +34,26 @@ emake:
 clean:
 	-rm -f $(TARGET) $(TMP)
 
-install: manderlbot
+# We also have to install the xmerl lib
+xmerl:
+	cp -r contrib/xmerl-0.15 $(ERLANG_INSTALL_DIR)
+	find $(ERLANG_INSTALL_DIR)/xmerl-0.15 -type f -exec chmod a-x \;
+	chmod a+x $(ERLANG_INSTALL_DIR)/xmerl-0.15/src/compile_grammar.sh
+
+install: xmerl clean manderlbot
 	-rm -f $(TMP)
-	cp -r . $(ERLANG_INSTALL_DIR)/$(APPLICATION)-$(VERSION)
+	mkdir -p $(TARGETDIR) 
+	-cp -r . $(TARGETDIR)
+
+	# no file should be executable
+	find $(TARGETDIR) -type f -exec chmod a-x \;
+
+	# added for debian
+	mv $(CONFFILE) $(DESTDIR)/etc/manderlbot.xml
+	ln -s $(DESTDIR)/etc/manderlbot.xml $(CONFFILE)
 
 uninstall:
-	rm -rf $(ERLANG_INSTALL_DIR)/$(APPLICATION)-$(VERSION)
+	rm -rf $(TARGETDIR)
 
 ebin/%.beam: src/%.erl 
 	$(CC) $(OPT) -I $(INC) -o ebin $<
