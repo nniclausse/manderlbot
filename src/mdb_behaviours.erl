@@ -239,7 +239,8 @@ debian_pkg(Input, BotName, Data, BotPid, Channel) ->
 	case Args of 
 	    [] ->
 		io:format("DEBIAN criteria: ~p~n", [String]),
-		debian:search([package, String], Input, BotPid, BotName);
+		debian:search([package, String],
+			      Input, BotPid, BotName, Channel);
 
 	    [Version | _] -> % which debian distrib
 		io:format("DEBIAN criteria: ~p,~p~n", [String, Version]),
@@ -257,7 +258,7 @@ debian_file(Input, BotName, Data, BotPid, Channel) ->
     case Args of 
         [] ->
             io:format("DEBIAN criteria: ~p~n", [String]),
-            debian:search([file, String], Input, BotPid, BotName);
+            debian:search([file, String], Input, BotPid, BotName, Channel);
 
         [Version | _] -> % which debian distrib
             io:format("DEBIAN criteria: ~p,~p~n", [String, Version]),
