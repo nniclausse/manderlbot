@@ -11,6 +11,13 @@
 			 tictac presse pmignaval rototo prout ranafout hop boulet
 			 vendredi bonnasse bloto heidi shadok tusors bofh quake3">
 		</channel>
+
+		<channel name="#daPhoque" botname="lebeau"
+			behaviours="helo ouca loutre chinois JCVD suceur branleur 
+			 sodom baise reunion boitacoucou coin plutot gl 
+			 tictac presse pmignaval rototo prout ranafout hop boulet 
+			 vendredi bonnasse bloto heidi shadok tusors bofh google">
+		</channel>
 		-->
 
 		<channel name="#GLI" botname="dtc"
@@ -19,7 +26,7 @@
 			 tictac presse pmignaval rototo prout ranafout hop quake 
 			 billard boulet vendredi bonnasse bloto pamie heidi shadok 
 			 c++ tusors bofh nmibook dimbook quake3 zope seduire 
-			 goudale camarche sanantonio openbsd google">
+			 goudale camarche sanantonio openbsd google roulmain ">
 		</channel>
 
 	</server>
@@ -54,6 +61,12 @@
 
 		<behaviour name="helo" action="login">
 			Salut les loutres !
+		</behaviour>
+
+		<behaviour name="roulmain" action="timer"
+				   pattern="(roul?main|cujl|CUJL|boulto|provqo|bine)">
+%ah ?
+%ouais
 		</behaviour>
 
 		<behaviour name="ouca" action="timer"
@@ -92,6 +105,7 @@
 %DC19 La proqvo au boulto, ça fait mal au bas du dos !
 %DC20 Le mariage, c'est le meilleur moyen de divorcer.
 %DC21 Le SOAP c'est comme le vin rouge, ça fait mal au cul. Surtout dans les douches.
+%DC22 Quand y en a marre, y a du boulard !
 		</behaviour>
 
 		<behaviour name="JCVD" action="random" pattern="[Aa]ware">
@@ -120,7 +134,7 @@
 %JCVD 23 T'es sympa comme mec. Au passage, il n'y a rien de concret.
 %JCVD 24 Mais en vérité, les choses concrètes, oui, elles sont concrètes si on croit qu'elles sont concrètes !
 %JCVD 25 L'eau, c'est quelque chose de concret mais pas concret.
-%JCVD 26 C'est quelque chose qui a beacoup de dimensions, l'eau.
+%JCVD 26 C'est quelque chose qui a beaucoup de dimensions, l'eau.
 %JCVD 27 Et en vérité, elle est simple si elle est simple
 %JCVD 28 Je le sens, tu peux dire ce que tu veux.
 %JCVD 29 Une personne s'appelle « Dieu », et l'autre s'appelle « être humain ». Et on est tous les deux la même chose au même niveau...
@@ -265,7 +279,7 @@
 		</behaviour>
 
 		<behaviour name="boulet" action="think"
-		           pattern="^%BOTNAME.*(gueule|GUEULE)">
+		           pattern="^%BOTNAME.*(gueule|GUEULE|ferme|d[eé]gage)">
 			. o O (mais quel boulet !)
 		</behaviour>
 
