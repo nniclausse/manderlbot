@@ -29,7 +29,7 @@ EMAKE    = $(addsuffix \'., $(addprefix \'../, $(SRC)))
 
 SRC_APPFILES   = $(ESRC)/$(APPLICATION).app.src $(ESRC)/$(APPLICATION).rel.src
 TGT_APPFILES_E = $(EBIN)/$(APPLICATION).app
-TGT_APPFILES_P = $(wildcard priv/$(APPLICATION)*)
+TGT_APPFILES_P = priv/$(APPLICATION)*
 
 SCRIPT   = $(BINDIR)/manderlbot
 BUILD_OPTIONS =	'[{systools, [{variables,[{"ROOT","$(RAW_INSTALL_DIR)"}]}]}, \
