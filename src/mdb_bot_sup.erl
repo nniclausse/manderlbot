@@ -1,12 +1,12 @@
 %%%----------------------------------------------------------------------
 %%% File    : mdb_sup.erl
-%%% Author  : Dimitri Fontaine <tapoueh@free.fr>
+%%% Author  : Dimitri Fontaine <dim@tuxfamily.org>
 %%% Purpose : Supervise all the bot instances (dynamic)
-%%% Created : 19 Feb 2002 by Dimitri Fontaine <tapoueh@free.fr>
+%%% Created : 19 Feb 2002 by Dimitri Fontaine <dim@tuxfamily.org>
 %%%----------------------------------------------------------------------
 
 -module(mdb_bot_sup).
--author('tapoueh@free.fr').
+-author('dim@tuxfamily.org').
 
 -include("mdb.hrl").
 -include("config.hrl").

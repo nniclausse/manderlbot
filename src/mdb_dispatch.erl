@@ -59,14 +59,14 @@ process_data(Sock, Data, State) ->
     io:format("process_data: ~p ~p ~p ~n", [Sock, Data, State]).
 
 %%----------------------------------------------------------------------
-%% treat_recv/5
+%% treat_recv/3
 %% If this is a PING from the server:
 %%----------------------------------------------------------------------
 treat_recv(Sock, <<$P, $I, $N, $G, $ , Rest/binary>>, State) ->
     irc_lib:pong(Sock, binary_to_list(Rest));
 
 %%----------------------------------------------------------------------
-%% treat_recv/5
+%% treat_recv/3
 %% Otherwise:
 %%----------------------------------------------------------------------
 treat_recv(Sock, Data, State=#state{}) ->

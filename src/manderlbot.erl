@@ -1,12 +1,12 @@
 %%%----------------------------------------------------------------------
 %%% File    : manderlbot.erl
-%%% Author  : Dimitri Fontaine <tapoueh@free.fr>
+%%% Author  : Dimitri Fontaine <dim@tuxfamily.org>
 %%% Purpose : This app is an IRC bot
-%%% Created : 19 Feb 2002 by Dimitri Fontaine <tapoueh@free.fr>
+%%% Created : 19 Feb 2002 by Dimitri Fontaine <dim@tuxfamily.org>
 %%%----------------------------------------------------------------------
 
 -module(manderlbot).
--author('tapoueh@free.fr').
+-author('dim@tuxfamily.org').
 
 -include("config.hrl").
 -define(CONFIG_FILE, "../config.xml").
