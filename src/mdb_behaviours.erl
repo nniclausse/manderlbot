@@ -269,7 +269,8 @@ pyramid(Input = #data{header_to=BotName}, BotName, Data, BotPid, Channel) ->
     [NickFrom|IpFrom] = string:tokens(Input#data.header_from, "!"),
     [Header, Word] =  string:tokens(Input#data.body, ": "),
 
-    case pyramid:setWord(NickFrom, Channel, string:strip(Word)) of
+    case pyramid:setWord(NickFrom, Channel,
+			 misc_tools:downcase(string:strip(Word))) of
 	{ok, Message} ->
 	    mdb_bot:say(BotPid, Message, NickFrom),
 	    mdb_bot:say(BotPid, NickFrom ++ " has set a word to guess !");
