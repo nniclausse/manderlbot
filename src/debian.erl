@@ -41,11 +41,11 @@ parse("</body>" ++ Data) ->
 parse("No responses" ++ Data) ->
     {stop,"not found"};
 %% Package short description
-parse("<TR><TD>&nbsp; <TD COLSPAN=2>" ++ Data) ->
+parse("<tr><td>&nbsp; <td COLSPAN=2>" ++ Data) ->
     [Description | _Other ] = string:tokens(Data,"<"),
     {continue, "  " ++ Description};
 %% URL of package
-parse("\t<TD><B><A HREF=\"" ++ Data) ->
+parse("\t<td><b><a HREF=\"" ++ Data) ->
     [URL | _Other ] = string:tokens(Data,"\""),
     {continue, URL };
 parse(Data) ->
