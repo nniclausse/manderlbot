@@ -1,11 +1,12 @@
 $Id$
 
 Behaviours
-	Rumeur
-		Avec un nick en argument, raconte des choses
 	Prefix
 		To prefix the commands to be given to manderlbot. To be done on
 		a per channel base. Prefix example : '!'
+	Serializer
+		And we could have a behaviour:add() function to play with, and
+		we could even add behaviours from irc !
 
 Config
 	DTD
@@ -13,5 +14,11 @@ Config
 	Add new matching possibilities (cover all infos we have)
 		see mdb_dispatch for the available infos
 
-Others
-	Check the ping/pong sequences
+
+Misc
+	Bugs when several instances are on the same chan
+	
+	Writte some howto / doc
+
+	Provide a system executable manderlbot file, users won't have to run
+	the erl VM by themselves !
