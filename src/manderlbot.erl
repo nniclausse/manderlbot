@@ -39,6 +39,8 @@
 %% application callbacks
 -export([start/2, stop/1]).
 
+-export([read_args/0]).
+
 %%%----------------------------------------------------------------------
 %%% Callback functions from application
 %%%----------------------------------------------------------------------
@@ -50,10 +52,12 @@
 %%          {error, Reason}   
 %%----------------------------------------------------------------------
 start(Type, StartArgs) ->
-    %%case mdb_sup:start_link(StartArgs) of
-    case manderlbot_sup:start_link() of
+    %% First read args
+    {Config_file, Log_file} = read_args(),
+
+    case manderlbot_sup:start_link(Config_file, Log_file) of
 	{ok, Pid} -> 
-	    %% Do our stuff
+	    %% Here we init the system
 	    init(),
 	    {ok, Pid};
 	Error ->
@@ -94,3 +98,33 @@ init() ->
 		  end,
 		  Conf#config.servers),
     ok.
+
+%%----------------------------------------------------------------------
+%% Func: read_args/0
+%% Returns: {Config_file, Log_file}
+%%----------------------------------------------------------------------
+read_args() ->
+    %% We take the manderlbot application defaults
+    {ok, RootPath} = application:get_env(manderlbot, root_path),
+    {ok, Config}   = application:get_env(manderlbot, config_file),
+    {ok, Logfile}  = application:get_env(manderlbot, log_file),
+
+    %% We look for our args in the command line options
+    Args = init:get_arguments(),
+    
+    MdbConf = case lists:keysearch(?arg_conffile, 1, Args) of
+		  {value, {?arg_conffile, Cf}} ->
+		      Cf;
+		  false ->
+		      RootPath ++ "/" ++ Config
+	      end,
+
+    MdbLog  = case lists:keysearch(?arg_logfile, 1, Args) of
+		  {value, {?arg_conffile, Lf}} ->
+		      Lf;
+		  false ->
+		      Logfile
+	      end,
+
+    {MdbConf, MdbLog}.
+

@@ -13,21 +13,23 @@ ERLANG_INSTALL_DIR = $(DESTDIR)/$(RAW_INSTALL_DIR)/lib
 APPLICATION = manderlbot
 VERSION = 0.9.2
 
-TARGETDIR= $(ERLANG_INSTALL_DIR)/$(APPLICATION)-$(VERSION)
 BINDIR   = $(DESTDIR)/usr/bin
 CONFFILE = config.xml
 LOGFILE  = /var/log/manderlbot.log
 
-SRC      = $(wildcard src/*.erl)
 TMP      = $(wildcard *~) $(wildcard src/*~) $(wildcard inc/*~)
 INC_FILES= $(wildcard $(INC)/*.hrl)
-TARGET   = $(addsuffix .beam, $(basename $(addprefix ebin/, $(notdir $(SRC)))))
+SRC      = $(wildcard $(ESRC)/*.erl)
+
+TARGET   = $(addsuffix .beam, $(basename \
+             $(addprefix $(EBIN)/, $(notdir $(SRC)))))
 EMAKE    = $(addsuffix \'., $(addprefix \'../, $(SRC)))
-APPFILES = $(ESRC)/$(APPLICATION).app.src $(ESRC)/$(APPLICATION).rel.src
+
+SRC_APPFILES = $(wildcard $(ESRC)/*src)
+TGT_APPFILES = $(addprefix $(EBIN)/, $(basename $(notdir $(SRC_APPFILES))))
 
 SCRIPT   = $(BINDIR)/manderlbot
-BUILD_OPTIONS =	'[{app_dir, "$(TARGETDIR)"}, \
-	{systools, [{variables,[{"ROOT","$(RAW_INSTALL_DIR)"}]}]}, \
+BUILD_OPTIONS =	'[{systools, [{variables,[{"ROOT","$(RAW_INSTALL_DIR)"}]}]}, \
 	{sh_script, none}, {report, verbose}, {make_app, true }].'
 BUILD_OPTIONS_FILE = ./BUILD_OPTIONS 
 
@@ -42,21 +44,18 @@ emake:
 	@echo $(EMAKE) | tr -s ' ' '\n' > ebin/Emakefile
 
 clean:
-	-rm -f $(TARGET) $(TMP) $(BUILD_OPTIONS_FILE)
-	make -C doc clean
+	-@rm -f $(TARGET) $(TMP) $(BUILD_OPTIONS_FILE) builder.beam
+	-@make -C doc clean
 
-install: manderlbot builder.beam manderlbot.sh
+install: build manderlbot.sh
 	-rm -f $(TMP)
 	install -d $(TARGETDIR)/ebin
 	install -d $(TARGETDIR)/src
 	install -d $(TARGETDIR)/include
 	@cp $(INC_FILES) $(TARGETDIR)/include
 	@cp $(TARGET) $(TARGETDIR)/ebin
+	@cp $(TGT_APPFILES) $(TARGETDIR)/ebin
 	@cp $(SRC) $(APPFILES) $(TARGETDIR)/src
-
-# use builder to make boot file
-	@echo $(BUILD_OPTIONS) > $(BUILD_OPTIONS_FILE)
-	erl -s builder go -s init stop
 
 # create startup script
 	@cp manderlbot.sh $(SCRIPT)
@@ -67,6 +66,15 @@ install: manderlbot builder.beam manderlbot.sh
 
 uninstall:
 	rm -rf $(TARGETDIR) $(SCRIPT)
+
+build: manderlbot builder.beam
+# use builder to make boot file
+	(cd .. && ln -sf $(APPLICATION) $(APPLICATION)-$(VERSION))
+	(cd ../$(APPLICATION)-$(VERSION) \
+	 && echo $(BUILD_OPTIONS) > $(BUILD_OPTIONS_FILE) \
+	 && erl -s builder go -s init stop \
+	)
+	rm ../$(APPLICATION)-$(VERSION)
 
 doc: 
 	make -C doc

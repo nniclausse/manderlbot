@@ -7,13 +7,15 @@
   {vsn, "&manderlbot_vsn&"},
   {id, "Manderlbot"},
   {modules, [mdb_bhv_bloto, config, config_srv, mdb_bhv_debian_pkg, 
-			 mdb_bhv_debian_file, mdb_bhv_google, irc_lib, manderlbot,
-			 manderlbot_sup, mdb_bot, mdb_bot_sup,  mdb_search,
-			 mdb_botlist, mdb_connection, mdb_bhv_dict, mdb_dispatch,
-			 misc_tools, mdb_bhv_pyramid]},
+	     mdb_bhv_debian_file, mdb_bhv_google, irc_lib, manderlbot,
+	     manderlbot_sup, mdb_bot, mdb_bot_sup,  mdb_search,
+	     mdb_botlist, mdb_connection, mdb_bhv_dict, mdb_dispatch,
+	     misc_tools, mdb_bhv_pyramid]},
   {registered, []},
   {applications, [kernel, stdlib]},
-  {env, [{root_path, "/etc"}, {config_file, "manderlbot.xml"}]},
+  {env, [{root_path, "/etc"},
+	 {config_file, "manderlbot.xml"},
+	 {log_file, "/var/log/manderlbot.log"}]},
   {mod, {manderlbot, []}}
  ]
 }.

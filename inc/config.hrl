@@ -7,6 +7,8 @@
 
 -author('dim@tuxfamily.org').
 
+-define(arg_conffile, conf).
+-define(arg_logfile,  log).
 
 -record(config,	{name,                          % the name of the bot
 		 controler=[],                  % the nick of the one wich

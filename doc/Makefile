@@ -18,5 +18,5 @@ all: $(DOCUMENT).tex $(DOCUMENT).html $(DOCUMENT).ps $(DOCUMENT).pdf
 	-rm *.htoc *.haux
 
 clean:
-	-rm -f *~
-	-rm -f $(DOCUMENT).tex $(DOCUMENT).html $(DOCUMENT).ps $(DOCUMENT).pdf
+	-@rm -f *~
+	-@rm -f $(DOCUMENT).tex $(DOCUMENT).html $(DOCUMENT).ps $(DOCUMENT).pdf

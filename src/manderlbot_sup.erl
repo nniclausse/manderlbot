@@ -38,7 +38,7 @@
 -behaviour(supervisor).
 
 %% External exports
--export([start_link/0]).
+-export([start_link/2]).
 
 %% supervisor callbacks
 -export([init/1]).
@@ -46,8 +46,8 @@
 %%%----------------------------------------------------------------------
 %%% API
 %%%----------------------------------------------------------------------
-start_link() ->
-    supervisor:start_link({local, ?MODULE}, ?MODULE, []).
+start_link(Config_file, Log_file) ->
+    supervisor:start_link({local, ?MODULE}, ?MODULE, [Config_file, Log_file]).
 
 %%%----------------------------------------------------------------------
 %%% Callback functions from supervisor
@@ -59,17 +59,14 @@ start_link() ->
 %%          ignore                          |
 %%          {error, Reason}   
 %%----------------------------------------------------------------------
-init([]) ->
+init([Config_file, Log_file]) ->
     BotSup = {mdb_bot_sup, {mdb_bot_sup, start_link, []},
 	      permanent, 2000, supervisor, [mdb_bot_sup]},
 
     BotLst = {mdb_botlist, {mdb_botlist, start_link, []},
 	      permanent, 2000, worker, [mdb_botlist]},
 
-    {ok, RootPath} = application:get_env(manderlbot, root_path),
-    {ok, Config}   = application:get_env(manderlbot, config_file),
-
-    BServ  = {config_srv, {config_srv, start_link, [RootPath++"/"++Config]},
+    BServ  = {config_srv, {config_srv, start_link, Config_file},
 	      permanent, 2000, worker, [config_srv]},
 
     BLoto  = {mdb_bhv_bloto, {mdb_bhv_bloto, start_link, []},
