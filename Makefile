@@ -101,10 +101,10 @@ doc:
 release:
 	rm -fr $(APPLICATION)-$(VERSION)
 	mkdir -p $(APPLICATION)-$(VERSION)
-	@tar zcf tmp.tgz $(SRC) $(SRC_APPFILES) $(INC_FILES) \
+	tar zcf tmp.tgz $(SRC) $(SRC_APPFILES) $(INC_FILES) \
 		doc/*.lyx doc/Makefile doc/*.hva \
 		LICENSE README TODO $(CONFFILES) Makefile \
-		priv/builder.erl manderlbot.sh.in
+		priv/builder.erl manderlbot.sh.in bofh.fortune
 	tar -C $(APPLICATION)-$(VERSION) -zxf tmp.tgz
 	mkdir $(APPLICATION)-$(VERSION)/ebin
 	tar zvcf  $(APPLICATION)-$(VERSION).tar.gz $(APPLICATION)-$(VERSION)
