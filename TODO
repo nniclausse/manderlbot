@@ -1,18 +1,18 @@
-Behaviours
-	Fortune
-		On logue quelques ligne et sur demande on fortune les dernieres
-		n lignes demandés...
+$Id$
 
+Behaviours
+	Mute
+		dtc: mute/unmute
 	Rumeur
 		Avec un nick en argument, raconte des choses
 
-	Mute
-		dtc: mute/unmute
 
 Config
+	Be abble to launch a new bot instance on config re reading
+		This is now possible : mdb_botlist:add/5
 	DTD
 	Behaviours lists, inheritance
-	Be abble to launch a new bot instance on config re reading
+	Add new matching possibilities (cover all infos we have)
 
 Others
 	Do regexp matchings case independant (Lower/Upper case)
