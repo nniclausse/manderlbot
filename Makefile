@@ -75,3 +75,6 @@ manderlbot.sh: manderlbot.sh.in
 	@$(SED) \
 		-e 's;%INSTALL_DIR%;${RAW_INSTALL_DIR};g' \
 		-e 's;%VERSION%;${VERSION};g' < $< > $@
+
+%:%.sh
+	# Override makefile default implicit rule
