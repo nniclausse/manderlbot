@@ -127,6 +127,9 @@ loop(State, Parent, Deb) ->
 	%% Socket management
 	%% Receiving data...
 	{tcp, Socket, Data} ->
+	    %% Test for server ping
+	    mdb_connection:testPingPong(Socket, Data),
+
 	    Buffer = State#state.buffer,
 	    List = lists:append(binary_to_list(Buffer), binary_to_list(Data)),
 	    
