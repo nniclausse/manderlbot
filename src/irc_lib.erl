@@ -173,7 +173,7 @@ parseUserLine(Line) ->
 %%----------------------------------------------------------------------
 command(Sock, Command) ->
     CompleteCmd = [Command, "\r\n"],
-    io:format("COMMAND: ~p~n", [Command]),
+    %% io:format("COMMAND: ~p~n", [Command]),
     %gen_tcp:send(Sock, "\r\n"), % FIXME: Workaround: The first message of a
                                 % sequence does not seem to be received by the
                                 % server ...

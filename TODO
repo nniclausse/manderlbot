@@ -11,9 +11,6 @@ Behaviours
 Config
 	DTD
 	Behaviours lists, inheritance
-	Add new matching possibilities (cover all infos we have)
-		see mdb_dispatch for the available infos
-
 
 Misc
 	Bugs when several instances are on the same chan

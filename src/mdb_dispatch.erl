@@ -49,7 +49,6 @@ process_data(Sock, [], State=#state{}) ->
 process_data(Sock, [$P, $I, $N, $G, $ , $: | Tail], State=#state{}) -> 
     %% We consider PING separately
     {Id, Rest} = cut_line(Tail),
-    io:format("PING ~p~n", [Id]),
     irc_lib:pong(Sock, Id),
 
     {pong, Rest};
@@ -61,13 +60,15 @@ process_data(Sock, Data, State=#state{joined = false}) ->
     %% So this code will manage the MOTD of the server
 
     {Line, Rest} = cut_line(Data),
-    io:format("MOTD ~p~n", [Line]),
+    %% io:format("MOTD ~p~n", [Line]),
     
     Chan = [$: | State#state.channel],
 
     case string:tokens(Line, " ") of
 	[_Name, "JOIN", Chan | Tail] ->
-	    io:format("JOINED Channel ~p~n", [State#state.channel]),
+	    io:format("~s joined channel ~s~n", [State#state.nickname,
+						 State#state.channel]),
+
 	    %% There could be some behaviours on login
 	    process_data(Sock, Line ++ ?NL, State#state{joined=true}),
 	    {joined, Rest};
@@ -87,7 +88,7 @@ process_data(Sock, Data, State=#state{joined = true}) ->
     end;
 
 process_data(Sock, Data, State) ->
-    io:format("process_data: ~p ~p ~p ~n", [Sock, Data, State]),
+    ?dbg("process_data: ~p ~p ~p ~n", [Sock, Data, State]),
     {ok, []}.
 
 cut_line(Data) ->
@@ -123,13 +124,15 @@ treat_recv(Sock, Data, State=#state{}) ->
 		      end,
 	      Parsed_result),
 
-    %%Print what is received
-    lists:map(fun(Res) -> ?dbg("HEADER: [~s/~s/~s/~s] - BODY: [~s]", 
-    				    [Res#data.header_from,
-    				     Res#data.header_op,
-				     Res#data.header_to,
-				     Res#data.header_options,
-				     Res#data.body]) end,
+    %% Trace
+    lists:map(fun(Res) ->
+		      [NickFrom|_] = string:tokens(Res#data.header_from, "!"),
+		      io:format("~s ~s <~s> ~s~n", 
+				[State#state.nickname,
+				 Res#data.header_to,
+				 NickFrom,
+				 Res#data.body])
+	      end,
     	      Parsed_result).
 
 %%----------------------------------------------------------------------
@@ -146,7 +149,7 @@ dispatch_message(Behaviours, Input, State = #state{mode=muted}) ->
 				   State#state.bot_pid,
 				   State#state.channel]);
 		 (_) ->
-		      ?dbg("MUTED", [])
+		      io:format("~s MUTED", [State#state.nickname])
 	      end,
 	      Behaviours);
 

@@ -37,7 +37,9 @@ read(Filename) ->
 %%%----------------------------------------------------------------------
 parse(Element = #xmlElement{parents = []}, #config{}) ->
     Name = getAttr(Element#xmlElement.attributes, name),
-    Controler = getAttr(Element#xmlElement.attributes, controler),
+    Controler = build_list(
+		  getAttr(Element#xmlElement.attributes, controler),
+		  ", "),
 	
     lists:foldl(fun parse/2,
 		#config{name = Name, controler = Controler},
@@ -171,7 +173,7 @@ getText([Text = #xmlText{value=Value}|Tail]) -> build_list(
 getText(_Other)                              -> "".
 
 
-
-build_list(String) ->
-    %% Separator is '%'
-    string:tokens(String, "%").
+%% Default separator is '%'
+build_list(String) -> build_list(String, "%").
+build_list(String, Sep) ->
+    string:tokens(String, Sep).

@@ -77,7 +77,7 @@ reconf(BotPid, NickName, ConfigFile) ->
 %%          {stop, Reason}
 %%----------------------------------------------------------------------
 init([RealName, Controler, Host, Port, Passwd, Channel, BList]) ->
-    io:format("launching a new bot: ~p~n", [Channel]),
+    %% io:format("launching a new bot: ~p~n", [Channel]),
 
     {ok, Sock} = mdb_connection:connect(Host, Port),
     mdb_connection:log(Sock, Channel, Passwd, RealName),
@@ -142,8 +142,8 @@ handle_call({reconf, NickName, ConfigFile}, From,
 
     %% First read the conf file given
     %% Then get our behaviours list, and replace it in the State
-    case State#state.controler of
-	NickName ->
+    case is_controler(NickName, State#state.controler) of
+	true ->
 	    case config_srv:reconf(Chan, Nick, ConfigFile) of
 		{ok, BList} ->
 		    irc_lib:say(Sock, Chan, NickName ++ ": reconf done !"),
@@ -155,7 +155,7 @@ handle_call({reconf, NickName, ConfigFile}, From,
 		    {reply, {error, reconf}, State}
 	    end;
 
-	Other ->
+	false ->
 	    irc_lib:say(Sock, Chan,
 			NickName ++ ": " ++
 			"Who do you think you are to 'reconf' me ?"),
@@ -163,8 +163,8 @@ handle_call({reconf, NickName, ConfigFile}, From,
     end;
 
 handle_call({mute, NickName}, From, State=#state{socket=Sock, channel=Chan}) ->
-    case State#state.controler of
-	NickName ->
+    case is_controler(NickName, State#state.controler) of
+	true ->
 	    case State#state.mode of
 		muted   ->
 		    irc_lib:action(Sock, Chan, "is back"),
@@ -175,7 +175,7 @@ handle_call({mute, NickName}, From, State=#state{socket=Sock, channel=Chan}) ->
 		    {reply, ok, State#state{mode = muted}}
 	    end;
 
-	Other ->
+	false ->
 	    irc_lib:say(Sock, Chan,
 			NickName ++ ": " ++
 			"Who do you think you are to mute me ?"),
@@ -258,3 +258,10 @@ code_change(OldVsn, State, Extra) ->
 %%%----------------------------------------------------------------------
 %%% Internal functions
 %%%----------------------------------------------------------------------
+
+%% This function support old way where controler is not a list
+is_controler(Nickname, Nickname) ->
+    true;
+
+is_controler(Nickname, Controlers) ->
+    lists:member(Nickname, Controlers).

@@ -9,7 +9,7 @@
 
 
 -record(config,	{name,                          % the name of the bot
-		 controler,                     % the nick of the one wich
+		 controler=[],                  % the nick of the one wich
 						% controls the bot from irc
 
 		 dict={"localhost", "2628", "wn"},

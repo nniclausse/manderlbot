@@ -95,8 +95,6 @@ handle_call({reconf, Channel, BotName, ConfigFile}, From, Config) ->
     end;
 
 handle_call({getlist, Channel, BotName}, From, Conf) ->
-    io:format("~p ~p ~p~n", [Channel, BotName,
-			      getBehaviours(Conf, Channel, BotName)]),
     {reply, {ok, getBehaviours(Conf, Channel, BotName)}, Conf};
 
 
