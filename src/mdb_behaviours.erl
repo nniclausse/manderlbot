@@ -248,3 +248,15 @@ jargon(Input, BotName, ConfigFile, BotPid) ->
    
     io:format("JARGON criteria: ~p~n", [Criteria]),
     mdb_dict:search(Criteria, Input, BotPid, BotName, "jargon").
+
+%%%----------------------------------------------------------------------
+%%% Function: dico/4
+%%% Purpose:  ask dict with robert dictionnary
+%%%----------------------------------------------------------------------
+dico(Input, BotName, ConfigFile, BotPid) ->
+    io:format("DICO input: ~p~n", [Input#data.body]),
+	[Key | Args] = string:tokens(Input#data.body," "),
+    Criteria = string:strip(Args),
+   
+    io:format("ROBERT criteria: ~p~n", [Criteria]),
+    mdb_dict:search(Criteria, Input, BotPid, BotName, "robert").
