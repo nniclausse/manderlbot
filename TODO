@@ -1,8 +1,6 @@
 $Id$
 
 Behaviours
-	Mute
-		dtc: mute/unmute
 	Rumeur
 		Avec un nick en argument, raconte des choses
 	Prefix
@@ -10,15 +8,10 @@ Behaviours
 		a per channel base. Prefix example : '!'
 
 Config
-	Be abble to launch a new bot instance on config re reading
-		This is now possible : mdb_botlist:add/5
 	DTD
 	Behaviours lists, inheritance
 	Add new matching possibilities (cover all infos we have)
 		see mdb_dispatch for the available infos
-	Add the timeout in the server config element, along with name and
-	port
 
 Others
-	Do regexp matchings case independant (Lower/Upper case)
 	Check the ping/pong sequences
