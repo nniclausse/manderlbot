@@ -74,7 +74,9 @@ doc:
 release:
 	rm -fr $(APPLICATION)-$(VERSION)
 	mkdir -p $(APPLICATION)-$(VERSION)
-	tar zcf tmp.tgz $(SRC) $(APPFILES) $(INC_FILES) doc/*.lyx doc/Makefile doc/*.hva LICENSE README TODO $(CONFFILE) Makefile priv/builder.erl
+	@tar zcf tmp.tgz $(SRC) $(APPFILES) $(INC_FILES) doc/*.lyx doc/Makefile doc/*.hva \
+		 			LICENSE README TODO $(CONFFILE) Makefile priv/builder.erl \
+					manderlbot.sh.in
 	tar -C $(APPLICATION)-$(VERSION) -zxf tmp.tgz
 	mkdir $(APPLICATION)-$(VERSION)/ebin
 	tar zvcf  $(APPLICATION)-$(VERSION).tar.gz $(APPLICATION)-$(VERSION)
