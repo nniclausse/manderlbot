@@ -15,7 +15,7 @@
 		</behaviour>
 
 		<behaviour name="reconf" action="reconf" pattern="^%BOTNAME:.*reconf">
-			/etc/manderlbot.xml
+			/etc/manderlbot/config.xml
 		</behaviour>
 
 		<behaviour name="login" action="say" op="join" from="%BOTNAME">
