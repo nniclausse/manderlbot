@@ -19,6 +19,7 @@
 %% External exports
 -export([start_link/1]).
 -export([start_link/0]).
+-export([say_slow/4]).
 -export([stop/0, search/1]).
 
 %% gen_server callbacks
@@ -28,7 +29,8 @@
 
 -include("mdb.hrl").
 -define(tcp_timeout, 10000). % 10sec 
--define(say_sleep, 750). % 750ms wait between each line to avoid flooding 
+-define(say_sleep, 2000). % 2sec wait between each line to avoid flooding
+-define(max_lines, 8). % if more that max_lines to say, say it in private
 
 %%%----------------------------------------------------------------------
 %%% API
@@ -89,7 +91,7 @@ handle_cast({search, Keywords, Input, BotPid, BotName, Params}, State) ->
             %% the request is identified by the Socket
             {noreply, State#search_state{requests=[{Socket,
 													Input, BotPid , BotName,
-													Params#search_param.type}
+													Params#search_param.type, []}
                                                    | State#search_state.requests]}};
         {error, Reason} ->
             say(Input, BotName, 
@@ -109,20 +111,22 @@ handle_cast({stop}, State) ->
 %%----------------------------------------------------------------------
 handle_info({tcp, Socket, Data}, State) ->
     case lists:keysearch(Socket, 1 , State#search_state.requests) of 
-        {value, {Socket, Input, BotPid, BotName, Type}} ->
+        {value, {Socket, Input, BotPid, BotName, Type, Buffer}} ->
             case apply(Type, parse, [Data]) of
                 {stop, Result} -> %% stop this connection and say result
                     NewState = remove(Socket, State),
-                    say(Input, BotName, Result, BotPid),
-					timer:sleep(?say_sleep),
+                    say(Input, BotName, Buffer ++ [Result], BotPid),
                     {noreply, NewState};
-                {continue, Result} -> %% say result and continue to read data
-                    say(Input, BotName, Result, BotPid),
-					timer:sleep(?say_sleep),
+                {continue, Result} -> %% continue and push string in buffer
+                    NewRequests = lists:keyreplace(Socket, 1, State#search_state.requests, {Socket, Input, BotPid, BotName, Type, Buffer ++ [Result]}),
+                    {noreply, State#search_state{requests= NewRequests}};
+                {say, Result} -> %% say result and continue to read data
+                    say(Input, BotName, Buffer ++ [Result], BotPid),
                     {noreply, State};
                 {continue} -> %% continue to read
                     {noreply, State};
                 {stop} -> %% close connection
+                    say(Input, BotName, Buffer, BotPid),
                     NewState = remove(Socket, State),
                     {noreply, NewState}
             end;
@@ -161,14 +165,34 @@ code_change(OldVsn, State, Extra) ->
 %%%----------------------------------------------------------------------
 
 %%----------------------------------------------------------------------
-%% Func: remove/2
+%% Func: say/4 
 %% Purpose: say a string to chan or to private
-%%%----------------------------------------------------------------------
+%%----------------------------------------------------------------------
+say(Input, BotName, [], BotPid) ->
+    empty;
+%% list of strings to say in private, use mdb_behaviours function
 say(Input = #data{header_to=BotName}, BotName, Data, BotPid) ->
-    [NickFrom|IpFrom] = string:tokens(Input#data.header_from, "!"),
-    mdb_bot:say(BotPid, Data, NickFrom) ;
+    mdb_behaviours:say(Input, BotName, Data, BotPid);
+%%% to much lines, talk in private
+say(Input, BotName, Data, BotPid) when length(Data) > ?max_lines ->
+    %% set header_to to say it in private
+    mdb_bot:say(BotPid, "answer in private"),
+    %% spawn a new process to talk in private, with a sleep between each line
+    spawn_link(?MODULE,say_slow, [Input#data{header_to=BotName}, BotName, Data, BotPid]);
+%%% talk in the channel
 say(Input, BotName, Data, BotPid) ->
-    mdb_bot:say(BotPid, Data).
+    mdb_behaviours:say(Input, BotName, Data, BotPid).
+
+%%----------------------------------------------------------------------
+%% Func: say_slow/4
+%% Purpose: say a list of string with sleep intervals
+%%----------------------------------------------------------------------
+say_slow(Input, BotName, [], BotPid) ->
+    empty;
+say_slow(Input, BotName, [String | Data], BotPid) ->
+    mdb_behaviours:say(Input, BotName, [String], BotPid),
+    timer:sleep(?say_sleep),
+    say_slow(Input, BotName, Data, BotPid).
 
 %%----------------------------------------------------------------------
 %% Func: remove/2

@@ -51,8 +51,6 @@ parse("151" ++ Data) -> %% response headers (database name)
     {continue};
 parse("") ->
     {continue};
-parse("     5:" ++Date) -> %% skip if more than 5 def
-    {stop, "etc."};
 parse(".\r\n") ->
     {continue};
 parse(Data) ->
