@@ -12,7 +12,7 @@
 %% Exported behaviours
 -export([say/4, action/4, answer/4, random/4, timer/4, bloto/4,
          google/4, dict/4, jargon/4, rejoin/4, reconf/4,
-         debian_pkg/4, debian_file/4, dico/4
+         debian_pkg/4, debian_file/4, dico/4, roulmain/4
         ]).
 
 -include("mdb.hrl").
@@ -260,3 +260,15 @@ dico(Input, BotName, ConfigFile, BotPid) ->
    
     io:format("ROBERT criteria: ~p~n", [Criteria]),
     mdb_dict:search(Criteria, Input, BotPid, BotName, "robert").
+
+%%%----------------------------------------------------------------------
+%%% Function: dico/4
+%%% Purpose:  ask dict with robert dictionnary
+%%%----------------------------------------------------------------------
+roulmain(Input, BotName, ConfigFile, BotPid) ->
+    io:format("ROULMAIN input: ~p~n", [Input#data.body]),
+	[Key | Args] = string:tokens(Input#data.body," "),
+    Criteria = string:strip(Args),
+   
+    io:format("ROULMAIN criteria: ~p~n", [Criteria]),
+    mdb_dict:search(Criteria, Input, BotPid, BotName, "roulmain").

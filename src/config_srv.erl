@@ -186,6 +186,7 @@ build_behaviours_list([BC=#cfg_behaviour{}|BClist], Acc) ->
 	      "dict"   -> {mdb_behaviours, dict};
 	      "jargon" -> {mdb_behaviours, jargon};
 	      "dico"   -> {mdb_behaviours, dico};
+	      "roulmain"    -> {mdb_behaviours, roulmain};
 	      "debian_pkg"  -> {mdb_behaviours, debian_pkg};
 	      "debian_file" -> {mdb_behaviours, debian_file};
 	      Other    -> {mdb_behaviours, say}
