@@ -55,15 +55,12 @@ start(Type, StartArgs) ->
     {Config_file, Log_file, Log_level} = read_args(),
 
     case manderlbot_sup:start_link(Config_file, Log_file) of
-		{ok, Pid} -> 
-	    %% Init first the logger
-	    mdb_logger:add_handler({Log_file, Log_level}),
-	    mdb_logger:notice("Manderlbot started with ~s~n", [Config_file]),
-
-	    %% Then init the manderlbot system
-	    init(),
-
-	    {ok, Pid};
+	{ok, Pid} -> 
+	    %% init the manderlbot system
+	    case init(Config_file, Log_file, Log_level) of
+		ok              -> {ok, Pid};
+		{error, Reason} -> {error, Reason}
+	    end;
 	Error ->
 	    Error
     end.
@@ -78,30 +75,18 @@ stop(State) ->
 %%%----------------------------------------------------------------------
 %%% Internal functions
 %%%----------------------------------------------------------------------
-init() ->
-    %% Start a bot per chan
-    {ok, Conf} = config_srv:getConf(),
+init(Config_file, Log_file, Log_level) ->
+    %% Init first the logger
+    mdb_logger:add_handler({Log_file, Log_level}),
+    mdb_logger:notice("Manderlbot starting with ~s~n", [Config_file]),
 
-    Name      = Conf#config.name,
-    Controler = Conf#config.controler,
-
-    lists:foreach(fun(Server = #server{host     = Host,
-				       port     = Port,
-				       passwd   = Passwd,
-				       channels = ChanList}) ->
-
-			  StartBot = fun(Chan = #channel{}) ->
-					     mdb_botlist:add(Name,
-							     Controler,
-							     Host,
-							     Port,
-							     Passwd,
-							     Chan)
-				     end,
-			  lists:foreach(StartBot, ChanList)
-		  end,
-		  Conf#config.servers),
-    ok.
+    %% Read the config and start the bots
+    case config_srv:readConf() of
+	ok -> ok;
+	{error, Reason} ->
+	    mdb_logger:error("Could not init manderlbot: ~p~n", [Reason]),
+	    {error, Reason}
+    end.
 
 %%----------------------------------------------------------------------
 %% Func: read_args/0

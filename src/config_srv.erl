@@ -38,8 +38,8 @@
 -behaviour(gen_server).
 
 %% External exports
--export([start_link/1, getConf/0, getDictConf/0, reconf/3,
-	 getBList/2, getBehaviours/1]).
+-export([start_link/1, getConf/0, getDictConf/0, readConf/0,
+	 reconf/3, getBList/2, getBehaviours/1]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
@@ -64,6 +64,9 @@ getConf() ->
 getDictConf() ->
     gen_server:call(?MODULE, {getDictConf}, ?timeout).
 
+readConf() ->
+    gen_server:call(?MODULE, {readConf}, ?timeout).
+
 reconf(Chan, BotName, ConfigFile) ->
     gen_server:call(?MODULE, {reconf, Chan, BotName, ConfigFile}, ?timeout).
 
@@ -86,10 +89,7 @@ getBehaviours(BNames) ->
 %%          {stop, Reason}
 %%----------------------------------------------------------------------
 init([ConfigFile]) ->
-    case config:read(ConfigFile) of
-	{ok, Config}    -> {ok, Config};
-	{error, Reason} -> {stop, Reason}
-    end.
+    {ok, {filename, ConfigFile}}.
 
 %%----------------------------------------------------------------------
 %% Func: handle_call/3
@@ -105,6 +105,17 @@ handle_call({getConf}, From, Config) ->
 
 handle_call({getDictConf}, From, Config = #config{dict=Dict}) ->
     {reply, {ok, Dict}, Config};
+
+handle_call({readConf}, From, {filename, ConfigFile}) ->
+    case config:read(ConfigFile) of
+	{ok, Config} ->
+	    %% Here we launch all the configured bots
+	    checkForNewChans(Config),
+	    {reply, ok, Config};
+
+	{error, Reason} ->
+	    {reply, {error, Reason}, ConfigFile}
+    end;
 
 handle_call({reconf, Channel, BotName, ConfigFile}, From, Config) ->
     case config:read(ConfigFile) of
