@@ -13,14 +13,15 @@ ERLANG_INSTALL_DIR = $(DESTDIR)/$(RAW_INSTALL_DIR)/lib
 APPLICATION = manderlbot
 VERSION = 0.9.2
 
-TARGETDIR= $(ERLANG_INSTALL_DIR)/$(APPLICATION)-$(VERSION)
-BINDIR   = $(DESTDIR)/usr/bin
-CONFFILE = config.xml
-LOGFILE  = /var/log/manderlbot.log
+TARGETDIR = $(ERLANG_INSTALL_DIR)/$(APPLICATION)-$(VERSION)
+BINDIR    = $(DESTDIR)/usr/bin
+CONFDIR   = $(DESTDIR)/etc/manderlbot
+LOGFILE   = $(DESTDIR)/var/log/manderlbot.log
 
-TMP      = $(wildcard *~) $(wildcard src/*~) $(wildcard inc/*~)
-INC_FILES= $(wildcard $(INC)/*.hrl)
-SRC      = $(wildcard $(ESRC)/*.erl)
+TMP       = $(wildcard *~) $(wildcard src/*~) $(wildcard inc/*~)
+INC_FILES = $(wildcard $(INC)/*.hrl)
+SRC       = $(wildcard $(ESRC)/*.erl)
+CONFFILES = conf/config.xml $(wildcard conf/*fortune)
 
 TARGET   = $(addsuffix .beam, $(basename \
              $(addprefix $(EBIN)/, $(notdir $(SRC)))))
@@ -72,7 +73,8 @@ install: build manderlbot.sh
 	@chmod +x $(SCRIPT)
 
 # added for debian
-	@cp $(CONFFILE) $(DESTDIR)/etc/manderlbot.xml
+	@mkdir -p $(CONFDIR)
+	@cp $(CONFFILES) $(CONFDIR)
 
 uninstall:
 	rm -rf $(TARGETDIR) $(SCRIPT)
@@ -92,9 +94,10 @@ doc:
 release:
 	rm -fr $(APPLICATION)-$(VERSION)
 	mkdir -p $(APPLICATION)-$(VERSION)
-	@tar zcf tmp.tgz $(SRC) $(APPFILES) $(INC_FILES) doc/*.lyx doc/Makefile doc/*.hva \
-		 			LICENSE README TODO $(CONFFILE) Makefile priv/builder.erl \
-					manderlbot.sh.in
+	@tar zcf tmp.tgz $(SRC) $(APPFILES) $(INC_FILES) \
+		doc/*.lyx doc/Makefile doc/*.hva \
+		LICENSE README TODO $(CONFFILES) Makefile \
+		priv/builder.erl manderlbot.sh.in
 	tar -C $(APPLICATION)-$(VERSION) -zxf tmp.tgz
 	mkdir $(APPLICATION)-$(VERSION)/ebin
 	tar zvcf  $(APPLICATION)-$(VERSION).tar.gz $(APPLICATION)-$(VERSION)
