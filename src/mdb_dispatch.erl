@@ -272,8 +272,19 @@ is_matching([Element|Elements], [Criterium|Criteria], Result) ->
 %%----------------------------------------------------------------------
 is_matching_regexp(String, Regexp) ->
     %% io:format("is_matching_regexp: ~p ~p~n", [String, Regexp]),
-    case regexp:match(String, Regexp) of
+    case regexp:match(downcase(String), Regexp) of
 	{match, _Start, _Length} ->  true;
 	nomatch                  ->  false;
 	{error, Error}           ->  false
     end.
+
+%%----------------------------------------------------------------------
+%% downcase/1
+%% All upper cars of the String will be down cased
+%%----------------------------------------------------------------------
+downcase(String) ->
+    lists:map(fun(X) when $A =< X, X =< $Z -> X + $a - $A;
+		 (X)                       -> X
+	      end,
+	      String).
+		     
