@@ -79,6 +79,7 @@ quit(Sock, Message) ->
 %%----------------------------------------------------------------------
 say(Sock, Channel, Message) ->
     Command = lists:concat(["PRIVMSG ", Channel, " :", Message]),
+    %% Command = io_lib:format("PRIVMSG ~s :~s", [Channel, Message]),
     command(Sock, Command).
 
 %%----------------------------------------------------------------------
@@ -180,12 +181,8 @@ parseUserLine(Line) ->
 %% Send a command to the IRC server
 %%----------------------------------------------------------------------
 command(Sock, Command) ->
-    CompleteCmd = [Command, "\r\n"],
-    mdb_logger:debug("COMMAND: ~p~n", [Command]),
-    %gen_tcp:send(Sock, "\r\n"), % FIXME: Workaround: The first message of a
-                                % sequence does not seem to be received by the
-                                % server ...
-				% Sending a blank line to awake the line...
+    CompleteCmd = io_lib:format("~s~s", [Command, "\r\n"]),
+    mdb_logger:debug("COMMAND: ~s~n", [Command]),
     gen_tcp:send(Sock, CompleteCmd).
 
 %%----------------------------------------------------------------------

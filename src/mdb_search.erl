@@ -128,7 +128,7 @@ handle_cast({search,
 					  | State#search_state.requests]}};
         {error, Reason} ->
             say(Input, BotName, 
-                atom_to_list(Params#search_param.type)++" connection failed",
+		[atom_to_list(Params#search_param.type)++" connection failed"],
                 BotPid, Channel),
             {noreply, State}
     end;
