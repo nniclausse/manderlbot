@@ -31,6 +31,8 @@ BUILD_OPTIONS =	'[{app_dir, "$(TARGETDIR)"}, \
 	{sh_script, none}, {report, verbose}, {make_app, true }].'
 BUILD_OPTIONS_FILE = ./BUILD_OPTIONS 
 
+.PHONY: doc
+
 manderlbot: $(TARGET)
 
 all: clean manderlbot
@@ -41,6 +43,7 @@ emake:
 
 clean:
 	-rm -f $(TARGET) $(TMP) $(BUILD_OPTIONS_FILE)
+	make -C doc clean
 
 install: manderlbot builder.beam manderlbot.sh
 	-rm -f $(TMP)
@@ -65,6 +68,19 @@ install: manderlbot builder.beam manderlbot.sh
 uninstall:
 	rm -rf $(TARGETDIR) $(SCRIPT)
 
+doc: 
+	make -C doc
+
+release:
+	rm -fr $(APPLICATION)-$(VERSION)
+	mkdir -p $(APPLICATION)-$(VERSION)
+	tar zcf tmp.tgz $(SRC) $(APPFILES) $(INC_FILES) doc/*.lyx doc/Makefile doc/*.hva LICENSE README TODO $(CONFFILE) Makefile priv/builder.erl
+	tar -C $(APPLICATION)-$(VERSION) -zxf tmp.tgz
+	mkdir $(APPLICATION)-$(VERSION)/ebin
+	tar zvcf  $(APPLICATION)-$(VERSION).tar.gz $(APPLICATION)-$(VERSION)
+	rm -fr $(APPLICATION)-$(VERSION)
+	rm -fr tmp.tgz
+
 builder.beam: priv/builder.erl 
 	$(CC) $(OPT) -I $(INC) $<
 
@@ -77,4 +93,4 @@ manderlbot.sh: manderlbot.sh.in
 		-e 's;%VERSION%;${VERSION};g' < $< > $@
 
 %:%.sh
-	# Override makefile default implicit rule
+# Override makefile default implicit rule
