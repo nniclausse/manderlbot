@@ -48,6 +48,7 @@ emake:
 	@echo $(EMAKE) | tr -s ' ' '\n' > ebin/Emakefile
 
 clean:
+	-cd priv && rm -f $(shell ls priv | grep -v builder\.erl) && cd ..
 	-rm -f $(TARGET) $(TMP) $(BUILD_OPTIONS_FILE) builder.beam
 	-rm -f $(TGT_APPFILES)
 	-rm -f ebin/*
@@ -61,21 +62,21 @@ install: build manderlbot.sh
 	install -d $(TARGETDIR)/src
 	install -d $(TARGETDIR)/include
 
-	@cp $(INC_FILES) $(TARGETDIR)/include
-	@cp $(TARGET) $(TARGETDIR)/ebin
+	cp $(INC_FILES) $(TARGETDIR)/include
+	cp $(TARGET) $(TARGETDIR)/ebin
 
-	@cp $(TGT_APPFILES_E) $(TARGETDIR)/ebin
-	@cp $(TGT_APPFILES_P) $(TARGETDIR)/priv
+	cp $(TGT_APPFILES_E) $(TARGETDIR)/ebin
+	cp $(TGT_APPFILES_P) $(TARGETDIR)/priv
 
-	@cp $(SRC) $(SRC_APPFILES) $(TARGETDIR)/src
+	cp $(SRC) $(SRC_APPFILES) $(TARGETDIR)/src
 
 # create startup script
-	@cp manderlbot.sh $(SCRIPT)
-	@chmod +x $(SCRIPT)
+	cp manderlbot.sh $(SCRIPT)
+	chmod +x $(SCRIPT)
 
 # added for debian
-	@mkdir -p $(CONFDIR)
-	@cp $(CONFFILES) $(CONFDIR)
+	mkdir -p $(CONFDIR)
+	cp $(CONFFILES) $(CONFDIR)
 
 uninstall:
 	rm -rf $(TARGETDIR) $(SCRIPT)
