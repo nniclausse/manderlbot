@@ -4,7 +4,7 @@
 {application, manderlbot,
  [
   {description, "Manderlbot"},
-  {vsn, "0.8.1"},
+  {vsn, "0.8.2"},
   {id, "Manderlbot"},
   {modules, [bloto, config, config_srv, debian, google, irc_lib, manderlbot,
 	     manderlbot_sup, mdb_behaviours, mdb_bot, mdb_bot_sup,
