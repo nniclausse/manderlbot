@@ -100,8 +100,20 @@ treat_recv(Sock, Data, State=#state{}) ->
 %% We are executing the behaviour whose pattern is matching with
 %% the input from the IRC server
 %%----------------------------------------------------------------------
-dispatch_message(Behaviours, Input, State) ->
-    ?dbg( "Match= ~p", [ Behaviours ]),
+dispatch_message(Behaviours, Input, State = #state{mode=muted}) ->
+    lists:map(fun(Behaviour = #behaviour{id = "mute"}) ->
+		      {M, F} = Behaviour#behaviour.function,
+		      apply(M, F, [Input,
+				   State#state.nickname,
+				   Behaviour#behaviour.data,
+				   State#state.bot_pid]);
+		 (_) ->
+		      ?dbg("MUTED", [])
+	      end,
+	      Behaviours);
+
+dispatch_message(Behaviours, Input, State = #state{}) ->
+    ?dbg("Match= ~p", [ Behaviours ]),
 
     lists:map(fun(Behaviour) ->
 		      {M, F} = Behaviour#behaviour.function,

@@ -20,7 +20,7 @@
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
 	 terminate/2, code_change/3]).
 
--export([say/2, say/3, action/2, rejoin/1, reconf/3]).
+-export([say/2, say/3, action/2, mute/2, rejoin/1, reconf/3]).
 
 -define(timeout, 25000).
 
@@ -54,6 +54,9 @@ say(BotPid, Message, To) ->
 
 action(BotPid, Message) ->
     gen_server:call(BotPid, {action, Message}, ?timeout).
+
+mute(BotPid, NickName) ->
+    gen_server:call(BotPid, {mute, NickName}, ?timeout).
 
 %% Rejoin the channel (Use it when you have been kicked)
 rejoin(BotPid) ->
@@ -97,7 +100,8 @@ init([RealName, Controler, Host, Port, Channel, BList]) ->
 		   date       = calendar:local_time(),
 		   behaviours = RealBList,
 		   host       = Host,
-		   port       = Port
+		   port       = Port,
+		   mode       = unmuted
 		  },
     {ok, State}.
 
@@ -154,8 +158,29 @@ handle_call({reconf, NickName, ConfigFile}, From, State) ->
 			NickName ++ ": " ++
 			"Who do you think you are to 'reconf' me ?"),
 	    {reply, {error, controller}, State}
-    end.
+    end;
 
+handle_call({mute, NickName}, From, State) ->
+    case State#state.controler of
+	NickName ->
+	    case State#state.mode of
+		muted   ->
+		    irc_lib:action(State#state.socket, State#state.channel,
+				   "is back"),
+		    {reply, ok, State#state{mode = unmuted}};
+
+		unmuted ->
+		    irc_lib:action(State#state.socket, State#state.channel,
+				   "is away"),
+		    {reply, ok, State#state{mode = muted}}
+	    end;
+
+	Other ->
+	    irc_lib:say(State#state.socket, State#state.channel,
+			NickName ++ ": " ++
+			"Who do you think you are to mute me ?"),
+	    {reply, {error, controller}, State}
+    end.
 %%----------------------------------------------------------------------
 %% Func: handle_cast/2
 %% Returns: {noreply, State}          |

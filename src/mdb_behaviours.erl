@@ -11,7 +11,7 @@
 
 %% Exported behaviours
 -export([say/4, action/4, answer/4, random/4, timer/4, bloto/4,
-         google/4, dict/4, rejoin/4, reconf/4,
+         google/4, dict/4, rejoin/4, reconf/4, mute/4,
          debian_pkg/4, debian_file/4
         ]).
 
@@ -176,6 +176,16 @@ rejoin(Input, BotName, Data, BotPid) ->
 reconf(Input, BotName, ConfigFile, BotPid) ->
     [NickFrom|IpFrom] = string:tokens(Input#data.header_from, "!"),
     mdb_bot:reconf(BotPid, NickFrom, ConfigFile).		     
+
+
+%%%----------------------------------------------------------------------
+%%% Function: mute/4
+%%% Purpose:  allow the bot not to react for a while
+%%%----------------------------------------------------------------------
+mute(Input, BotName, Data, BotPid) ->
+    [NickFrom|IpFrom] = string:tokens(Input#data.header_from, "!"),
+    io:format("mute ~n", []),
+    mdb_bot:mute(BotPid, NickFrom).		     
 
 
 %%%----------------------------------------------------------------------

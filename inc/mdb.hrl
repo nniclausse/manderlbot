@@ -41,7 +41,8 @@
 	        bot_state={},
 		date={},
 		host = "",
-		port = ""
+		port = "",
+		mode = unmuted % will either be muted or unmuted atom
 	       }).
 
 %% Behaviour description

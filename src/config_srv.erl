@@ -191,6 +191,7 @@ build_behaviours_list([BC=#cfg_behaviour{}|BClist], Acc) ->
 	      "bloto"  -> {mdb_behaviours, bloto};
 	      "google" -> {mdb_behaviours, google};
 	      "dict"   -> {mdb_behaviours, dict};
+	      "mute"   -> {mdb_behaviours, mute};
 	      "debian_pkg"  -> {mdb_behaviours, debian_pkg};
 	      "debian_file" -> {mdb_behaviours, debian_file};
 	      Other    -> {mdb_behaviours, say}
