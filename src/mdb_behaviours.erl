@@ -11,7 +11,9 @@
 
 %% Exported behaviours
 -export([say/4, action/4, answer/4, random/4, timer/4, bloto/4,
-	 google/4, dict/4, jargon/4, rejoin/4, reconf/4]).
+         google/4, dict/4, jargon/4, rejoin/4, reconf/4,
+         debian_pkg/4, debian_file/4
+        ]).
 
 -include("mdb.hrl").
 -define(TIME, 2000).
@@ -189,6 +191,38 @@ google(Input, BotName, ConfigFile, BotPid) ->
     io:format("GOOGLE criteria: ~p~n", [Criteria]),
 
     google:search(Criteria, Input, BotPid, BotName).
+%%%----------------------------------------------------------------------
+%%% Function: debian_pkg/4
+%%% Purpose:  search for debian packages
+%%%----------------------------------------------------------------------
+debian_pkg(Input, BotName, ConfigFile, BotPid) ->
+    io:format("DEBIAN package input: ~p~n", [Input#data.body]),
+	[Key, String | Args] = string:tokens(Input#data.body," "),
+	case Args of 
+        [] ->
+            io:format("DEBIAN criteria: ~p~n", [String]),
+            debian:search([package, String], Input, BotPid, BotName);
+        [Version | _] -> % which debian distrib
+            io:format("DEBIAN criteria: ~p,~p~n", [String, Version]),
+            debian:search([package, String, Version], Input, BotPid, BotName)
+    end.
+
+%%%----------------------------------------------------------------------
+%%% Function: debian_file/4
+%%% Purpose:  search for files in debian package
+%%%----------------------------------------------------------------------
+debian_file(Input, BotName, ConfigFile, BotPid) ->
+    io:format("DEBIAN file input: ~p~n", [Input#data.body]),
+	[Key, String | Args] = string:tokens(Input#data.body," "),
+	case Args of 
+        [] ->
+            io:format("DEBIAN criteria: ~p~n", [String]),
+            debian:search([file, String], Input, BotPid, BotName);
+        [Version | _] -> % which debian distrib
+            io:format("DEBIAN criteria: ~p,~p~n", [String, Version]),
+            debian:search([file, String, Version], Input, BotPid, BotName)
+    end.
+
 
 %%%----------------------------------------------------------------------
 %%% Function: dict/4

@@ -185,6 +185,8 @@ build_behaviours_list([BC=#cfg_behaviour{}|BClist], Acc) ->
 	      "google" -> {mdb_behaviours, google};
 	      "dict"   -> {mdb_behaviours, dict};
 	      "jargon" -> {mdb_behaviours, jargon};
+	      "debian_pkg"  -> {mdb_behaviours, debian_pkg};
+	      "debian_file" -> {mdb_behaviours, debian_file};
 	      Other    -> {mdb_behaviours, say}
 	  end,
 
