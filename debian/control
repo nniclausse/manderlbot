@@ -2,7 +2,7 @@ Source: manderlbot
 Section: net
 Priority: optional
 Maintainer: Julien Danjou <acid@debian.org>
-Build-Depends-Indep: debhelper (>> 3.0.0), erlang, lyx, docbook-to-man
+Build-Depends-Indep: debhelper (>> 3.0.0), erlang, lyx, docbook-utils, hevea
 Standards-Version: 3.6.1.0
 
 Package: manderlbot
