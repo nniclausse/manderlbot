@@ -19,7 +19,7 @@
   {registered, []},
   {applications, [kernel, stdlib]},
   {env, [
-         {config_file, "/etc/manderlbot.xml"},
+         {config_file, "/etc/manderlbot/config.xml"},
          {log_file,    "/var/log/manderlbot.log"},
          {log_level,   notice}
         ]},

@@ -230,7 +230,7 @@ manderlbot
 \family default 
  configuration file is to be found in 
 \family typewriter 
-/etc/manderlbot.xml
+/etc/manderlbot/config.xml
 \family default 
 , and has to be edited to fit your needs.
  By default it contains some basic rules as examples.
