@@ -50,7 +50,7 @@
 
 	<server host="irc.tuxfamily.org" port="6667">
 		<channel name="#manderlbot" botname="mdb"
-			behaviours="ouca foutaises prout hop google mute pyramid">
+			behaviours="rejoin reconf login ouca foutaises prout hop google mute pyramid ">
 		</channel>
 
 		<!--
@@ -62,13 +62,25 @@
 
 
 	<behaviours>
-		<behaviour name="bloto" action="bloto"
-		           pattern="(Help Desk|[Çç]a dérape|From scratch|[Cc]ompétences?|[Tt]ypologie|[Pp]otentialité|[Ff]onctionnel|[Pp]artenaire|[Tt]ransversal|[Pp]rocess|[Mm]anage?ment|LDAP|[Ff]aisabilité|[Cc]hef de [Pp]rojet|[Ll]eader|[Cc]rash|[Pp]rogramme|[Bb]ase|[Dd]onnées?|[Ii]ndisponible|[Ii]nterface|[Aa]déquation|[Ii]mpl[eé]ment|[Rr]eporting|[Mm]éthod|[Ee]xpert|[Tt]echnique|pas moi|[Mm]igration|client|middleware|business|corpo|use.case|modul|sp[ée]cif|backoffice|[Ii]nvestisseur|[Vv]enture [Cc]apitalist|[Tt]echno|e-[Bb]usiness|[Ii]ntelligence)">
-			won Business Loto - http://www.isty-info.uvsq.fr/~fontaine/images/autres/corpo/business-loto.jpg
+		<behaviour name="rejoin" action="rejoin" op="kick">
+			rejoin
+		</behaviour>
+
+		<behaviour name="reconf" action="reconf" pattern="^%BOTNAME:.*reconf">
+			../config.xml
+		</behaviour>
+
+		<behaviour name="login" action="say" op="join" from="%BOTNAME">
+			Salut les loutres
 		</behaviour>
 
 		<behaviour name="mute" action="mute" pattern="^%BOTNAME: mute">
 			mute
+		</behaviour>
+
+		<behaviour name="bloto" action="bloto"
+		           pattern="(Help Desk|[Çç]a dérape|From scratch|[Cc]ompétences?|[Tt]ypologie|[Pp]otentialité|[Ff]onctionnel|[Pp]artenaire|[Tt]ransversal|[Pp]rocess|[Mm]anage?ment|LDAP|[Ff]aisabilité|[Cc]hef de [Pp]rojet|[Ll]eader|[Cc]rash|[Pp]rogramme|[Bb]ase|[Dd]onnées?|[Ii]ndisponible|[Ii]nterface|[Aa]déquation|[Ii]mpl[eé]ment|[Rr]eporting|[Mm]éthod|[Ee]xpert|[Tt]echnique|pas moi|[Mm]igration|client|middleware|business|corpo|use.case|modul|sp[ée]cif|backoffice|[Ii]nvestisseur|[Vv]enture [Cc]apitalist|[Tt]echno|e-[Bb]usiness|[Ii]ntelligence)">
+			won Business Loto - http://www.isty-info.uvsq.fr/~fontaine/images/autres/corpo/business-loto.jpg
 		</behaviour>
 
 		<behaviour name="pyramid" action="pyramid" pattern="^pyramid">

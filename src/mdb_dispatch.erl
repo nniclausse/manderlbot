@@ -81,10 +81,8 @@ treat_recv(Sock, Data, State=#state{}) ->
     %% And for which the corresponding fun will be executed
     {ok, BList} = config_srv:getBehaviours(State#state.behaviours),
     lists:map(fun(X) -> 
-		      io:format("~p~n", [X]),
 		      MatchingList =
 			  match_event(X, BList, State#state.nickname),
-		      io:format("   ~p~n", [MatchingList]),
 		      dispatch_message(MatchingList, X, State)
 		      end,
 	      Parsed_result),
@@ -215,6 +213,15 @@ match_event(Data, [], Nickname, Acc) ->
 match_event(Data, [Behaviour|Behaviours], Nickname, Acc) ->
     MatchCritList =
 	append_botname(data_as_list(Behaviour#behaviour.pattern), Nickname),
+
+    case {Behaviour#behaviour.id, Data}  of
+	{"rejoin", ["dim" | Rest ]} ->
+	    io:format("Data: ~p~nCrit: ~p~nRes : ~p~n",
+		      [Data, MatchCritList,
+		       is_matching(Data, MatchCritList)]);
+	_ ->
+	    ok
+    end,
 
     case is_matching(Data, MatchCritList) of
 	true ->

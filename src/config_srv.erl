@@ -157,36 +157,7 @@ code_change(OldVsn, State, Extra) ->
 %%   config file
 %%----------------------------------------------------------------------
 build_behaviours_list([], Acc) ->
-    %% Auto add the rejoin-on-kick ability
-    Rejoin = #behaviour{id       = "rejoin",
-			pattern  = #data{header_op="KICK"},
-			function = {mdb_behaviours, rejoin},
-			data     = []
-			},
-
-    {ok, RootPath} = application:get_env(manderlbot, root_path),
-    {ok, Config}   = application:get_env(manderlbot, config_file),
-
-    Reconf = #behaviour{id       = "reconf",
-			pattern  = #data{body={regexp, "^%BOTNAME.*reconf"}},
-			function = {mdb_behaviours, reconf},
-			data     = RootPath ++ "/" ++ Config
-			},
-
-    [Rejoin, Reconf | Acc];
-
-build_behaviours_list([BC=#cfg_behaviour{name=Id,
-					 to=To,
-					 data=Data,
-					 action="login"}|BClist], Acc) ->
-    Login = #behaviour{id       = Id,
-		       pattern  = #data{header_op   = "JOIN",
-					header_to   = {regexp, To},
-					header_from = {regexp, "%BOTNAME.*"}},
-		       function = {mdb_behaviours, say},
-		       data     = Data
-		      },
-    build_behaviours_list(BClist, [Login|Acc]);
+    Acc;
 
 build_behaviours_list([BC=#cfg_behaviour{action=Action}|BClist], Acc) ->
     %% Here we map the actions defined in the config file
@@ -197,6 +168,7 @@ build_behaviours_list([BC=#cfg_behaviour{action=Action}|BClist], Acc) ->
 		   pattern  = #data{
 		     header_from = {regexp, BC#cfg_behaviour.from},
 		     header_to   = {regexp, BC#cfg_behaviour.to},
+		     header_op   = {regexp, BC#cfg_behaviour.op},
 		     body        = {regexp, BC#cfg_behaviour.pattern}},
 
 		   function = mdb_behaviours:getFun(Action),
@@ -221,8 +193,7 @@ getBehaviours([#server{channels=CList}|STail], Chan, BotName) ->
 
 getBehaviours([#channel{name=Chan, botname=BotName, behaviours=BList}|CTail],
 	      Chan, BotName) ->
-    %% Here we add some intern behaviours
-    ["reconf", "rejoin" | BList];
+    BList;
 
 getBehaviours([#channel{}|CTail], Chan, BotName) ->
     getBehaviours(CTail, Chan, BotName);

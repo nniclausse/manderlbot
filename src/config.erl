@@ -94,17 +94,18 @@ parse(Element = #xmlElement{name=behaviour},
     [CurChan|ChanList] = CurServ#server.channels,
 
     Name    = getAttr(Element#xmlElement.attributes, name),
-    Pattern = getAttr(Element#xmlElement.attributes, pattern),
     Action  = getAttr(Element#xmlElement.attributes, action),
+    Pattern = getAttr(Element#xmlElement.attributes, pattern, '_'),
     From    = getAttr(Element#xmlElement.attributes, from, '_'),
     To      = getAttr(Element#xmlElement.attributes, to, '_'),
+    Op      = getAttr(Element#xmlElement.attributes, op, '_'),
     Data    = getText(Element#xmlElement.content),
 
     lists:foldl(fun parse/2,
 		Conf#config{behaviours =
 			    [#cfg_behaviour{name=Name, pattern = Pattern,
 					    action=Action, data=Data,
-					    from=From, to=To}
+					    from=From, to=To, op=Op}
 			     | BList]},
 		Element#xmlElement.content);
 

@@ -33,6 +33,7 @@
 			pattern,
 			from,
 			to,
+			op,
 		       data = []
 		      }).
 

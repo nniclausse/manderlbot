@@ -29,6 +29,8 @@
 %%%----------------------------------------------------------------------
 getFun(Action) ->
     case Action of
+	"rejoin"      -> {mdb_behaviours, rejoin};
+	"reconf"      -> {mdb_behaviours, reconf};
 	"say"         -> {mdb_behaviours, say};
 	"answer"      -> {mdb_behaviours, answer};
 	"random"      -> {mdb_behaviours, random};
