@@ -256,7 +256,9 @@ handle_info({tcp, Socket, Data}, State) ->
 handle_info({tcp_einval, Socket}, State) ->
     {noreply, State};
 
-handle_info({tcp_error, Socket}, State) ->
+handle_info({tcp_error, Socket, Reason}, State) ->
+    mdb_logger:error("tcp error: reconnect ~p on ~p [~p]~n",
+		      [State#state.nickname, State#state.channel, Reason]),
     {ok, NewState} = mdb_connection:manage_reconnect(State),
     {noreply, NewState};
 
