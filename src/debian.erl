@@ -78,7 +78,7 @@ parse("<li><a href=\"" ++ Data) ->
     Pos= string:str(Desc,?package_desc_start) +length(?package_desc_start)+1,
     case catch string:substr(Desc, Pos) of
         Desc2 when is_list(Desc2) ->
-            {continue, URL++": " ++ Desc2};
+            {continue, URL++" : " ++ Desc2};
         Other ->
             mdb_logger:info("Debian desc error= ~p~n", [Other]),
             {continue, URL}
