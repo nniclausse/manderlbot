@@ -51,7 +51,6 @@ binary-indep: build install
 # We have nothing to do by default.
 	dh_testdir
 	dh_testroot
-	dh_undocumented
 	dh_installdocs
 	dh_installchangelogs 
 	dh_link
