@@ -135,7 +135,7 @@ treat_recv(Sock, Data, State=#state{}) ->
     %% Trace
     lists:map(fun(Res) ->
 		      [NickFrom|_] = string:tokens(Res#data.header_from, "!"),
-		      mdb_logger:log("~s ~s <~s> ~s~n", 
+		      mdb_logger:info("~s ~s <~s> ~s~n", 
 				     [State#state.nickname,
 				      Res#data.header_to,
 				      NickFrom,
