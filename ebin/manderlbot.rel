@@ -1,4 +1,0 @@
-{release, {"Manderlbot", "0.8.2"}, 
- {erts, "5.1.2"},
- [{kernel,"2.7"},
-  {stdlib,"1.10"}]}.
