@@ -206,7 +206,8 @@ is_matching_regexp(String, Regexp) ->
 
 is_matching_regexp(String, Regexp, {True, False}) ->
     %% io:format("is_matching_regexp: ~p ~p~n", [String, Regexp]),
-    case regexp:match(misc_tools:downcase(String), Regexp) of
+    case regexp:match(misc_tools:downcase(String), 
+		      misc_tools:downcase(Regexp)) of
 	{match, _Start, _Length} ->  True;
 	nomatch                  ->  False;
 	{error, Error}           ->  False
