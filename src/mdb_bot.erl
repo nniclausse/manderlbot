@@ -22,7 +22,7 @@
 
 -export([say/2, say/3, action/2, rejoin/1, reconf/3]).
 
--define(timeout, 10000).
+-define(timeout, 25000).
 
 %% Configure debugging mode:
 -include("mdb_macros.hrl").
