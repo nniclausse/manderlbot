@@ -10,6 +10,8 @@
 -author('tapoueh@free.fr').
 
 %% Exported behaviours
+-export([getFun/1]).
+
 -export([say/5, action/5, answer/5, random/5, timer/5, bloto/5,
          google/5, dict/5, rejoin/5, reconf/5, mute/5,
          debian_pkg/5, debian_file/5, pyramid/5
@@ -19,9 +21,32 @@
 -define(TIME, 2000).
 -define(RNDTIME, 3000).
 
+
+%%%----------------------------------------------------------------------
+%%% Function: getFun/1
+%%% Purpose:  Given the action name, returns the Module and Function to
+%%%           call.
+%%%----------------------------------------------------------------------
+getFun(Action) ->
+    case Action of
+	"say"         -> {mdb_behaviours, say};
+	"answer"      -> {mdb_behaviours, answer};
+	"random"      -> {mdb_behaviours, random};
+	"timer"       -> {mdb_behaviours, timer};
+	"think"       -> {mdb_behaviours, action};
+	"bloto"       -> {mdb_behaviours, bloto};
+	"google"      -> {mdb_behaviours, google};
+	"dict"        -> {mdb_behaviours, dict};
+	"mute"        -> {mdb_behaviours, mute};
+	"debian_pkg"  -> {mdb_behaviours, debian_pkg};
+	"debian_file" -> {mdb_behaviours, debian_file};
+	"pyramid"     -> {mdb_behaviours, pyramid};
+	Other         -> {mdb_behaviours, say}
+    end.
+
+
 %% A plugin function for behaviour is of the form:
 %% Fun(Input, BotName, Data, BotPid, Channel)
-
 
 %%%----------------------------------------------------------------------
 %%% Function: say/5
