@@ -77,7 +77,7 @@ behaviour(Input, BotName, Data, BotPid, Channel) ->
 
     io:format("body: ~p~n", [Input#data.body]),
 
-    case regexp:match(Input#data.body, "[A-za-z]+/[0-9]") of
+    case regexp:match(Input#data.body, "[A-Za-z0-9_]+/[0-9]+") of
 	{match, S, L} ->
 	    [Player2, Nguess] =
 		string:tokens(string:substr(Input#data.body, S, L), "/"),
