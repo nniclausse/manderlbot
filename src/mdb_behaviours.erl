@@ -196,8 +196,13 @@ google(Input, BotName, ConfigFile, BotPid) ->
 
     io:format("GOOGLE criteria: ~p~n", [Criteria]),
 
-    Result = google:search(Criteria),
+    case google:search(Criteria) of
+	{stop, connfailed} ->
+	    mdb_bot:say(BotPid, "google: connection failed !");
 
-    io:format("GOOGLE result: ~p~n", [Result]),
+	{error, Reason} ->
+	    mdb_bot:say(BotPid, "google: " ++ Reason);
 
-    mdb_bot:say(BotPid, Result).
+	Result ->
+	    mdb_bot:say(BotPid, Result)
+    end.
