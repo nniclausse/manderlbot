@@ -43,5 +43,5 @@
 %%%----------------------------------------------------------------------
 behaviour(Input, BotName, Data, BotPid, Channel) ->
     [NickFrom|IpFrom] = string:tokens(Input#data.header_from, "!"),
-    mdb_logger:log("mute ~n", [], ?DEBUG),
+    mdb_logger:debug("mute ~n", []),
     mdb_bot:mute(BotPid, NickFrom).		     

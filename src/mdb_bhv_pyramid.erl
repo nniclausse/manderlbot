@@ -101,7 +101,7 @@ behaviour(Input, BotName, Data, BotPid, Channel) ->
 
     [NickFrom|IpFrom] = string:tokens(Input#data.header_from, "!"),
 
-    mdb_logger:log("body: ~p~n", [Input#data.body], ?INFO),
+    mdb_logger:info("body: ~p~n", [Input#data.body]),
 
     case regexp:match(Input#data.body, "[A-Za-z0-9_]+/[0-9]+") of
 	{match, S, L} ->
@@ -110,8 +110,8 @@ behaviour(Input, BotName, Data, BotPid, Channel) ->
 
 	    {ok, [{integer, 1, Iguess}],1} = erl_scan:string(Nguess),
 	    
-	    mdb_logger:log("pyramid: ~p invite ~p in ~p~n",
-		      [NickFrom, Player2, Iguess], ?INFO),
+	    mdb_logger:info("pyramid: ~p invite ~p in ~p~n",
+			    [NickFrom, Player2, Iguess]),
 
 	    {_ok, SMsg} = start(NickFrom, Channel, Player2, Iguess),
 	    mdb_bot:say(BotPid, SMsg);

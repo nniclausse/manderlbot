@@ -1,3 +1,12 @@
+%%% File    : log.hrl
+%%% Author  : Dimitri Fontaine <dim@tuxfamily.org>
+%%% Description : Definitions for logger module (mdb_logger)
+%%% Created :  4 Nov 2003 by Dimitri Fontaine <fontaine@whitestar.dim>
+
+-record(log, {fd,
+	      level
+	     }).
+
 %%
 -define(EMERG, 0). % The system is unusable. 
 -define(ALERT, 1). % Action should be taken immediately to address the problem.

@@ -42,16 +42,16 @@
 %%% Purpose:  search for debian packages
 %%%----------------------------------------------------------------------
 behaviour(Input, BotName, Data, BotPid, Channel) ->
-    mdb_logger:log("DEBIAN package input: ~p~n", [Input#data.body], ?INFO),
+    mdb_logger:info("DEBIAN package input: ~p~n", [Input#data.body]),
 	[Key, String | Args] = string:tokens(Input#data.body," "),
 	case Args of 
 	    [] ->
-		mdb_logger:log("DEBIAN criteria: ~p~n", [String], ?INFO),
+		mdb_logger:info("DEBIAN criteria: ~p~n", [String]),
 		debian:search([package, String],
 			      Input, BotPid, BotName, Channel);
 
 	    [Version | _] -> % which debian distrib
-		mdb_logger:log("DEBIAN criteria: ~p,~p~n", [String, Version], ?INFO),
+		mdb_logger:info("DEBIAN criteria: ~p,~p~n", [String, Version]),
 		debian:search([package, String, Version],
 			      Input, BotPid, BotName, Channel)
     end.

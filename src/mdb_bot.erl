@@ -102,7 +102,7 @@ reconf(BotPid, NickName, ConfigFile) ->
 %%          {stop, Reason}
 %%----------------------------------------------------------------------
 init([RealName, Controler, Host, Port, Passwd, Channel, BList]) ->
-    mdb_logger:log("launching a new bot: ~p~n", [Channel], ?DEBUG),
+    mdb_logger:debug("launching a new bot: ~p~n", [Channel]),
 
     {ok, Sock} = mdb_connection:connect(Host, Port),
     mdb_connection:log(Sock, Channel, Passwd, RealName),
@@ -269,8 +269,8 @@ handle_info({tcp_closed, Socket}, State) ->
 %% Returns: any (ignored by gen_server)
 %%----------------------------------------------------------------------
 terminate(Reason, State) ->
-    mdb_logger:log("~p is quitting ~p [~p]~n",
-	      [State#state.nickname, State#state.channel, Reason], ?NOTICE),
+    mdb_logger:notice("~p is quitting ~p [~p]~n",
+		      [State#state.nickname, State#state.channel, Reason]),
     irc_lib:quit(State#state.socket, Reason),
     ok.
 

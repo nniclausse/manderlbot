@@ -127,7 +127,7 @@ handle_call({getBehaviours, notfound}, From, Conf) ->
     {reply, {ok, []}, Conf};
 
 handle_call({getBehaviours, BNames}, From, Conf=#config{behaviours=BList}) ->
-    mdb_logger:log("BNames: ~p~n", [BNames], ?DEBUG),
+    mdb_logger:debug("BNames: ~p~n", [BNames]),
     {reply,
      {ok, lists:filter(fun(Behaviour=#behaviour{id=Id}) ->
 			       lists:member(Id, BNames)

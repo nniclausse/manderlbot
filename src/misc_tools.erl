@@ -207,7 +207,7 @@ is_matching_regexp(String, Regexp) ->
     is_matching_regexp(String, Regexp, {true, false}).
 
 is_matching_regexp(String, Regexp, {True, False}) ->
-    mdb_logger:log("is_matching_regexp: ~p ~p~n", [String, Regexp], ?DEBUG),
+    mdb_logger:debug("is_matching_regexp: ~p ~p~n", [String, Regexp]),
     case regexp:match(misc_tools:downcase(String), 
 		      misc_tools:downcase(Regexp)) of
 	{match, _Start, _Length} ->  True;

@@ -42,15 +42,15 @@
 %%% Purpose:  search for files in debian package
 %%%----------------------------------------------------------------------
 behaviour(Input, BotName, Data, BotPid, Channel) ->
-    mdb_logger:log("DEBIAN file input: ~p~n", [Input#data.body], ?INFO),
+    mdb_logger:info("DEBIAN file input: ~p~n", [Input#data.body]),
     [Key, String | Args] = string:tokens(Input#data.body," "),
     case Args of 
         [] ->
-            mdb_logger:log("DEBIAN criteria: ~p~n", [String], ?INFO),
+            mdb_logger:info("DEBIAN criteria: ~p~n", [String]),
             debian:search([file, String], Input, BotPid, BotName, Channel);
 
         [Version | _] -> % which debian distrib
-            mdb_logger:log("DEBIAN criteria: ~p,~p~n", [String, Version], ?INFO),
+            mdb_logger:info("DEBIAN criteria: ~p,~p~n", [String, Version]),
             debian:search([file, String, Version], Input,
 			  BotPid, BotName, Channel)
     end.

@@ -45,13 +45,13 @@
 %%%----------------------------------------------------------------------
 behaviour(Input, BotName, Data, BotPid, Channel) ->
     [DictName] = Data,
-    mdb_logger:log("DICT input: ~p~n", [Input#data.body], ?INFO),
-    mdb_logger:log("DICT name:  ~p~n", [DictName], ?INFO),
+    mdb_logger:info("DICT input: ~p~n", [Input#data.body]),
+    mdb_logger:info("DICT name:  ~p~n", [DictName]),
 
     [Key | Args] = string:tokens(Input#data.body," "),
     Criteria = string:strip(Args),
    
-    mdb_logger:log("DICT criteria: ~p~n", [Criteria], ?INFO),
+    mdb_logger:info("DICT criteria: ~p~n", [Criteria]),
 
     case DictName of
 	[] ->
@@ -63,11 +63,11 @@ behaviour(Input, BotName, Data, BotPid, Channel) ->
 
 %% search with default dictionnary 
 search(Keywords, Input, BotPid, BotName, Channel) ->
-    mdb_logger:log("params: ~p~n", [getConf()], ?DEBUG),
+    mdb_logger:debug("params: ~p~n", [getConf()]),
     mdb_search:search({Keywords, Input, BotPid, BotName, Channel, getConf()}).
 
 search(Keywords, Input, BotPid, BotName, Channel, Dict) ->
-    mdb_logger:log("params: ~p~n", [getConf()], ?DEBUG),
+    mdb_logger:debug("params: ~p~n", [getConf()]),
     mdb_search:search({[Keywords, Dict],
 		       Input, BotPid, BotName, Channel, getConf()}).
 

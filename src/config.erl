@@ -47,8 +47,8 @@
 read(Filename) ->
     case xmerl_scan:file(Filename) of
         {ok, Root = #xmlElement{}} ->
-            mdb_logger:log("root: ~p~n~p~n", [Root#xmlElement.name,
-											  Root#xmlElement.content], ?DEBUG),
+            mdb_logger:debug("root: ~p~n~p~n", [Root#xmlElement.name,
+						Root#xmlElement.content]),
 	    {ok, parse(Root, #config{})};
 
 	Error ->

@@ -106,13 +106,15 @@ handle_call(
     case length(lists:filter(AlreadyStarted, State)) of
 	1 ->
 	    %% This Bot is already running
-	    mdb_logger:log(
-	      "Bot ~p already running on ~p ~n", [Name, Chan#channel.name],?NOTICE),
+	    mdb_logger:notice(
+	      "Bot ~p already running on ~p ~n", [Name, Chan#channel.name]),
 	    {reply, {error, running}, State};
 	
 	NotFound ->
 	    %% We have to start this bot
-	    mdb_logger:log("starting bot ~p on ~p~n", [Name, Chan#channel.name],?NOTICE),
+	    mdb_logger:notice("starting bot ~p on ~p~n",
+			      [Name, Chan#channel.name]),
+
 	    case mdb_bot_sup:start_child(Name, Controler,
 					 Host, Port, Pass, Chan, BList) of
 		{ok, Sock}      -> {reply, ok, State ++ [{Host, Chan}]};

@@ -58,7 +58,7 @@ start(Type, StartArgs) ->
 		{ok, Pid} -> 
 	    %% Init first the logger
 	    mdb_logger:add_handler({Log_file, Log_level}),
-	    mdb_logger:log("Manderlbot started with ~s~n", [Config_file], ?NOTICE),
+	    mdb_logger:notice("Manderlbot started with ~s~n", [Config_file]),
 
 	    %% Then init the manderlbot system
 	    init(),

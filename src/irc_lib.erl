@@ -152,11 +152,11 @@ getData(Sock, Buffer) ->
 	    end;
 	
 	{Error, Sock} ->
-	    mdb_logger:log("Error: ~p~n", [Error], ?ERR),
+	    mdb_logger:error("Error: ~p~n", [Error]),
 	    {error, Buffer};
 	
 	Whatever ->
-	    mdb_logger:log("Whatever: ~p~n", [Whatever], ?NOTICE),
+	    mdb_logger:notice("Whatever: ~p~n", [Whatever]),
 	    getData(Sock, Buffer)
     
     after 10000 ->
@@ -181,7 +181,7 @@ parseUserLine(Line) ->
 %%----------------------------------------------------------------------
 command(Sock, Command) ->
     CompleteCmd = [Command, "\r\n"],
-    mdb_logger:log("COMMAND: ~p~n", [Command], ?DEBUG),
+    mdb_logger:debug("COMMAND: ~p~n", [Command]),
     %gen_tcp:send(Sock, "\r\n"), % FIXME: Workaround: The first message of a
                                 % sequence does not seem to be received by the
                                 % server ...

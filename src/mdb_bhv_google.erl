@@ -49,12 +49,12 @@
 %%% Purpose:  ask google and give the first response
 %%%----------------------------------------------------------------------
 behaviour(Input, BotName, Data, BotPid, Channel) ->
-    mdb_logger:log("GOOGLE input: ~p~n", [Input#data.body], ?DEBUG),
+    mdb_logger:debug("GOOGLE input: ~p~n", [Input#data.body]),
 
     [Key | Args] = string:tokens(Input#data.body," "),
     Criteria= misc_tools:join("+", Args),
 	
-    mdb_logger:log("GOOGLE criteria: ~p~n", [Criteria], ?DEBUG),
+    mdb_logger:debug("GOOGLE criteria: ~p~n", [Criteria]),
 
     search(Criteria, Input, BotPid, BotName, Channel).
 
