@@ -28,7 +28,7 @@
 -vsn(' $Revision$ ').
 
 %% IRC operations
--export([pong/2, join/2, say/3, action/3]).
+-export([pong/2, join/2, say/3, action/3, login/3, passwd/2]).
 
 %% IRC helper functions
 -export([is_chanop/1,
@@ -71,6 +71,26 @@ action(Sock, Channel, Message) ->
     Command = "PRIVMSG " ++ Channel ++ " :"
 	++ [1] ++ "ACTION " ++ Message ++ [1],
     command(Sock, Command).
+
+%%----------------------------------------------------------------------
+%% login/3
+%% Send the user information to terminate the log in phase
+%%----------------------------------------------------------------------
+login(Sock, Nickname, Realname) ->
+    Command = lists:concat(["USER ", Nickname, " dummy dummy :", Realname]),
+    command(Sock, Command),
+
+    NickCommand = ["NICK ", Nickname],
+    gen_tcp:send(Sock, NickCommand).
+
+%%----------------------------------------------------------------------
+%% passwd/2
+%% If the IRC server is password protected, this function is supposed
+%% send the needed password
+%%----------------------------------------------------------------------
+passwd(Sock, Password) ->
+    PassCommand = ["PASS ", Password],
+    command(Sock, PassCommand).    
 
 %%----------------------------------------------------------------------
 %% command/2

@@ -63,6 +63,7 @@ process_data(Sock, Data, State) ->
 %% If this is a PING from the server:
 %%----------------------------------------------------------------------
 treat_recv(Sock, <<$P, $I, $N, $G, $ , Rest/binary>>, State) ->
+    io:format("PING ~p~n", [binary_to_list(Rest)]),
     irc_lib:pong(Sock, binary_to_list(Rest));
 
 %%----------------------------------------------------------------------
@@ -114,9 +115,8 @@ dispatch_message(Behaviours, Input, State = #state{mode=muted}) ->
 	      Behaviours);
 
 dispatch_message(Behaviours, Input, State = #state{}) ->
-    ?dbg("Match= ~p", [ Behaviours ]),
-
     lists:map(fun(Behaviour) ->
+		      ?dbg("Match= ~p", [Behaviour#behaviour.function]),
 		      {M, F} = Behaviour#behaviour.function,
 		      apply(M, F, [Input,
 				   State#state.nickname,

@@ -7,11 +7,11 @@
 			behaviours="ouca foutaises prout hop google mute bloto pyramid">
 		</channel>
 
+		<!--
 		<channel name="#manderlbot" botname="mdbis"
 			behaviours="tictac foutaises prout hop google mute bloto">
 		</channel>
 
-		<!--
 		<channel name="#mdbtest" botname="manderlbot-devel"
 			behaviours="ouca foutaises prout hop google dict jargon ">
 		</channel>

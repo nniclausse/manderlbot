@@ -80,8 +80,7 @@ init([RealName, Controler, Host, Port, Channel, BList]) ->
     io:format("launching a new bot: ~p~n", [Channel]),
 
     {ok, Sock} = mdb_connection:connect(Host, Port),
-
-    ok = mdb_connection:log(Sock, Channel, RealName),
+    mdb_connection:log(Sock, Channel, RealName),
 
     %% To avoid some re-entrance issue when starting bot from a reconf,
     %% we may start the bot giving it its behaviours list...
