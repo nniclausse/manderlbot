@@ -96,7 +96,7 @@ process_data(Sock, Data, State=#state{joined = true}) ->
     end;
 
 process_data(Sock, Data, State) ->
-    ?dbg("process_data: ~p ~p ~p ~n", [Sock, Data, State]),
+    mdb_logger:debug("process_data: ~p ~p ~p ~n", [Sock, Data, State]),
     {ok, []}.
 
 cut_line(Data) ->
@@ -232,7 +232,7 @@ parse_line([$: | ServerData]) ->
 %% I think that missing a ping generate a message that fall in this case and
 %% crash the process
 parse_line(ServerData) ->
-    ?dbg("In ParseLine: unidentified: ~p", [ServerData]),
+    mdb_logger:debug("In ParseLine: unidentified: ~p", [ServerData]),
     %% Ignore.
     #data{}.
 

@@ -61,7 +61,7 @@ connect(Server, Ip_port) ->
 
 	{error, Reason} ->
 	    %% If there is an error, wait 30 secondes and try to reconnect
-	    ?dbg("Server connection error: ~p", [Reason]),
+	    mdb_logger:debug("Server connection error: ~p", [Reason]),
 	    timer:sleep(30000),
 	    connect(Server, Ip_port)
     end.
