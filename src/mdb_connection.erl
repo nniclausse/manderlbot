@@ -13,8 +13,15 @@
 %%%
 %%%----------------------------------------------------------------------
 %%%
-%%% See COPYING for detailled license
+%%% See LICENSE for detailled license
 %%%
+%%% In addition, as a special exception, you have the permission to
+%%% link the code of this program with any library released under
+%%% the EPL license and distribute linked combinations including
+%%% the two. If you modify this file, you may extend this exception
+%%% to your version of the file, but you are not obligated to do
+%%% so.  If you do not wish to do so, delete this exception
+%%% statement from your version.
 %%%----------------------------------------------------------------------
 
 -module(mdb_connection).
