@@ -1,8 +1,12 @@
 # $Id$
 
-DOCUMENT=$(basename $(wildcard *.lyx))
+MANPAGE  = manderlbot.1.sgml
+DOCUMENT = $(basename $(wildcard *.lyx))
 
-all: $(DOCUMENT).tex $(DOCUMENT).html $(DOCUMENT).ps $(DOCUMENT).pdf
+all: man $(DOCUMENT).tex $(DOCUMENT).html $(DOCUMENT).ps $(DOCUMENT).pdf
+
+man: $(MANPAGE)
+	docbook2man $< >/dev/null 2>&1
 
 %.ps:%.lyx
 	lyx -e ps $<
