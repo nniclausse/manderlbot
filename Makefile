@@ -48,9 +48,10 @@ emake:
 	@echo $(EMAKE) | tr -s ' ' '\n' > ebin/Emakefile
 
 clean:
-	-@rm -f $(TARGET) $(TMP) $(BUILD_OPTIONS_FILE) builder.beam
-	-@rm -f $(TGT_APPFILES)
-	-@make -C doc clean
+	-rm -f $(TARGET) $(TMP) $(BUILD_OPTIONS_FILE) builder.beam
+	-rm -f $(TGT_APPFILES)
+	-rm -f ebin/*
+	-make -C doc clean
 
 install: build manderlbot.sh
 	-rm -f $(TMP)
