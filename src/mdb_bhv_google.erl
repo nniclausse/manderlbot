@@ -40,7 +40,7 @@
 
 -define(google_name, "www.google.com").
 -define(google_port, 80).
--define(notfound, "Aucun document ne correspond").
+-define(notfound, "<br><br>Aucun document ne correspond").
 -define(CR, "\n").
 
 %%%----------------------------------------------------------------------
@@ -74,18 +74,12 @@ search(Keywords, Input, BotPid, BotName, Channel) ->
 %%      stop     -> stop parsing of incoming data
 %%      Result   -> String to be printed by mdb
 %%----------------------------------------------------------------------
+parse("Location: " ++ URL) ->
+	{stop, URL };
+parse(?notfound ++ _Data) ->
+	{stop, "not found"};
 parse(Data) ->
-	case regexp:first_match(Data, "Location: http://[^\"]+") of %"
-		{match,Start,Length} -> % ok, found
-		    {stop, string:substr(Data, 11, length(Data)-12) };
-		_ -> 
-			case regexp:first_match(Data, "<br><br>" ++ ?notfound) of %"
-				{match, _S, _L} ->
-					{stop, "not found"};
-				_NoMatch -> 
-					{continue}
-			end
-	end.
+	{continue}.
 
 %%----------------------------------------------------------------------
 %% Func: set_request/1
