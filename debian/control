@@ -13,6 +13,6 @@ Description: An IRC bot, written in erlang
  it on several servers and channels at once, each channel will have its own
  set of behaviours.
  .
- Behaviours are generics, and you cad easily make your own set. If you want
+ Behaviours are generics, and you can easily make your own set. If you want
  some not-already-implemented generic behaviour, you'll have to code some
  erlang !
