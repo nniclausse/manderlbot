@@ -55,7 +55,7 @@ clean:
 	-rm -f manderlbot.sh
 	-make -C doc clean
 
-install: build manderlbot.sh
+install: doc build manderlbot.sh
 	-rm -f $(TMP)
 
 	install -d $(TARGETDIR)/priv
@@ -70,6 +70,9 @@ install: build manderlbot.sh
 	cp $(TGT_APPFILES_P) $(TARGETDIR)/priv
 
 	cp $(SRC) $(SRC_APPFILES) $(TARGETDIR)/src
+
+# install the man page
+	install doc/manderlbot.1 $(DESTDIR)/usr/share/man/man1
 
 # create startup script
 	cp manderlbot.sh $(SCRIPT)
@@ -97,7 +100,7 @@ doc:
 release:
 	rm -fr $(APPLICATION)-$(VERSION)
 	mkdir -p $(APPLICATION)-$(VERSION)
-	@tar zcf tmp.tgz $(SRC) $(APPFILES) $(INC_FILES) \
+	@tar zcf tmp.tgz $(SRC) $(SRC_APPFILES) $(INC_FILES) \
 		doc/*.lyx doc/Makefile doc/*.hva \
 		LICENSE README TODO $(CONFFILES) Makefile \
 		priv/builder.erl manderlbot.sh.in

@@ -17,22 +17,22 @@
 
   <refmeta>
     <refentrytitle>manderlbot</refentrytitle>
-    <manvolnum>1x</manvolnum>
+    <manvolnum>1</manvolnum>
   </refmeta>
 
   <refnamediv>
     <refname>manderlbot</refname>
     <refpurpose>
-      Manderlbot - An erlang IRC bot
+      An erlang IRC bot
     </refpurpose>
   </refnamediv>
 
   <refsynopsisdiv>
     <cmdsynopsis>
       <command>manderlbot</command>
-      <arg><option>-config_file</option> configuration file</arg>
-      <arg><option>-log_file</option> log file</arg>
-      <arg><option>-log_level</option> log level</arg>
+      <arg><option>-c</option> configuration file</arg>
+      <arg><option>-f</option> log file</arg>
+      <arg><option>-l</option> log level</arg>
     </cmdsynopsis>
   </refsynopsisdiv>
 
@@ -54,19 +54,19 @@
     <title>options</title>
     <variablelist>
       <varlistentry>
-        <term><option>-config_file</option></term>
+        <term><option>-c</option></term>
         <listitem>
           <para>specifies the configuration file to use.</para>
         </listitem>
       </varlistentry>
       <varlistentry>
-	<term><option>-log_file</option></term>
+	<term><option>-f</option></term>
 	<listitem>
 	  <para>specifies the log file to use.</para>
 	</listitem>
       </varlistentry>
       <varlistentry>
-	<term><option>-log_level</option></term>
+	<term><option>-l</option></term>
 	<listitem>
 	  <para>specifies the log_level from wich you want manderlbot to log in the log_file. You can specify one of the following entries :
 	  </para>
@@ -96,7 +96,7 @@
   <refsect1>
     <title>Authors</title>
     <para>
-      <command>cwwm</command> was writen by Dimitri Fontaine
+      <command>manderlbot</command> was writen by Dimitri Fontaine
       <email>dim@tuxfamily.org</email> and Nicolas Niclausse
       <email>nico@niclux.org</email>.
   </refsect1>
