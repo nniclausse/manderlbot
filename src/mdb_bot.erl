@@ -122,8 +122,6 @@ handle_call({say, Message, To}, From, State) ->
     Channel = State#state.channel,
     Sock = State#state.socket,
 
-    io:format("DANS TON CUL: ~p~n", [To]),
-    
     irc_lib:say(Sock, To, Message),
     {reply, ok, State};
 

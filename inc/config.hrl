@@ -11,6 +11,8 @@
 -record(config,	{name,                          % the name of the bot
 		 controler,                     % the nick of the one wich
 						% controls the bot from irc
+
+		 dict={"localhost", "2628", "wn"},
 		 servers=[],
 		 behaviours=[]
 		}).
@@ -27,8 +29,10 @@
 		  
 
 -record(cfg_behaviour, {name,
-		       action,
-		       pattern,
+			action,
+			pattern,
+			from,
+			to,
 		       data = []
 		      }).
 

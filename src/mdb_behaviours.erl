@@ -11,8 +11,8 @@
 
 %% Exported behaviours
 -export([say/4, action/4, answer/4, random/4, timer/4, bloto/4,
-         google/4, dict/4, jargon/4, rejoin/4, reconf/4,
-         debian_pkg/4, debian_file/4, dico/4, roulmain/4
+         google/4, dict/4, rejoin/4, reconf/4,
+         debian_pkg/4, debian_file/4
         ]).
 
 -include("mdb.hrl").
@@ -182,42 +182,46 @@ reconf(Input, BotName, ConfigFile, BotPid) ->
 %%% Function: google/4
 %%% Purpose:  ask google and give the first response
 %%%----------------------------------------------------------------------
-google(Input, BotName, ConfigFile, BotPid) ->
+google(Input, BotName, Data, BotPid) ->
     io:format("GOOGLE input: ~p~n", [Input#data.body]),
 
-	[Key | Args] = string:tokens(Input#data.body," "),
+    [Key | Args] = string:tokens(Input#data.body," "),
     Criteria= misc_tools:join("+", Args),
 	
     io:format("GOOGLE criteria: ~p~n", [Criteria]),
 
     google:search(Criteria, Input, BotPid, BotName).
+
 %%%----------------------------------------------------------------------
 %%% Function: debian_pkg/4
 %%% Purpose:  search for debian packages
 %%%----------------------------------------------------------------------
-debian_pkg(Input, BotName, ConfigFile, BotPid) ->
+debian_pkg(Input, BotName, Data, BotPid) ->
     io:format("DEBIAN package input: ~p~n", [Input#data.body]),
 	[Key, String | Args] = string:tokens(Input#data.body," "),
 	case Args of 
-        [] ->
-            io:format("DEBIAN criteria: ~p~n", [String]),
-            debian:search([package, String], Input, BotPid, BotName);
-        [Version | _] -> % which debian distrib
-            io:format("DEBIAN criteria: ~p,~p~n", [String, Version]),
-            debian:search([package, String, Version], Input, BotPid, BotName)
+	    [] ->
+		io:format("DEBIAN criteria: ~p~n", [String]),
+		debian:search([package, String], Input, BotPid, BotName);
+
+	    [Version | _] -> % which debian distrib
+		io:format("DEBIAN criteria: ~p,~p~n", [String, Version]),
+		debian:search([package, String, Version],
+			      Input, BotPid, BotName)
     end.
 
 %%%----------------------------------------------------------------------
 %%% Function: debian_file/4
 %%% Purpose:  search for files in debian package
 %%%----------------------------------------------------------------------
-debian_file(Input, BotName, ConfigFile, BotPid) ->
+debian_file(Input, BotName, Data, BotPid) ->
     io:format("DEBIAN file input: ~p~n", [Input#data.body]),
-	[Key, String | Args] = string:tokens(Input#data.body," "),
-	case Args of 
+    [Key, String | Args] = string:tokens(Input#data.body," "),
+    case Args of 
         [] ->
             io:format("DEBIAN criteria: ~p~n", [String]),
             debian:search([file, String], Input, BotPid, BotName);
+
         [Version | _] -> % which debian distrib
             io:format("DEBIAN criteria: ~p,~p~n", [String, Version]),
             debian:search([file, String, Version], Input, BotPid, BotName)
@@ -228,47 +232,19 @@ debian_file(Input, BotName, ConfigFile, BotPid) ->
 %%% Function: dict/4
 %%% Purpose:  ask dict for a word definition
 %%%----------------------------------------------------------------------
-dict(Input, BotName, ConfigFile, BotPid) ->
+dict(Input, BotName, Data, BotPid) ->
+    [DictName] = Data,
     io:format("DICT input: ~p~n", [Input#data.body]),
+    io:format("DICT name:  ~p~n", [DictName]),
 
-	[Key | Args] = string:tokens(Input#data.body," "),
+    [Key | Args] = string:tokens(Input#data.body," "),
     Criteria = string:strip(Args),
    
     io:format("DICT criteria: ~p~n", [Criteria]),
-    mdb_dict:search(Criteria, Input, BotPid , BotName).
 
-%%%----------------------------------------------------------------------
-%%% Function: jargon/4
-%%% Purpose:  ask dict with jargon dictionnary
-%%%----------------------------------------------------------------------
-jargon(Input, BotName, ConfigFile, BotPid) ->
-    io:format("JARGON input: ~p~n", [Input#data.body]),
-	[Key | Args] = string:tokens(Input#data.body," "),
-    Criteria = string:strip(Args),
-   
-    io:format("JARGON criteria: ~p~n", [Criteria]),
-    mdb_dict:search(Criteria, Input, BotPid, BotName, "jargon").
-
-%%%----------------------------------------------------------------------
-%%% Function: dico/4
-%%% Purpose:  ask dict with robert dictionnary
-%%%----------------------------------------------------------------------
-dico(Input, BotName, ConfigFile, BotPid) ->
-    io:format("DICO input: ~p~n", [Input#data.body]),
-	[Key | Args] = string:tokens(Input#data.body," "),
-    Criteria = string:strip(Args),
-   
-    io:format("ROBERT criteria: ~p~n", [Criteria]),
-    mdb_dict:search(Criteria, Input, BotPid, BotName, "robert").
-
-%%%----------------------------------------------------------------------
-%%% Function: dico/4
-%%% Purpose:  ask dict with robert dictionnary
-%%%----------------------------------------------------------------------
-roulmain(Input, BotName, ConfigFile, BotPid) ->
-    io:format("ROULMAIN input: ~p~n", [Input#data.body]),
-	[Key | Args] = string:tokens(Input#data.body," "),
-    Criteria = string:strip(Args),
-   
-    io:format("ROULMAIN criteria: ~p~n", [Criteria]),
-    mdb_dict:search(Criteria, Input, BotPid, BotName, "roulmain").
+    case DictName of
+	[] ->
+	    mdb_dict:search(Criteria, Input, BotPid, BotName);
+	_ ->
+	    mdb_dict:search(Criteria, Input, BotPid, BotName, DictName)
+    end.

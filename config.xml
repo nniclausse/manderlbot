@@ -1,10 +1,19 @@
 <manderlbot name="DTC" controler="dim">
+	<dict host="localhost" port="2628" default="wn">
+	</dict>
+
 	<server host="irc.openprojects.net" port="6667">
-		<!--
-		<channel name="#manderlbot" botname="dimbot"
+		<channel name="#manderlbot" botname="mdb"
 			behaviours="ouca foutaises prout hop google">
 		</channel>
 
+		<channel name="#mdbtest" botname="manderlbot-devel"
+			behaviours="ouca foutaises prout hop google dict jargon ">
+		</channel>
+		<!--
+		-->
+
+		<!--
 		<channel name="#AAI" botname="lebeau"
 			behaviours="helo ouca loutre chinois JCVD suceur branleur
 			 sodom baise reunion boitacoucou coin plutot gl
@@ -18,7 +27,6 @@
 			 tictac presse pmignaval rototo prout ranafout hop boulet 
 			 vendredi bonnasse bloto heidi shadok tusors bofh google">
 		</channel>
-		-->
 
 		<channel name="#GLI" botname="dtc"
 			behaviours="helo ouca loutre chinois JCVD suceur branleur 
@@ -28,6 +36,7 @@
 			 c++ tusors bofh nmibook dimbook quake3 zope seduire 
 			 goudale camarche sanantonio openbsd google roulmain ">
 		</channel>
+		-->
 
 	</server>
 
@@ -40,13 +49,13 @@
 			bonnasse bloto heidi shadok tusors">
 		</channel>
 	</server>
-	-->
 
 	<server host="irc.tuxfamily.org" port="6667">
 		<channel name="#tuxfamily" botname="lebeau"
 			behaviours="google shadok boitacoucou prout boulet bofh">
 		</channel>
 	</server>
+	-->
 
 
 	<behaviours>
@@ -60,10 +69,10 @@
 		</behaviour>
 
 		<behaviour name="dict" action="dict" pattern="^dict">
-			dict
+			wn
 		</behaviour>
 
-		<behaviour name="jargon" action="jargon" pattern="^jargon">
+		<behaviour name="jargon" action="dict" pattern="^jargon">
 			jargon
 		</behaviour>
 

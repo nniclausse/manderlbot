@@ -1,12 +1,12 @@
 %%%----------------------------------------------------------------------
 %%% File    : config.erl
-%%% Author  : Dimitri Fontaine <tapoueh@free.fr>
+%%% Author  : Dimitri Fontaine <dim@tuxfamily.org>
 %%% Purpose : Read the manderlbot XML xonfig file
-%%% Created : 19 Feb 2002 by Dimitri Fontaine <tapoueh@free.fr>
+%%% Created : 19 Feb 2002 by Dimitri Fontaine <dim@tuxfamily.org>
 %%%----------------------------------------------------------------------
 
 -module(config).
--author('tapoueh@free.fr').
+-author('dim@tuxfamily.org').
 
 -include("config.hrl").
 -include("xmerl.hrl").
@@ -42,6 +42,18 @@ parse(Element = #xmlElement{parents = []}, #config{}) ->
 		Element#xmlElement.content);
 
 
+%% parsing the Dict elements
+parse(Element = #xmlElement{name=dict}, Conf = #config{dict=Dict}) ->
+    Server  = getAttr(Element#xmlElement.attributes, host),
+    Port    = getAttr(Element#xmlElement.attributes, port),
+    Default = getAttr(Element#xmlElement.attributes, default),
+
+    {ok, [{integer,1,IPort}],1} = erl_scan:string(Port),
+
+    lists:foldl(fun parse/2,
+		Conf#config{dict = {Server, IPort, Default}},
+		Element#xmlElement.content);
+
 %% parsing the Server elements
 parse(Element = #xmlElement{name=server}, Conf = #config{servers=SList}) ->
     Server = getAttr(Element#xmlElement.attributes, host),
@@ -54,7 +66,6 @@ parse(Element = #xmlElement{name=server}, Conf = #config{servers=SList}) ->
 					       port=IPort
 					      }|SList]},
 		Element#xmlElement.content);
-
 
 %% Parsing the Channel element
 parse(Element = #xmlElement{name=channel},
@@ -85,12 +96,15 @@ parse(Element = #xmlElement{name=behaviour},
     Name    = getAttr(Element#xmlElement.attributes, name),
     Pattern = getAttr(Element#xmlElement.attributes, pattern),
     Action  = getAttr(Element#xmlElement.attributes, action),
+    From    = getAttr(Element#xmlElement.attributes, from),
+    To      = getAttr(Element#xmlElement.attributes, to),
     Data    = getText(Element#xmlElement.content),
 
     lists:foldl(fun parse/2,
 		Conf#config{behaviours =
 			    [#cfg_behaviour{name=Name, pattern = Pattern,
-					    action=Action, data=Data}
+					    action=Action, data=Data,
+					    from=From, to=To}
 			     | BList]},
 		Element#xmlElement.content);
 

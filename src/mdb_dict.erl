@@ -18,20 +18,16 @@
 
 %% search with default dictionnary 
 search(Keywords, Input, BotPid, BotName) ->
-    mdb_search:search({Keywords,
-                       Input, BotPid, BotName, 
-                       #search_param{type   = ?MODULE, 
-                                     server = ?dict_name,
-                                     port   = ?dict_port }
-                      }).
+    io:format("params: ~p~n", [getConf()]),
+    mdb_search:search({Keywords, Input, BotPid, BotName, getConf()}).
 
 search(Keywords, Input, BotPid, BotName, Dict) ->
-    mdb_search:search({[Keywords, Dict], 
-					   Input, BotPid, BotName, 
-					   #search_param{type   = ?MODULE, 
-									 server = ?dict_name,
-									 port   = ?dict_port }
-                      }).
+    io:format("params: ~p~n", [getConf()]),
+    mdb_search:search({[Keywords, Dict], Input, BotPid, BotName, getConf()}).
+
+getConf() ->
+    {ok, {Host, Port, Default}} = config_srv:getDictConf(),
+    #search_param{type = ?MODULE, server = Host, port = Port}.
 
 %%----------------------------------------------------------------------
 %% Func: parse/1
@@ -54,20 +50,21 @@ parse("") ->
 parse(".\r\n") ->
     {continue};
 parse(Data) ->
-	case regexp:first_match(Data, "^[0-9][0-9][0-9] ") of
-		{match,Start,Length} -> % skip protocol data
-		    {continue};
-		_ -> 
-		    {continue, lists:subtract(Data,"\r\n")}
+    case regexp:first_match(Data, "^[0-9][0-9][0-9] ") of
+	{match,Start,Length} -> % skip protocol data
+	    {continue};
+	_ -> 
+	    {continue, lists:subtract(Data,"\r\n")}
     end.
 
-%search using Dict dictionnary
+						%search using Dict dictionnary
 set_request([Keyword, Dict]) ->
     set_request(Keyword, Dict);
 
-%default dict is wordnet
+						%default dict is wordnet
 set_request(Keyword) ->
-    set_request(Keyword, ?dict_default).
+    {ok, {_, _, Default}} =config_srv:getDictConf(),
+    set_request(Keyword, Default).
 
 set_request(Keyword, Dict) ->
     "DEFINE " ++ Dict ++ " " ++ Keyword	++ io_lib:nl().

@@ -14,7 +14,8 @@
 -behaviour(gen_server).
 
 %% External exports
--export([start_link/1, getConf/0, reconf/2, getBList/1, getBehaviours/1]).
+-export([start_link/1, getConf/0, getDictConf/0, reconf/2,
+	 getBList/1, getBehaviours/1]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
@@ -34,6 +35,9 @@ start_link(ConfigFile) ->
 
 getConf() ->
     gen_server:call(?MODULE, {getConf}, ?timeout).
+
+getDictConf() ->
+    gen_server:call(?MODULE, {getDictConf}, ?timeout).
 
 reconf(Chan, ConfigFile) ->
     gen_server:call(?MODULE, {reconf, Chan, ConfigFile}, ?timeout).
@@ -73,6 +77,9 @@ init([ConfigFile]) ->
 %%----------------------------------------------------------------------
 handle_call({getConf}, From, Config) ->
     {reply, {ok, Config}, Config};
+
+handle_call({getDictConf}, From, Config = #config{dict=Dict}) ->
+    {reply, {ok, Dict}, Config};
 
 handle_call({reconf, Channel, ConfigFile}, From, Config) ->
     case config:read(ConfigFile) of
@@ -184,9 +191,6 @@ build_behaviours_list([BC=#cfg_behaviour{}|BClist], Acc) ->
 	      "bloto"  -> {mdb_behaviours, bloto};
 	      "google" -> {mdb_behaviours, google};
 	      "dict"   -> {mdb_behaviours, dict};
-	      "jargon" -> {mdb_behaviours, jargon};
-	      "dico"   -> {mdb_behaviours, dico};
-	      "roulmain"    -> {mdb_behaviours, roulmain};
 	      "debian_pkg"  -> {mdb_behaviours, debian_pkg};
 	      "debian_file" -> {mdb_behaviours, debian_file};
 	      Other    -> {mdb_behaviours, say}
