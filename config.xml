@@ -1,4 +1,4 @@
-<manderlbot name="DTC" controler="dim">
+<manderlbot name="Manderlbot http://manderlbot.tuxfamily.org" controler="dim">
 	<dict host="localhost" port="2628" default="wn">
 	</dict>
 
