@@ -42,7 +42,8 @@
 	 upper_string/1,
 	 downcase/1,
 	 is_matching_regexp/2,
-	 is_matching_regexp/3]).
+	 is_matching_regexp/3,
+	 tprint/2]).
 
 %%----------------------------------------------------------------------
 %% Function: nth/2
@@ -212,3 +213,15 @@ is_matching_regexp(String, Regexp, {True, False}) ->
 	nomatch                  ->  False;
 	{error, Error}           ->  False
     end.
+
+
+%%----------------------------------------------------------------------
+%% tprint/2
+%%   Print the given args prefixed with the date
+%%   Timestamped-print
+%%----------------------------------------------------------------------
+tprint(Format, Args) ->
+    {{Y, Mth, D}, {H, Min, S}} = calendar:local_time(),
+    io:format("~p/~p/~p ~p:~p:~p ", [Y, Mth, D, H, Min, S]),
+    io:format(Format, Args).
+    
