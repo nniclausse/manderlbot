@@ -34,6 +34,7 @@
 -record(state, {bot_pid = "",
 		channel = "",
 		nickname = "",
+		passwd = "",
 		controler = "",
 	        socket = "",
 		buffer = <<>>,

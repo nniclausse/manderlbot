@@ -19,6 +19,7 @@
 
 -record(server, {host,
 		 port,
+		 passwd,
 		 channels = []
 		}).
 

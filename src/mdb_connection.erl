@@ -25,7 +25,7 @@
 -vsn(' $Revision$ ').
 
 %% External exports (API)
--export([connect/2, log/3, manage_reconnect/1]).
+-export([connect/2, log/4, manage_reconnect/1]).
 
 %% Configure debugging mode:
 -include("mdb_macros.hrl").
@@ -63,15 +63,10 @@ connect(Server, Ip_port) ->
 %%----------------------------------------------------------------------
 %% log/3
 %% connect to a given channel
-%%
-%% FIXME:
-%%  Try to re use the Sock when connecting several bots on the same
-%%  host:port. This would allow for RealName / Nickname usage again. 
-%%
 %%----------------------------------------------------------------------
-log(Sock, Channel = #channel{}, RealName) ->
+log(Sock, Channel = #channel{}, Passwd, RealName) ->
     %% Logging in
-    log_in(Sock, Channel#channel.botname, RealName),
+    log_in(Sock, Channel#channel.botname, Passwd, RealName),
 
     %% Join the given channel
     irc_lib:join(Sock, Channel#channel.name).
@@ -81,8 +76,8 @@ log(Sock, Channel = #channel{}, RealName) ->
 %% Logging in: Give nick and realname to the server
 %%----------------------------------------------------------------------
 %%log_in(Sock, Nickname, RealName, Password) ->
-log_in(Sock, Nickname, RealName) ->
-    irc_lib:login(Sock, Nickname, RealName).
+log_in(Sock, Nickname, Passwd, RealName) ->
+    irc_lib:login(Sock, Nickname, Passwd, RealName).
     %%irc_lib:passwd(Sock, "Password")
 
 %%----------------------------------------------------------------------
@@ -93,12 +88,13 @@ manage_reconnect(State) ->
     Host = State#state.host,
     Port = State#state.port,
     Chan = State#state.channel,
+    Pass = State#state.passwd,
 
     %% FIXME : add the RealName in the State, and get it here
     Nick = State#state.nickname,
 
     {ok, Sock} = connect(Host, Port),
-    log(Sock, Chan, Nick),
+    log(Sock, Chan, Pass, Nick),
 
     {ok, State#state{socket = Sock,
 		     date   = calendar:local_time()

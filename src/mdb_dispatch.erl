@@ -63,7 +63,7 @@ process_data(Sock, Data, State) ->
 %% treat_recv/3
 %% If this is a PING from the server:
 %%----------------------------------------------------------------------
-treat_recv(Sock, <<$P, $I, $N, $G, $ , Rest/binary>>, State) ->
+treat_recv(Sock, <<$P, $I, $N, $G, $ , $:, Rest/binary>>, State) ->
     %%io:format("PING ~p~n", [binary_to_list(Rest)]),
     irc_lib:pong(Sock, binary_to_list(Rest));
 

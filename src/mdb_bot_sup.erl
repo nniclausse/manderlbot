@@ -14,7 +14,7 @@
 -behaviour(supervisor).
 
 %% External exports
--export([start_link/0, start_child/5, start_child/6]).
+-export([start_link/0, start_child/6, start_child/7]).
 
 %% supervisor callbacks
 -export([init/1]).
@@ -25,11 +25,14 @@
 start_link() ->
     supervisor:start_link({local, ?MODULE}, ?MODULE, []).
 
-start_child(Name, Controler, Host, Port, Chan) ->
-    supervisor:start_child(?MODULE, [[Name, Controler, Host, Port, Chan, []]]).
+start_child(Name, Controler, Host, Port, Pass, Chan) ->
+    supervisor:
+	start_child(?MODULE, [[Name, Controler, Host, Port, Pass, Chan, []]]).
 
-start_child(Name, Controler, Host, Port, Chan, BList) ->
-    supervisor:start_child(?MODULE, [[Name, Controler, Host, Port, Chan, BList]]).
+start_child(Name, Controler, Host, Port, Pass, Chan, BList) ->
+    supervisor:
+	start_child(?MODULE,
+		    [[Name, Controler, Host, Port, Pass, Chan, BList]]).
 
 %%%----------------------------------------------------------------------
 %%% Callback functions from supervisor

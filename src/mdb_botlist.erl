@@ -16,7 +16,7 @@
 
 %% External exports
 -export([start_link/0]).
--export([add/5, add/6]).
+-export([add/6, add/7]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2]).
@@ -33,13 +33,15 @@
 start_link() ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
 
-add(Name, Controler, Host, Port, Chan) ->
+add(Name, Controler, Host, Port, Passwd, Chan) ->
     gen_server:call(?MODULE,
-		    {add, Name, Controler, Host, Port, Chan, []}, ?timeout).
+		    {add, Name, Controler, Host, Port, Passwd, Chan, []},
+		    ?timeout).
 
-add(Name, Controler, Host, Port, Chan, BList) ->
+add(Name, Controler, Host, Port, Passwd, Chan, BList) ->
     gen_server:call(?MODULE,
-		    {add, Name, Controler, Host, Port, Chan, BList}, ?timeout).
+		    {add, Name, Controler, Host, Port, Passwd, Chan, BList},
+		    ?timeout).
 
 %%%----------------------------------------------------------------------
 %%% Callback functions from gen_server
@@ -64,7 +66,8 @@ init([]) ->
 %%          {stop, Reason, Reply, State}   | (terminate/2 is called)
 %%          {stop, Reason, State}            (terminate/2 is called)
 %%----------------------------------------------------------------------
-handle_call({add, Name, Controler, Host, Port, Chan, BList}, From, State) ->
+handle_call(
+  {add, Name, Controler, Host, Port, Pass, Chan, BList}, From, State) ->
     AlreadyStarted = fun({H, C}) when H == Host, C == Chan ->
 			     true;
 			(_) ->
@@ -81,9 +84,9 @@ handle_call({add, Name, Controler, Host, Port, Chan, BList}, From, State) ->
 	
 	NotFound ->
 	    %% We have to start this bot
-	    io:format("starting new bot ~p on ~p~n", [Name, Chan#channel.name]),
+	    io:format("starting bot ~p on ~p~n", [Name, Chan#channel.name]),
 	    case mdb_bot_sup:start_child(Name, Controler,
-					 Host, Port, Chan, BList) of
+					 Host, Port, Pass, Chan, BList) of
 		{ok, Sock}      -> {reply, ok, State ++ [{Host, Chan}]};
 		{error, Reason} -> {reply, {error, Reason}, State}
 	    end

@@ -217,21 +217,22 @@ checkForNewChans(#config{name=Name, controler=Ctlr, servers=SList},
 		) ->
     checkForNewChans(SList, [Name, Ctlr], Config);
 
-checkForNewChans([#server{host=Host, port=Port, channels=CList}|Stail],
+checkForNewChans([#server{host=Host, port=Port,
+			  passwd=Pass, channels=CList}|Stail],
 		 [Name, Ctlr],
 		 Config
 		) ->
-    checkForNewChans(CList, [Name, Ctlr, Host, Port], Config),
+    checkForNewChans(CList, [Name, Ctlr, Host, Port, Pass], Config),
     checkForNewChans(Stail, [Name, Ctlr], Config);
 
 checkForNewChans([Channel=#channel{name=Chan, botname=BotName}|CTail],
-		 [Name, Ctlr, Host, Port],
+		 [Name, Ctlr, Host, Port, Pass],
 		 Config) ->
     
-    mdb_botlist:add(Name, Ctlr, Host, Port, Channel,
+    mdb_botlist:add(Name, Ctlr, Host, Port, Pass, Channel,
 		    getBehaviours(Config, Chan, BotName)),
 
-    checkForNewChans(CTail, [Name, Ctlr, Host, Port], Config);
+    checkForNewChans(CTail, [Name, Ctlr, Host, Port, Pass], Config);
 
 checkForNewChans([], Params, Config) ->
     done.

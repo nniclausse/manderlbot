@@ -55,6 +55,7 @@ init() ->
 
     lists:foreach(fun(Server = #server{host     = Host,
 				       port     = Port,
+				       passwd   = Passwd,
 				       channels = ChanList}) ->
 
 			  StartBot = fun(Chan = #channel{}) ->
@@ -62,6 +63,7 @@ init() ->
 							     Controler,
 							     Host,
 							     Port,
+							     Passwd,
 							     Chan)
 				     end,
 			  lists:foreach(StartBot, ChanList)

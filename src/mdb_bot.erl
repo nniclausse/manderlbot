@@ -76,11 +76,11 @@ reconf(BotPid, NickName, ConfigFile) ->
 %%          ignore               |
 %%          {stop, Reason}
 %%----------------------------------------------------------------------
-init([RealName, Controler, Host, Port, Channel, BList]) ->
+init([RealName, Controler, Host, Port, Passwd, Channel, BList]) ->
     io:format("launching a new bot: ~p~n", [Channel]),
 
     {ok, Sock} = mdb_connection:connect(Host, Port),
-    mdb_connection:log(Sock, Channel, RealName),
+    mdb_connection:log(Sock, Channel, Passwd, RealName),
 
     %% To avoid some re-entrance issue when starting bot from a reconf,
     %% we may start the bot giving it its behaviours list...
@@ -97,6 +97,7 @@ init([RealName, Controler, Host, Port, Channel, BList]) ->
 		   controler  = Controler,
 		   socket     = Sock,
 		   nickname   = Channel#channel.botname,
+		   passwd     = Passwd,
 		   date       = calendar:local_time(),
 		   behaviours = RealBList,
 		   host       = Host,

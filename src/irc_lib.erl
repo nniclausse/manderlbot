@@ -28,7 +28,7 @@
 -vsn(' $Revision$ ').
 
 %% IRC operations
--export([pong/2, join/2, say/3, action/3, login/3, passwd/2, who/4]).
+-export([pong/2, join/2, say/3, action/3, login/4, who/4]).
 
 %% IRC helper functions
 -export([is_chanop/1,
@@ -47,8 +47,7 @@
 %%----------------------------------------------------------------------
 pong(Sock, Id)->
     Pong = lists:append("PONG ", Id),
-    %%io:format("PONG: ~p~n", [Id]),
-    gen_tcp:send(Sock, Pong).
+    command(Sock, Pong).
 
 %%----------------------------------------------------------------------
 %% join/2
@@ -76,25 +75,21 @@ action(Sock, Channel, Message) ->
     command(Sock, Command).
 
 %%----------------------------------------------------------------------
-%% login/3
+%% login/4
 %% Send the user information to terminate the log in phase
 %%----------------------------------------------------------------------
-login(Sock, Nickname, Realname) ->
-    Command = lists:concat(["USER ", Nickname, " dummy dummy :", Realname]),
-    command(Sock, Command),
+login(Sock, Nickname, Passwd, Realname) ->
+    PassCommand = "PASS " ++ Passwd,
+    command(Sock, PassCommand),
 
-    NickCommand = ["NICK ", Nickname],
-    gen_tcp:send(Sock, NickCommand).
+    NickCommand = "NICK " ++ Nickname,
+    command(Sock, NickCommand),
 
-%%----------------------------------------------------------------------
-%% passwd/2
-%% If the IRC server is password protected, this function is supposed
-%% send the needed password
-%%----------------------------------------------------------------------
-passwd(Sock, Password) ->
-    PassCommand = ["PASS ", Password],
-    command(Sock, PassCommand).    
-
+    %% The username, hostname, servername and realname. Hostname and
+    %% servername are only used in server to server communication
+    UserCommand = lists:concat(["USER ", Nickname,
+				" dummy dummy :", Realname]),
+    command(Sock, UserCommand).
 
 %%----------------------------------------------------------------------
 %% who/4
@@ -106,7 +101,7 @@ passwd(Sock, Password) ->
 who(Host, Port, Channel, Botname) ->
     case mdb_connection:connect(Host, Port) of
 	{ok, Sock} ->
-	    login(Sock, "manderlbot", Botname),
+	    login(Sock, "manderlbot", "passwd", Botname),
 	    command(Sock, "who " ++ Channel),
 	    {ok, String} = getData(Sock, []),
 	    gen_tcp:close(Sock),
@@ -170,7 +165,8 @@ parseUserLine(Line) ->
 %%----------------------------------------------------------------------
 command(Sock, Command) ->
     CompleteCmd = [Command, "\r\n"],
-    gen_tcp:send(Sock, "\r\n"), % FIXME: Workaround: The first message of a
+    io:format("COMMAND: ~p~n", [Command]),
+    %gen_tcp:send(Sock, "\r\n"), % FIXME: Workaround: The first message of a
                                 % sequence does not seem to be received by the
                                 % server ...
 				% Sending a blank line to awake the line...

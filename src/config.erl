@@ -58,12 +58,14 @@ parse(Element = #xmlElement{name=dict}, Conf = #config{dict=Dict}) ->
 parse(Element = #xmlElement{name=server}, Conf = #config{servers=SList}) ->
     Server = getAttr(Element#xmlElement.attributes, host),
     Port   = getAttr(Element#xmlElement.attributes, port),
+    Passwd = getAttr(Element#xmlElement.attributes, password, "k4ckd4w0rld"),
 
     {ok, [{integer,1,IPort}],1} = erl_scan:string(Port),
 
     lists:foldl(fun parse/2,
 		Conf#config{servers = [#server{host=Server,
-					       port=IPort
+					       port=IPort,
+					       passwd=Passwd
 					      }|SList]},
 		Element#xmlElement.content);
 
