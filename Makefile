@@ -72,6 +72,7 @@ install: doc build manderlbot.sh
 	cp $(SRC) $(SRC_APPFILES) $(TARGETDIR)/src
 
 # install the man page
+	install -d $(DESTDIR)/usr/share/man/man1
 	install doc/manderlbot.1 $(DESTDIR)/usr/share/man/man1
 
 # create startup script
