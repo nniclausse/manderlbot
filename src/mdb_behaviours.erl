@@ -12,7 +12,7 @@
 %% Exported behaviours
 -export([say/4, action/4, answer/4, random/4, timer/4, bloto/4,
          google/4, dict/4, jargon/4, rejoin/4, reconf/4,
-         debian_pkg/4, debian_file/4
+         debian_pkg/4, debian_file/4, dico/4
         ]).
 
 -include("mdb.hrl").
