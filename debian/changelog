@@ -1,32 +1,6 @@
 manderlbot (0.8.2-1) unstable; urgency=low
 
-  * Debuged the debian research modes
+  * Initial Release. (Closes: #178047)
 
- -- Dimitri Fontaine <dim@tuxfamily.org>  Tue, 24 Dec 2002 11:48:58 +0100
-
-manderlbot (0.8.1-1) unstable; urgency=low
-
-  * Configuration now understands exclude patterns
-
- -- Dimitri Fontaine <dim@tuxfamily.org>  Mon, 23 Dec 2002 00:42:55 +0100
-
-manderlbot (0.8-2) unstable; urgency=low
-
-  * Adapted the login mecanism to support different server behaviours.
-
- -- Dimitri Fontaine <dim@tuxfamily.org>  Sat, 21 Dec 2002 02:57:50 +0100
-
-manderlbot (0.8-1) unstable; urgency=low
-
-  * Some more options in config file, adding possibility to match user
-    speacking and irc operation.
-  * Lot of bugfixes, including command strings malformations.
-
- -- Dimitri Fontaine <dim@tuxfamily.org>  Sat, 21 Dec 2002 00:13:54 +0100
-
-manderlbot (0.7-1) unstable; urgency=low
-
-  * Initial Release.
-
- -- Dimitri Fontaine <dim@tuxfamily.org>  Tue, 12 Nov 2002 14:36:48 +0100
+ -- Julien Danjou <acid@debian.org>  Thu, 23 Jan 2003 16:14:07 +0100
 
