@@ -12,7 +12,7 @@
 
 -include("mdb.hrl").
 
--define(dict_name, "www.dict.org").
+-define(dict_name, "localhost").
 -define(dict_port, 2628).
 -define(dict_default, "wn"). % Wordnet is the default dict
 
@@ -58,7 +58,7 @@ parse(Data) ->
 		{match,Start,Length} -> % skip protocol data
 		    {continue};
 		_ -> 
-		    {continue, lists:subtract(Data,"\r\n")}
+		    {silent, lists:subtract(Data,"\r\n")}
     end.
 
 %search using Dict dictionnary
