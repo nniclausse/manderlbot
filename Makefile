@@ -88,12 +88,13 @@ uninstall:
 
 build: manderlbot builder.beam $(SRC_APPFILES)
 # use builder to make boot file
-	(cd .. && ln -sf $(APPLICATION) $(APPLICATION)-$(VERSION))
-	(cd ../$(APPLICATION)-$(VERSION) \
+	mkdir -p temp
+	ln -sf `pwd` temp/$(APPLICATION)-$(VERSION)
+	(cd temp/$(APPLICATION)-$(VERSION) \
 	 && echo $(BUILD_OPTIONS) > $(BUILD_OPTIONS_FILE) \
 	 && erl -s builder go -s init stop \
 	)
-	rm ../$(APPLICATION)-$(VERSION)
+	rm -rf temp
 
 doc: 
 	make -C doc
