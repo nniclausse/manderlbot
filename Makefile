@@ -52,6 +52,7 @@ clean:
 	-rm -f $(TARGET) $(TMP) $(BUILD_OPTIONS_FILE) builder.beam
 	-rm -f $(TGT_APPFILES)
 	-rm -f ebin/*
+	-rm -f manderlbot.sh
 	-make -C doc clean
 
 install: build manderlbot.sh
