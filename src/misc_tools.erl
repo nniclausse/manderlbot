@@ -31,7 +31,8 @@
 	 join/2,
 	 last_event/1,
 	 lower_string/1,
-	 upper_string/1]).
+	 upper_string/1,
+	 downcase/1]).
 
 %%----------------------------------------------------------------------
 %% Function: nth/2
@@ -170,3 +171,15 @@ join(Sep, []) ->
 	[];
 join(Sep, [First | List]) ->
 	lists:foldl(fun(X, Sum) -> X ++ Sep ++ Sum end, First, List).
+
+
+%%----------------------------------------------------------------------
+%% downcase/1
+%% All upper cars of the String will be down cased
+%%----------------------------------------------------------------------
+downcase(String) ->
+    lists:map(fun(X) when $A =< X, X =< $Z -> X + $a - $A;
+		 (X)                       -> X
+	      end,
+	      String).
+		     

@@ -8,7 +8,7 @@
 -revision(' $Id$ ').
 -vsn(' $Revision$ ').
 
--export([search/4, search/5, parse/1, set_request/1]).
+-export([search/5, search/6, parse/1, set_request/1]).
 
 -include("mdb.hrl").
 
@@ -17,13 +17,14 @@
 -define(dict_default, "wn"). % Wordnet is the default dict
 
 %% search with default dictionnary 
-search(Keywords, Input, BotPid, BotName) ->
+search(Keywords, Input, BotPid, BotName, Channel) ->
     io:format("params: ~p~n", [getConf()]),
-    mdb_search:search({Keywords, Input, BotPid, BotName, getConf()}).
+    mdb_search:search({Keywords, Input, BotPid, BotName, Channel, getConf()}).
 
-search(Keywords, Input, BotPid, BotName, Dict) ->
+search(Keywords, Input, BotPid, BotName, Channel, Dict) ->
     io:format("params: ~p~n", [getConf()]),
-    mdb_search:search({[Keywords, Dict], Input, BotPid, BotName, getConf()}).
+    mdb_search:search({[Keywords, Dict],
+		       Input, BotPid, BotName, Channel, getConf()}).
 
 getConf() ->
     {ok, {Host, Port, Default}} = config_srv:getDictConf(),

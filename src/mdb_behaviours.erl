@@ -200,7 +200,7 @@ google(Input, BotName, Data, BotPid, Channel) ->
 	
     io:format("GOOGLE criteria: ~p~n", [Criteria]),
 
-    google:search(Criteria, Input, BotPid, BotName).
+    google:search(Criteria, Input, BotPid, BotName, Channel).
 
 %%%----------------------------------------------------------------------
 %%% Function: debian_pkg/5
@@ -217,7 +217,7 @@ debian_pkg(Input, BotName, Data, BotPid, Channel) ->
 	    [Version | _] -> % which debian distrib
 		io:format("DEBIAN criteria: ~p,~p~n", [String, Version]),
 		debian:search([package, String, Version],
-			      Input, BotPid, BotName)
+			      Input, BotPid, BotName, Channel)
     end.
 
 %%%----------------------------------------------------------------------
@@ -234,7 +234,8 @@ debian_file(Input, BotName, Data, BotPid, Channel) ->
 
         [Version | _] -> % which debian distrib
             io:format("DEBIAN criteria: ~p,~p~n", [String, Version]),
-            debian:search([file, String, Version], Input, BotPid, BotName)
+            debian:search([file, String, Version], Input,
+			  BotPid, BotName, Channel)
     end.
 
 
@@ -254,9 +255,10 @@ dict(Input, BotName, Data, BotPid, Channel) ->
 
     case DictName of
 	[] ->
-	    mdb_dict:search(Criteria, Input, BotPid, BotName);
+	    mdb_dict:search(Criteria, Input, BotPid, BotName, Channel);
 	_ ->
-	    mdb_dict:search(Criteria, Input, BotPid, BotName, DictName)
+	    mdb_dict:search(Criteria, Input,
+			    BotPid, BotName, Channel, DictName)
     end.
 
 %%%----------------------------------------------------------------------

@@ -19,7 +19,7 @@
 %% External exports
 -export([start_link/1]).
 -export([start_link/0]).
--export([say_slow/4]).
+-export([say_slow/5]).
 -export([stop/0, search/1]).
 
 %% gen_server callbacks
@@ -45,8 +45,10 @@ stop() ->
     gen_server:cast(?MODULE, {stop}).
 
 %% asynchronous search
-search({Keywords, Input, BotPid, BotName, Params}) ->
-    gen_server:cast(?MODULE, {search, Keywords, Input, BotPid, BotName, Params}).
+search({Keywords, Input, BotPid, BotName, Channel, Params}) ->
+    gen_server:cast(?MODULE,
+		    {search,
+		     Keywords, Input, BotPid, BotName, Channel, Params}).
 
 %%%----------------------------------------------------------------------
 %%% Callback functions from gen_server
@@ -80,23 +82,29 @@ handle_call(Args, From, State) ->
 %%          {noreply, State, Timeout} |
 %%          {stop, Reason, State}            (terminate/2 is called)
 %%----------------------------------------------------------------------
-handle_cast({search, Keywords, Input, BotPid, BotName, Params}, State) ->
+handle_cast({search,
+	     Keywords, Input, BotPid, BotName, Channel, Params}, State) ->
+
     case gen_tcp:connect(Params#search_param.server, Params#search_param.port,
                          [list,
                           {packet, line},
                           {active, true}], ?tcp_timeout) of
         {ok, Socket} -> 
-            Request = apply(Params#search_param.type, set_request, [Keywords]),
+            Request = apply(Params#search_param.type,
+			    set_request, [Keywords]),
+
             gen_tcp:send(Socket, Request),
             %% the request is identified by the Socket
-            {noreply, State#search_state{requests=[{Socket,
-													Input, BotPid , BotName,
-													Params#search_param.type, []}
-                                                   | State#search_state.requests]}};
+            {noreply,
+	     State#search_state{requests=[{Socket,
+					   Input, BotPid, BotName, Channel,
+					   Params#search_param.type,
+					   []}
+					  | State#search_state.requests]}};
         {error, Reason} ->
             say(Input, BotName, 
-                atom_to_list(Params#search_param.type) ++ " connection failed",
-                BotPid),
+                atom_to_list(Params#search_param.type)++" connection failed",
+                BotPid, Channel),
             {noreply, State}
     end;
 
@@ -111,22 +119,33 @@ handle_cast({stop}, State) ->
 %%----------------------------------------------------------------------
 handle_info({tcp, Socket, Data}, State) ->
     case lists:keysearch(Socket, 1 , State#search_state.requests) of 
-        {value, {Socket, Input, BotPid, BotName, Type, Buffer}} ->
+        {value, {Socket, Input, BotPid, BotName, Channel, Type, Buffer}} ->
+
             case apply(Type, parse, [Data]) of
+
                 {stop, Result} -> %% stop this connection and say result
                     NewState = remove(Socket, State),
-                    say(Input, BotName, Buffer ++ [Result], BotPid),
+                    say(Input, BotName, Buffer ++ [Result], BotPid, Channel),
                     {noreply, NewState};
-                {continue, Result} -> %% continue and push string in buffer
-                    NewRequests = lists:keyreplace(Socket, 1, State#search_state.requests, {Socket, Input, BotPid, BotName, Type, Buffer ++ [Result]}),
+            
+		{continue, Result} -> %% continue and push string in buffer
+                    NewRequests =
+			lists:keyreplace(Socket, 1,
+					 State#search_state.requests,
+					 {Socket, Input, BotPid, BotName,
+					  Channel, Type, Buffer ++ [Result]}),
+
                     {noreply, State#search_state{requests= NewRequests}};
-                {say, Result} -> %% say result and continue to read data
-                    say(Input, BotName, Buffer ++ [Result], BotPid),
+                
+		{say, Result} -> %% say result and continue to read data
+                    say(Input, BotName, Buffer ++ [Result], BotPid, Channel),
                     {noreply, State};
-                {continue} -> %% continue to read
+                
+		{continue} -> %% continue to read
                     {noreply, State};
+
                 {stop} -> %% close connection
-                    say(Input, BotName, Buffer, BotPid),
+                    say(Input, BotName, Buffer, BotPid, Channel),
                     NewState = remove(Socket, State),
                     {noreply, NewState}
             end;
@@ -168,31 +187,37 @@ code_change(OldVsn, State, Extra) ->
 %% Func: say/4 
 %% Purpose: say a string to chan or to private
 %%----------------------------------------------------------------------
-say(Input, BotName, [], BotPid) ->
+say(Input, BotName, [], BotPid, Channel) ->
     empty;
+
 %% list of strings to say in private, use mdb_behaviours function
-say(Input = #data{header_to=BotName}, BotName, Data, BotPid) ->
-    spawn_link(?MODULE,say_slow, [Input, BotName, Data, BotPid]);
+say(Input = #data{header_to=BotName}, BotName, Data, BotPid, Channel) ->
+    spawn_link(?MODULE, say_slow, [Input, BotName, Data, BotPid, Channel]);
+
 %%% to much lines, talk in private
-say(Input, BotName, Data, BotPid) when length(Data) > ?max_lines ->
+say(Input, BotName, Data, BotPid, Channel) when length(Data) > ?max_lines ->
     %% set header_to to say it in private
     mdb_bot:say(BotPid, "answer in private"),
+    
     %% spawn a new process to talk in private, with a sleep between each line
-    spawn_link(?MODULE,say_slow, [Input#data{header_to=BotName}, BotName, Data, BotPid]);
+    spawn_link(?MODULE, say_slow, [Input#data{header_to=BotName},
+				   BotName, Data, BotPid, Channel]);
+
 %%% talk in the channel
-say(Input, BotName, Data, BotPid) ->
-    mdb_behaviours:say(Input, BotName, Data, BotPid).
+say(Input, BotName, Data, BotPid, Channel) ->
+    mdb_behaviours:say(Input, BotName, Data, BotPid, Channel).
 
 %%----------------------------------------------------------------------
 %% Func: say_slow/4
 %% Purpose: say a list of string with sleep intervals
 %%----------------------------------------------------------------------
-say_slow(Input, BotName, [], BotPid) ->
+say_slow(Input, BotName, [], BotPid, Channel) ->
     empty;
-say_slow(Input, BotName, [String | Data], BotPid) ->
-    mdb_behaviours:say(Input, BotName, [String], BotPid),
+
+say_slow(Input, BotName, [String | Data], BotPid, Channel) ->
+    mdb_behaviours:say(Input, BotName, [String], BotPid, Channel),
     timer:sleep(?say_sleep),
-    say_slow(Input, BotName, Data, BotPid).
+    say_slow(Input, BotName, Data, BotPid, Channel).
 
 %%----------------------------------------------------------------------
 %% Func: remove/2

@@ -8,7 +8,7 @@
 -revision(' $Id$ ').
 -vsn(' $Revision$ ').
 
--export([search/4, parse/1, set_request/1]).
+-export([search/5, parse/1, set_request/1]).
 
 -include("mdb.hrl").
 
@@ -16,9 +16,9 @@
 -define(debian_port, 80).
 -define(margin, 50). % left margin for file results
 
-search(Keywords, Input, BotPid, BotName) ->
+search(Keywords, Input, BotPid, BotName, Channel) ->
     mdb_search:search({Keywords,
-                       Input, BotPid, BotName,
+                       Input, BotPid, BotName, Channel,
                        #search_param{type   = ?MODULE, 
                                      server = ?debian_name,
                                      port   = ?debian_port }
