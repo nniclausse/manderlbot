@@ -10,4 +10,4 @@ man: $(MANPAGE)
 
 clean:
 	-rm -f *~
-	-rm -f $(DOCUMENT).tex $(DOCUMENT).html $(DOCUMENT).ps $(DOCUMENT).pdf manderlbot.1 manpage.*
+	-rm -f manpage.links manpage.refs
