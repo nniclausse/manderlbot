@@ -56,7 +56,7 @@ connect(Server, Ip_port) ->
 
     case Connect() of
 	{ok, Sock} ->
-         mdb_logger:debug("Connected to: ~p", [Reason]),
+         mdb_logger:debug("Connected to: ~p", [Server]),
 	    {ok, Sock};
 
 	{error, Reason} ->
