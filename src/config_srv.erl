@@ -194,6 +194,7 @@ build_behaviours_list([BC=#cfg_behaviour{}|BClist], Acc) ->
 	      "mute"   -> {mdb_behaviours, mute};
 	      "debian_pkg"  -> {mdb_behaviours, debian_pkg};
 	      "debian_file" -> {mdb_behaviours, debian_file};
+	      "pyramid"     -> {mdb_behaviours, pyramid};
 	      Other    -> {mdb_behaviours, say}
 	  end,
 

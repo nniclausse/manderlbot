@@ -48,10 +48,14 @@ init([]) ->
     BLoto  = {bloto, {bloto, start_link, []},
 	      permanent, 2000, worker, [bloto]},
 
+    Pyramid = {pyramid, {pyramid, start_link, []},
+	       permanent, 2000, worker, [pyramid]},
+
     BSearch = {mdb_search, {mdb_search, start_link, []},
 	      permanent, 2000, worker, [mdb_search]},
 
-    {ok, {{one_for_one, 3, 60}, [BotSup, BotLst, BServ, BLoto, BSearch]}}.
+    {ok, {{one_for_one, 3, 60},
+	  [BotSup, BotLst, BServ, BLoto, Pyramid, BSearch]}}.
 
 %%%----------------------------------------------------------------------
 %%% Internal functions

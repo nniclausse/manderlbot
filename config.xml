@@ -4,7 +4,8 @@
 
 	<server host="irc.openprojects.net" port="6667">
 		<channel name="#manderlbot" botname="mdb"
-			behaviours="ouca foutaises prout hop google mute">
+			behaviours="ouca foutaises prout hop google mute bloto
+			 pyramid ">
 		</channel>
 
 		<!--
@@ -66,6 +67,10 @@
 
 		<behaviour name="mute" action="mute" pattern="^%BOTNAME: mute">
 			mute
+		</behaviour>
+
+		<behaviour name="pyramid" action="pyramid" pattern="^pyramid">
+			pyramid
 		</behaviour>
 
 		<behaviour name="google" action="google" pattern="^google">

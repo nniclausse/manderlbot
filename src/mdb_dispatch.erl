@@ -106,7 +106,8 @@ dispatch_message(Behaviours, Input, State = #state{mode=muted}) ->
 		      apply(M, F, [Input,
 				   State#state.nickname,
 				   Behaviour#behaviour.data,
-				   State#state.bot_pid]);
+				   State#state.bot_pid,
+				   State#state.channel]);
 		 (_) ->
 		      ?dbg("MUTED", [])
 	      end,
@@ -120,7 +121,8 @@ dispatch_message(Behaviours, Input, State = #state{}) ->
 		      apply(M, F, [Input,
 				   State#state.nickname,
 				   Behaviour#behaviour.data,
-				   State#state.bot_pid])
+				   State#state.bot_pid,
+				   State#state.channel])
 	      end,
 	      Behaviours).
 

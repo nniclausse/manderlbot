@@ -10,9 +10,9 @@
 -author('tapoueh@free.fr').
 
 %% Exported behaviours
--export([say/4, action/4, answer/4, random/4, timer/4, bloto/4,
-         google/4, dict/4, rejoin/4, reconf/4, mute/4,
-         debian_pkg/4, debian_file/4
+-export([say/5, action/5, answer/5, random/5, timer/5, bloto/5,
+         google/5, dict/5, rejoin/5, reconf/5, mute/5,
+         debian_pkg/5, debian_file/5, pyramid/5
         ]).
 
 -include("mdb.hrl").
@@ -20,14 +20,14 @@
 -define(RNDTIME, 3000).
 
 %% A plugin function for behaviour is of the form:
-%% Fun(Input, BotName, Data, BotPid)
+%% Fun(Input, BotName, Data, BotPid, Channel)
 
 
 %%%----------------------------------------------------------------------
-%%% Function: say/4
+%%% Function: say/5
 %%% Purpose:  Say the data in the channel or to the speaker
 %%%----------------------------------------------------------------------
-say(Input = #data{header_to=BotName}, BotName, Data, BotPid) ->
+say(Input = #data{header_to=BotName}, BotName, Data, BotPid, Channel) ->
     [NickFrom|IpFrom] = string:tokens(Input#data.header_from, "!"),
 
     lists:map(fun(String) ->
@@ -35,7 +35,7 @@ say(Input = #data{header_to=BotName}, BotName, Data, BotPid) ->
 	      end,
 	      Data);
 
-say(Input, BotName, Data, BotPid) ->
+say(Input, BotName, Data, BotPid, Channel) ->
     lists:map(fun(String) ->
 		      mdb_bot:say(BotPid, String)
 	      end,
@@ -43,10 +43,10 @@ say(Input, BotName, Data, BotPid) ->
 
 
 %%%----------------------------------------------------------------------
-%%% Function: action/4
+%%% Function: action/5
 %%% Purpose:  Answer with Action IRC usage - /me
 %%%----------------------------------------------------------------------
-action(Input = #data{header_to=BotName}, BotName, Data, BotPid) ->
+action(Input = #data{header_to=BotName}, BotName, Data, BotPid, Channel) ->
     [NickFrom|IpFrom] = string:tokens(Input#data.header_from, "!"),
 
     lists:map(fun(String) ->
@@ -54,7 +54,7 @@ action(Input = #data{header_to=BotName}, BotName, Data, BotPid) ->
 	      end,
 	      Data);
 
-action(Input, BotName, Data, BotPid) ->
+action(Input, BotName, Data, BotPid, Channel) ->
     lists:map(fun(String) ->
 		      mdb_bot:action(BotPid, String)
 	      end,
@@ -62,10 +62,10 @@ action(Input, BotName, Data, BotPid) ->
 
 
 %%%----------------------------------------------------------------------
-%%% Function: answer/4
+%%% Function: answer/5
 %%% Purpose:  Answer the given (config) data to the one who talk
 %%%----------------------------------------------------------------------
-answer(Input = #data{header_to=BotName}, BotName, Data, BotPid) ->
+answer(Input = #data{header_to=BotName}, BotName, Data, BotPid, Channel) ->
     [NickFrom|IpFrom] = string:tokens(Input#data.header_from, "!"),
 
     lists:map(fun(String) ->
@@ -73,7 +73,7 @@ answer(Input = #data{header_to=BotName}, BotName, Data, BotPid) ->
 	      end,
 	      Data);
 
-answer(Input, BotName, Data, BotPid) ->
+answer(Input, BotName, Data, BotPid, Channel) ->
     [NickFrom|IpFrom] = string:tokens(Input#data.header_from, "!"),
     lists:map(fun(String) ->
 		      mdb_bot:say(BotPid, NickFrom ++ ": " ++ String)
@@ -82,10 +82,10 @@ answer(Input, BotName, Data, BotPid) ->
 
 
 %%%----------------------------------------------------------------------
-%%% Function: random/4
+%%% Function: random/5
 %%% Purpose:  Choose at random a line in Data and answer it.
 %%%----------------------------------------------------------------------
-random(Input = #data{header_to=BotName}, BotName, Data, BotPid) ->
+random(Input = #data{header_to=BotName}, BotName, Data, BotPid, Channel) ->
     [NickFrom|IpFrom] = string:tokens(Input#data.header_from, "!"),
 
     {A, B, C} = now(),
@@ -94,18 +94,18 @@ random(Input = #data{header_to=BotName}, BotName, Data, BotPid) ->
 		lists:nth(random:uniform(length(Data)), Data),
 		NickFrom);
 
-random(Input, BotName, Data, BotPid) ->
+random(Input, BotName, Data, BotPid, Channel) ->
     {A, B, C} = now(),
     random:seed(A, B, C),
     mdb_bot:say(BotPid, lists:nth(random:uniform(length(Data)), Data)).
 
 
 %%%----------------------------------------------------------------------
-%%% Function: timer/4
+%%% Function: timer/5
 %%% Purpose:  Answer the given data, but waiting for random time
 %%%           between the 2 lines to say.
 %%%----------------------------------------------------------------------
-timer(Input = #data{header_to=BotName}, BotName, Data, BotPid) ->
+timer(Input = #data{header_to=BotName}, BotName, Data, BotPid, Channel) ->
     [NickFrom|IpFrom] = string:tokens(Input#data.header_from, "!"),
     case length(Data) of
 	1 ->
@@ -122,10 +122,10 @@ timer(Input = #data{header_to=BotName}, BotName, Data, BotPid) ->
 	    mdb_bot:say(BotPid, T, NickFrom);
 
 	More ->
-	    say(Input, BotName, Data, BotPid)
+	    say(Input, BotName, Data, BotPid, Channel)
     end;
 
-timer(Input, BotName, Data, BotPid) ->
+timer(Input, BotName, Data, BotPid, Channel) ->
     case length(Data) of
 	1 ->
 	    [String] = Data,
@@ -141,18 +141,18 @@ timer(Input, BotName, Data, BotPid) ->
 	    mdb_bot:say(BotPid, T);
 
 	More ->
-	    say(Input, BotName, Data, BotPid)
+	    say(Input, BotName, Data, BotPid, Channel)
     end.
 
 
 %%%----------------------------------------------------------------------
-%%% Function: bloto/4
+%%% Function: bloto/5
 %%% Purpose:  Play to business loto...
 %%%----------------------------------------------------------------------
-bloto(Input, BotName, Data, BotPid) ->
+bloto(Input, BotName, Data, BotPid, Channel) ->
     [NickFrom|IpFrom] = string:tokens(Input#data.header_from, "!"),
 
-    case bloto:add(NickFrom) of
+    case bloto:add(NickFrom, Channel) of
 	{winner, Nick} ->
 	    mdb_bot:say(BotPid, Nick ++ " " ++ Data);
 
@@ -162,37 +162,37 @@ bloto(Input, BotName, Data, BotPid) ->
 
 
 %%%----------------------------------------------------------------------
-%%% Function: rejoin/4
+%%% Function: rejoin/5
 %%% Purpose:  When kicked, rejoin the chan
 %%%----------------------------------------------------------------------
-rejoin(Input, BotName, Data, BotPid) ->
+rejoin(Input, BotName, Data, BotPid, Channel) ->
     mdb_bot:rejoin(BotPid).
 
 
 %%%----------------------------------------------------------------------
-%%% Function: reconf/4
+%%% Function: reconf/5
 %%% Purpose:  Re-read now the config file
 %%%----------------------------------------------------------------------
-reconf(Input, BotName, ConfigFile, BotPid) ->
+reconf(Input, BotName, ConfigFile, BotPid, Channel) ->
     [NickFrom|IpFrom] = string:tokens(Input#data.header_from, "!"),
     mdb_bot:reconf(BotPid, NickFrom, ConfigFile).		     
 
 
 %%%----------------------------------------------------------------------
-%%% Function: mute/4
+%%% Function: mute/5
 %%% Purpose:  allow the bot not to react for a while
 %%%----------------------------------------------------------------------
-mute(Input, BotName, Data, BotPid) ->
+mute(Input, BotName, Data, BotPid, Channel) ->
     [NickFrom|IpFrom] = string:tokens(Input#data.header_from, "!"),
     io:format("mute ~n", []),
     mdb_bot:mute(BotPid, NickFrom).		     
 
 
 %%%----------------------------------------------------------------------
-%%% Function: google/4
+%%% Function: google/5
 %%% Purpose:  ask google and give the first response
 %%%----------------------------------------------------------------------
-google(Input, BotName, Data, BotPid) ->
+google(Input, BotName, Data, BotPid, Channel) ->
     io:format("GOOGLE input: ~p~n", [Input#data.body]),
 
     [Key | Args] = string:tokens(Input#data.body," "),
@@ -203,10 +203,10 @@ google(Input, BotName, Data, BotPid) ->
     google:search(Criteria, Input, BotPid, BotName).
 
 %%%----------------------------------------------------------------------
-%%% Function: debian_pkg/4
+%%% Function: debian_pkg/5
 %%% Purpose:  search for debian packages
 %%%----------------------------------------------------------------------
-debian_pkg(Input, BotName, Data, BotPid) ->
+debian_pkg(Input, BotName, Data, BotPid, Channel) ->
     io:format("DEBIAN package input: ~p~n", [Input#data.body]),
 	[Key, String | Args] = string:tokens(Input#data.body," "),
 	case Args of 
@@ -221,10 +221,10 @@ debian_pkg(Input, BotName, Data, BotPid) ->
     end.
 
 %%%----------------------------------------------------------------------
-%%% Function: debian_file/4
+%%% Function: debian_file/5
 %%% Purpose:  search for files in debian package
 %%%----------------------------------------------------------------------
-debian_file(Input, BotName, Data, BotPid) ->
+debian_file(Input, BotName, Data, BotPid, Channel) ->
     io:format("DEBIAN file input: ~p~n", [Input#data.body]),
     [Key, String | Args] = string:tokens(Input#data.body," "),
     case Args of 
@@ -239,10 +239,10 @@ debian_file(Input, BotName, Data, BotPid) ->
 
 
 %%%----------------------------------------------------------------------
-%%% Function: dict/4
+%%% Function: dict/5
 %%% Purpose:  ask dict for a word definition
 %%%----------------------------------------------------------------------
-dict(Input, BotName, Data, BotPid) ->
+dict(Input, BotName, Data, BotPid, Channel) ->
     [DictName] = Data,
     io:format("DICT input: ~p~n", [Input#data.body]),
     io:format("DICT name:  ~p~n", [DictName]),
@@ -257,4 +257,53 @@ dict(Input, BotName, Data, BotPid) ->
 	    mdb_dict:search(Criteria, Input, BotPid, BotName);
 	_ ->
 	    mdb_dict:search(Criteria, Input, BotPid, BotName, DictName)
+    end.
+
+pyramid(Input = #data{header_to=BotName}, BotName, Data, BotPid, Channel) ->
+    %%  - first player giving the bot the answer, before beginning the game,
+    %%    in private dialog
+    [NickFrom|IpFrom] = string:tokens(Input#data.header_from, "!"),
+    [Header, Word] =  string:tokens(Input#data.body, ": "),
+
+    case pyramid:setWord(NickFrom, Channel, string:strip(Word)) of
+	{ok, Message} ->
+	    mdb_bot:say(BotPid, Message, NickFrom),
+	    mdb_bot:say(BotPid, NickFrom ++ " has set a word to guess !");
+
+	{error, Reason} ->
+	    mdb_bot:say(BotPid, Reason, NickFrom)
+    end;
+
+pyramid(Input, BotName, Data, BotPid, Channel) ->
+    %% For this game, we have to detect some different cases on the
+    %% same behaviour, that is :
+    %%
+    %%  - beginning of game, first player inviting second and giving the
+    %%    number of tries
+    %%
+    %%  - second player guess
+
+    [NickFrom|IpFrom] = string:tokens(Input#data.header_from, "!"),
+
+    io:format("body: ~p~n", [Input#data.body]),
+
+    case regexp:match(Input#data.body, "[A-za-z]+/[0-9]") of
+	{match, S, L} ->
+	    [Player2, Nguess] =
+		string:tokens(string:substr(Input#data.body, S, L), "/"),
+
+	    {ok, [{integer, 1, Iguess}],1} = erl_scan:string(Nguess),
+	    
+	    io:format("pyramid: ~p invite ~p in ~p~n",
+		      [NickFrom, Player2, Iguess]),
+
+	    {_State, SMsg} = pyramid:start(NickFrom, Channel, Player2, Iguess),
+	    mdb_bot:say(BotPid, SMsg);
+
+	_Whatever  ->
+	    [Header, Word] =  string:tokens(Input#data.body, ": "),
+	    {_State, GMsg}  =
+		pyramid:guess(NickFrom, Channel, string:strip(Word)),
+
+	    mdb_bot:say(BotPid, GMsg)
     end.
