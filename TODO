@@ -11,3 +11,6 @@ Behaviours
 Config
 	DTD
 	Behaviours lists, inheritance
+
+        Add a fortune include, allowing to manage separately
+        traditionnal fortune files
