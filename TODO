@@ -1,0 +1,14 @@
+Behaviours
+	Fortune
+		On logue quelques ligne et sur demande on fortune les dernieres
+		n lignes demandés...
+
+	Rumeur
+		Avec un nick en argument, raconte des choses
+
+Config
+	DTD
+	Behaviours lists, inheritance
+
+Others
+	Do regexp matchings case independant (Lower/Upper case)

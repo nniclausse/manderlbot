@@ -1,0 +1,12 @@
+This is manderlbot, an attempt to write an irc bot in erlang, with a XML
+based configuration.
+
+To use it, install erlang, then xmerl-0.15
+	http://www.erlang.org/user.html#xmerl-0.15
+
+On my system this means install the compiled files in
+	/usr/lib/erlang/lib/xmerl-0.15
+
+To start manderlbot, simply launch erlang shell
+erl
+> application:start(manderlbot).
