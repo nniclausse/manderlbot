@@ -4,8 +4,11 @@
 
 	<server host="irc.openprojects.net" port="6667">
 		<channel name="#manderlbot" botname="mdb"
-			behaviours="ouca foutaises prout hop google mute bloto
-			 pyramid ">
+			behaviours="ouca foutaises prout hop google mute bloto pyramid">
+		</channel>
+
+		<channel name="#manderlbot" botname="mdbis"
+			behaviours="tictac foutaises prout hop google mute bloto">
 		</channel>
 
 		<!--

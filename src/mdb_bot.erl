@@ -87,7 +87,8 @@ init([RealName, Controler, Host, Port, Channel, BList]) ->
     %% we may start the bot giving it its behaviours list...
     {ok, RealBList} = case BList of
 			  [] ->
-			      config_srv:getBList(Channel#channel.name);
+			      config_srv:getBList(Channel#channel.name,
+						  Channel#channel.botname);
 			  List ->
 			      {ok, BList}
 		      end,
@@ -148,7 +149,8 @@ handle_call({reconf, NickName, ConfigFile}, From, State) ->
     %% Then get our behaviours list, and replace it in the State
     case State#state.controler of
 	NickName ->
-	    case config_srv:reconf(State#state.channel, ConfigFile) of
+	    case config_srv:reconf(State#state.channel, State#state.nickname,
+				   ConfigFile) of
 		{ok, BList} -> {reply, ok, State#state{behaviours=BList}};
 		_Error      -> {reply, {error, reconf}, State}
 	    end;

@@ -14,8 +14,8 @@
 -behaviour(gen_server).
 
 %% External exports
--export([start_link/1, getConf/0, getDictConf/0, reconf/2,
-	 getBList/1, getBehaviours/1]).
+-export([start_link/1, getConf/0, getDictConf/0, reconf/3,
+	 getBList/2, getBehaviours/1]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
@@ -39,11 +39,11 @@ getConf() ->
 getDictConf() ->
     gen_server:call(?MODULE, {getDictConf}, ?timeout).
 
-reconf(Chan, ConfigFile) ->
-    gen_server:call(?MODULE, {reconf, Chan, ConfigFile}, ?timeout).
+reconf(Chan, BotName, ConfigFile) ->
+    gen_server:call(?MODULE, {reconf, Chan, BotName, ConfigFile}, ?timeout).
 
-getBList(Channel) ->
-    gen_server:call(?MODULE, {getlist, Channel}, ?timeout).
+getBList(Channel, BotName) ->
+    gen_server:call(?MODULE, {getlist, Channel, BotName}, ?timeout).
 
 getBehaviours(BNames) ->
     gen_server:call(?MODULE, {getBehaviours, BNames}, ?timeout).
@@ -81,21 +81,22 @@ handle_call({getConf}, From, Config) ->
 handle_call({getDictConf}, From, Config = #config{dict=Dict}) ->
     {reply, {ok, Dict}, Config};
 
-handle_call({reconf, Channel, ConfigFile}, From, Config) ->
+handle_call({reconf, Channel, BotName, ConfigFile}, From, Config) ->
     case config:read(ConfigFile) of
 	{ok, NewConfig = #config{}} ->
 	    %% Don't forget to check for new chans to join
 	    %% In order to avoid a re-entrance which faults in timeout,
 	    %% we pass directly from here the new bot BList !
 	    checkForNewChans(NewConfig),
-	    {reply, {ok, getBehaviours(NewConfig, Channel)}, NewConfig};
+	    {reply,
+	     {ok, getBehaviours(NewConfig, Channel, BotName)}, NewConfig};
 
 	Error ->
 	    {reply, Error, Config}
     end;
 
-handle_call({getlist, Channel}, From, Conf) ->
-    {reply, {ok, getBehaviours(Conf, Channel)}, Conf};
+handle_call({getlist, Channel, BotName}, From, Conf) ->
+    {reply, {ok, getBehaviours(Conf, Channel, BotName)}, Conf};
 
 
 handle_call({getBehaviours, BNames}, From, Conf = #config{behaviours=BList}) ->
@@ -193,25 +194,27 @@ build_behaviours_list([BC=#cfg_behaviour{action=Action}|BClist], Acc) ->
 
 
 %%----------------------------------------------------------------------
-%% getBehaviours/2
+%% getBehaviours/3
 %%   Read the config and find on it our behaviours
 %%----------------------------------------------------------------------
-getBehaviours(#config{servers=SList}, Chan) ->
-    getBehaviours(SList, Chan);
+getBehaviours(#config{servers=SList}, Chan, BotName) ->
+    getBehaviours(SList, Chan, BotName);
 
-getBehaviours([#server{channels=CList}|STail], Chan) ->
-    case getBehaviours(CList, Chan) of
-	notfound -> getBehaviours(STail, Chan);
+getBehaviours([#server{channels=CList}|STail], Chan, BotName) ->
+    case getBehaviours(CList, Chan, BotName) of
+	notfound -> getBehaviours(STail, Chan, BotName);
 	BList    -> BList
     end;
 
-getBehaviours([#channel{name=Chan, behaviours=BList}|CTail], Chan) ->
+getBehaviours([#channel{name=Chan, botname=BotName, behaviours=BList}|CTail],
+	      Chan, BotName) ->
+    %% Here we add some intern behaviours
     ["reconf", "rejoin" | BList];
 
-getBehaviours([#channel{name=Name}|CTail], Chan) ->
-    getBehaviours(CTail, Chan);
+getBehaviours([#channel{}|CTail], Chan, BotName) ->
+    getBehaviours(CTail, Chan, BotName);
 
-getBehaviours([], Chan) ->
+getBehaviours([], Chan, BotName) ->
     notfound.
 
 
@@ -237,10 +240,13 @@ checkForNewChans([#server{host=Host, port=Port, channels=CList}|Stail],
     checkForNewChans(CList, [Name, Ctlr, Host, Port], Config),
     checkForNewChans(Stail, [Name, Ctlr], Config);
 
-checkForNewChans([Channel=#channel{name=Chan}|CTail],
+checkForNewChans([Channel=#channel{name=Chan, botname=BotName}|CTail],
 		 [Name, Ctlr, Host, Port],
 		 Config) ->
-    mdb_botlist:add(Name, Ctlr, Host, Port, Channel, getBehaviours(Config, Chan)),
+    
+    mdb_botlist:add(Name, Ctlr, Host, Port, Channel,
+		    getBehaviours(Config, Chan, BotName)),
+
     checkForNewChans(CTail, [Name, Ctlr, Host, Port], Config);
 
 checkForNewChans([], Params, Config) ->
