@@ -172,7 +172,7 @@ say(Input, BotName, [], BotPid) ->
     empty;
 %% list of strings to say in private, use mdb_behaviours function
 say(Input = #data{header_to=BotName}, BotName, Data, BotPid) ->
-    mdb_behaviours:say(Input, BotName, Data, BotPid);
+    spawn_link(?MODULE,say_slow, [Input, BotName, Data, BotPid]);
 %%% to much lines, talk in private
 say(Input, BotName, Data, BotPid) when length(Data) > ?max_lines ->
     %% set header_to to say it in private
