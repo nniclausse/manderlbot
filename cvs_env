@@ -1,2 +1,0 @@
-export CVS_RSH=/usr/bin/ssh
-export CVSROOT=dim@cvs.tuxfamily.org:/cvsroot/manderlbot
