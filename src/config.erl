@@ -39,6 +39,7 @@
 -define(default_passwd, "h4ckd4w0rld").
 
 -export([read/1]).
+-export([read_fortunes/1]).
 
 %%%----------------------------------------------------------------------
 %%% Function: read/1
@@ -143,7 +144,7 @@ parse(Element = #xmlElement{name=behaviour},
     EOption  = getAttr(Element#xmlElement.attributes, exl_option, '_'),
     EPattern = getAttr(Element#xmlElement.attributes, exl_pattern, '_'),
 
-    Data     = getText(Element#xmlElement.content),
+    Data     = getText(Action, Element#xmlElement.content),
 
     lists:foldl(fun parse/2,
 		Conf#config{behaviours =
@@ -190,15 +191,53 @@ getAttr([], Name, Default) ->
 
 
 %%%----------------------------------------------------------------------
-%%% Function: getText/1
+%%% Function: getText/2
 %%% Purpose:  get the text of the XML node
 %%%----------------------------------------------------------------------
-getText([Text = #xmlText{value=Value}|Tail]) -> build_list(
-						  string:strip(Value, both));
-getText(_Other)                              -> "".
+getText("fortune", [Text = #xmlText{value=Value}|Tail]) ->
+    %% The value is a file name, we have to read it as a fortune file
+    read_fortunes(string:strip(Value, both));
 
+getText(Action, [Text = #xmlText{value=Value}|Tail]) ->
+    build_list(string:strip(Value, both));
 
-%% Default separator is '%'
+getText(Action, _Other) ->
+    "".
+
+%%%----------------------------------------------------------------------
+%%% Function: build_list/1, build_list/2
+%%% Purpose:  Build a list from a string, using given separator.
+%%%    Default separator is '%'
+%%%----------------------------------------------------------------------
 build_list(String) -> build_list(String, "%").
 build_list(String, Sep) ->
     string:tokens(String, Sep).
+
+
+%%%----------------------------------------------------------------------
+%%% Function: getText/2
+%%% Purpose:  get the text of the XML node
+%%%----------------------------------------------------------------------
+read_fortunes(Filename) ->
+    case file:read_file(Filename) of
+	{ok, Content} ->
+	    case lists:foldl(
+		   fun([$%|Tail], Acc)       -> [[] | Acc];
+		      (List, [[]|Acc])       -> [[List] | Acc];
+		      (List, [Buffer | Acc]) -> [Buffer++[List] | Acc]
+		   end,
+		   [],
+		   string:tokens(binary_to_list(Content), "\r\n")) of
+
+		[[]| Fortunes] ->
+		    %% This happens when first line of file is '%'
+		    Fortunes;
+		Fortunes ->
+		    Fortunes
+	    end;
+
+	{error, Reason} ->
+	    mdb_logger:error("Config: could not read fortune file ~s: ~s",
+			     [Filename, Reason]),
+	    []
+    end.
