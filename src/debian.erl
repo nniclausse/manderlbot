@@ -39,6 +39,7 @@
 
 -define(debian_name, "packages.debian.org").
 -define(debian_port, 80).
+-define(package_desc_start, "</a>").
 -define(margin, 50). % left margin for file results
 
 search(Keywords, Input, BotPid, BotName, Channel) ->
@@ -69,10 +70,19 @@ parse("No responses" ++ Data) ->
 parse("<tr><td>&nbsp; <td COLSPAN=2>" ++ Data) ->
     [Description | _Other ] = string:tokens(Data,"<"),
     {continue, "  " ++ Description};
-%% URL of package
-parse("\t<td><b><a HREF=\"" ++ Data) ->
-    [URL | _Other ] = string:tokens(Data,"\""),
-    {continue, URL };
+%% URL and description of package (new version of packages.debian.org)
+parse("<li><a href=\"" ++ Data) ->
+    [URL | List ] = string:tokens(Data,"\""),
+    Desc= lists:append(List),
+    mdb_logger:debug("Debian got desc ~p~n", [Desc]),
+    Pos= string:str(Desc,?package_desc_start) +length(?package_desc_start)+1,
+    case catch string:substr(Desc, Pos) of
+        Desc2 when is_list(Desc2) ->
+            {continue, URL++": " ++ Desc2};
+        Other ->
+            mdb_logger:info("Debian desc error= ~p~n", [Other]),
+            {continue, URL}
+    end;
 %% Package short description, caps
 parse("<TR><TD>&nbsp; <TD COLSPAN=2>" ++ Data) ->
     [Description | _Other ] = string:tokens(Data,"<"),
