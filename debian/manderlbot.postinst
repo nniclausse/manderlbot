@@ -25,16 +25,25 @@ set -e
 
 case "$1" in
     configure)
-	# Take care about the config file
-	if [ "x$2" = "x" ]; then
-	    version=0.7
-	else
+	# Take care about the config file and remove old version (backup)
+
+	basedir=/usr/lib/erlang/lib/
+
+	if [ ! "x$2" = "x" ]; then
 	    version=`echo $2 | sed -e 's/\(.*\)-.*/\1/'`
+	    oldone=$basedir/manderlbot-$version
+	    if [ -d $oldone ]; then
+		tar czf $oldone.tar.gz $oldone
+		rm -rf $oldone
+	    fi
 	fi
-	cfile_dest=/usr/lib/erlang/lib/manderlbot-$version/config.xml
+	# Should find a way to determine this
+	version=0.8
+	
+	cfile_dest=$basedir/manderlbot-$version/config.xml
 	cfile_orig=/etc/manderlbot.xml
 	
-	rm $cfile_dest
+	[ -f $cfile_dest ] && rm $cfile_dest
 	ln -s $cfile_orig $cfile_dest
     ;;
 

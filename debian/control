@@ -7,7 +7,7 @@ Standards-Version: 3.5.2
 
 Package: manderlbot
 Architecture: all
-Depends: erlang (>= 8.2-1), erlang-base (>= 8.2-1)
+Depends: erlang (>= 8.2-1), xmerl (>= 0.15-1)
 Recommends: erlang-mode
 Description: An IRC bot, written in erlang, not an eggdrop.
  Manderlbot is an IRC bot with XML configuration file, allowing you to launch

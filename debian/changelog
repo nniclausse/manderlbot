@@ -1,3 +1,11 @@
+manderlbot (0.8-1) unstable; urgency=low
+
+  * Some more options in config file, adding possibility to match user
+    speacking and irc operation.
+  * Lot of bugfixes, including command strings malformations.
+
+ -- Dimitri Fontaine <dim@tuxfamily.org>  Sat, 21 Dec 2002 00:13:54 +0100
+
 manderlbot (0.7-1) unstable; urgency=low
 
   * Initial Release.

@@ -9,7 +9,7 @@ EBIN = ./ebin
 
 ERLANG_INSTALL_DIR = $(DESTDIR)/usr/lib/erlang/lib
 APPLICATION = manderlbot
-VERSION = 0.7
+VERSION = 0.8
 
 TARGETDIR= $(ERLANG_INSTALL_DIR)/$(APPLICATION)-$(VERSION)
 CONFFILE = $(TARGETDIR)/config.xml
@@ -34,13 +34,7 @@ emake:
 clean:
 	-rm -f $(TARGET) $(TMP)
 
-# We also have to install the xmerl lib
-xmerl:
-	cp -r contrib/xmerl-0.15 $(ERLANG_INSTALL_DIR)
-	find $(ERLANG_INSTALL_DIR)/xmerl-0.15 -type f -exec chmod a-x {} \;
-	chmod a+x $(ERLANG_INSTALL_DIR)/xmerl-0.15/src/compile_grammar.sh
-
-install: xmerl clean manderlbot
+install: manderlbot
 	-rm -f $(TMP)
 	mkdir -p $(TARGETDIR) 
 	-cp -r . $(TARGETDIR)
