@@ -11,11 +11,3 @@ Behaviours
 Config
 	DTD
 	Behaviours lists, inheritance
-
-Misc
-	Bugs when several instances are on the same chan
-	
-	Writte some howto / doc
-
-	Provide a system executable manderlbot file, users won't have to run
-	the erl VM by themselves !
