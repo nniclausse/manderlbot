@@ -184,7 +184,7 @@ google(Input, BotName, ConfigFile, BotPid) ->
     io:format("GOOGLE input: ~p~n", [Input#data.body]),
 
 	[Key | Args] = string:tokens(Input#data.body," "),
-    {ok, Criteria, _} = regexp:gsub(string:strip(Args),"\s+", "+"),
+    Criteria= misc_tools:join("+", Args),
 	
     io:format("GOOGLE criteria: ~p~n", [Criteria]),
 

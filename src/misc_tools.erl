@@ -28,6 +28,7 @@
 	 regexpize/1,
 	 date_to_integer/1,
 	 date_to_string/2,
+	 join/2,
 	 last_event/1,
 	 lower_string/1,
 	 upper_string/1]).
@@ -161,4 +162,11 @@ last_event([Event|Events], LastEvent) ->
 	false ->
 	    last_event(Events, LastEvent)
     end.
-    
+
+
+%% A Perl-style join --- concatenates all strings in Strings,
+%% separated by Sep.
+join(Sep, []) ->
+	[];
+join(Sep, [First | List]) ->
+	lists:foldl(fun(X, Sum) -> X ++ Sep ++ Sum end, First, List).
