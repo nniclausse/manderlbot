@@ -1,3 +1,9 @@
+manderlbot (0.9.2-1) unstable; urgency=low
+
+  * New upstream release 
+
+ -- Julien Danjou <acid@debian.org>  Fri, 12 Dec 2003 14:39:54 +0100
+
 manderlbot (0.9.1-1) unstable; urgency=low
 
   * New upstream release
