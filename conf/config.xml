@@ -71,7 +71,7 @@
         </behaviour>
 
 		<behaviour name="bofh" action="fortune" pattern="(bofh|BOFH|excuse)">
-			/home/dim/perso/dev/tf/manderlbot/bofh.fortune
+			/etc/manderlbot/bofh.fortune
 		</behaviour>
 	</behaviours>
 </manderlbot>
