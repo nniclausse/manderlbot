@@ -69,7 +69,7 @@ init([Config_file, Log_file]) ->
     BotLst = {mdb_botlist, {mdb_botlist, start_link, []},
 	      permanent, 2000, worker, [mdb_botlist]},
 
-    BServ  = {config_srv, {config_srv, start_link, Config_file},
+    BServ  = {config_srv, {config_srv, start_link, [Config_file]},
 	      permanent, 2000, worker, [config_srv]},
 
     BLoto  = {mdb_bhv_bloto, {mdb_bhv_bloto, start_link, []},
