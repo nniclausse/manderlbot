@@ -64,7 +64,7 @@
 		</behaviour>
 
 		<behaviour name="roulmain" action="timer"
-				   pattern="(roul?main|cujl|CUJL|boulto|provqo|bine)">
+				   pattern="(roul?main|cujl|CUJL|boulto|pro(qv|vq)o|bine)">
 %ah ?
 %ouais
 		</behaviour>
