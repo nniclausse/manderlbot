@@ -199,7 +199,9 @@ getAttr([], Name, Default) ->
 %%%----------------------------------------------------------------------
 getText("fortune", [Text = #xmlText{value=Value}|Tail]) ->
     %% The value is a file name, we have to read it as a fortune file
-    read_fortunes(string:strip(Value, both));
+    {ok,Str,_Count} = regexp:gsub(Value,"\n",""), % remove newline
+    mdb_logger:debug("filename =str=~p count=~p~n",[Str,_Count]),
+    read_fortunes(string:strip(Str, both));
 
 getText(Action, [Text = #xmlText{value=Value}|Tail]) ->
     build_list(string:strip(Value, both));
@@ -223,24 +225,14 @@ build_list(String, Sep) ->
 %%%----------------------------------------------------------------------
 read_fortunes(Filename) ->
     case file:read_file(Filename) of
-	{ok, Content} ->
-	    case lists:foldl(
-		   fun([$%|Tail], Acc)       -> [[] | Acc];
-		      (List, [[]|Acc])       -> [[List] | Acc];
-		      (List, [Buffer | Acc]) -> [Buffer++[List] | Acc]
-		   end,
-		   [],
-		   string:tokens(binary_to_list(Content), "\r\n")) of
-
-		[[]| Fortunes] ->
-		    %% This happens when first line of file is '%'
-		    Fortunes;
-		Fortunes ->
-		    Fortunes
-	    end;
-
-	{error, Reason} ->
-	    mdb_logger:error("Config: could not read fortune file ~s: ~s",
-			     [Filename, Reason]),
-	    []
+        {ok, Content} ->
+            {ok, Fortunes} = regexp:split(binary_to_list(Content), "\n%\n"),
+            mdb_logger:debug("Read ~p fortunes in file ~s~n",[length(Fortunes), Filename]),
+            FLines = lists:map(fun(F) -> string:tokens(F,"\r\n") end, Fortunes),
+            FLines;
+        {error, Reason} ->
+            mdb_logger:error("Config: could not read fortune file ~s: ~s",
+                             [Filename, Reason]),
+            []
     end.
+

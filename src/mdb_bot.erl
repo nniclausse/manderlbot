@@ -174,9 +174,10 @@ handle_call({reconf, NickName, ConfigFile}, From,
 		    irc_lib:say(Sock, Chan, NickName ++ ": reconf done !"),
 		    {reply, ok, State#state{behaviours=BList}};
 		Error      ->
+                ErrorStr = io_lib:format("~p",[Error]),
 		    irc_lib:say(Sock, Chan,
 				NickName ++ ": could not reconf "
-				++ ConfigFile ++ " !"),
+				++ ConfigFile ++ " " ++ ErrorStr ++ " !"),
 		    {reply, {error, reconf}, State}
 	    end;
 

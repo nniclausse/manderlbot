@@ -45,13 +45,16 @@ behaviour(Input = #data{header_to=BotName}, BotName, Data, BotPid, Channel) ->
 
     {A, B, C} = now(),
     random:seed(A, B, C),
-    list:foreach(fun(Message) ->
-			 mdb_bot:say(BotPid, Message, NickFrom)
-		 end,
-		 lists:nth(random:uniform(length(Data)), Data));
+    lists:foreach(fun(Message) ->
+                         mdb_bot:say(BotPid, Message, NickFrom)
+                 end,
+                lists:nth(random:uniform(length(Data)), Data));
 
 behaviour(Input, BotName, Data, BotPid, Channel) ->
     {A, B, C} = now(),
     random:seed(A, B, C),
-    mdb_bot:say(BotPid, lists:nth(random:uniform(length(Data)), Data)).
+    lists:foreach(fun(Message) ->
+                          mdb_bot:say(BotPid, Message)
+                  end,
+                  lists:nth(random:uniform(length(Data)), Data)).
 
