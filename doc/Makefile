@@ -1,6 +1,6 @@
 # $Id$
 
-MANPAGE  = manderlbot.1.sgml
+MANPAGE  = manderlbot.1.sgml manderlbot.conf.5.sgml
 DOCUMENT = $(basename $(wildcard *.lyx))
 
 all: man $(DOCUMENT).tex $(DOCUMENT).html $(DOCUMENT).ps $(DOCUMENT).pdf

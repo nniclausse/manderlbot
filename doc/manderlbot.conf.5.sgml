@@ -1,0 +1,460 @@
+<!doctype refentry PUBLIC "-//OASIS//DTD DocBook V4.1//EN">
+<refentry>
+  <refentryinfo>
+    <address>
+      <email>dim@tuxfamily.org</email>
+    </address>
+    <author>
+      <firstname>Dimitri</firstname>
+      <surname>Fontaine</surname>
+    </author>
+    <date>Avril 2004</date>
+    <copyright>
+      <year>2004</year>
+      <holder>Dimitri Fontaine</holder>
+    </copyright>
+  </refentryinfo>
+
+  <refmeta>
+    <refentrytitle>manderlbot.conf</refentrytitle>
+    <manvolnum>5</manvolnum>
+  </refmeta>
+
+  <refnamediv>
+    <refname>manderlbot.conf</refname>
+    <refpurpose>
+      Configuring the manderlbot IRC robot.
+    </refpurpose>
+  </refnamediv>
+
+  <refsect1>
+    <title>description</title>
+    <para>
+      <command>manderlbot</command> is an irc bot aimed at saying
+    idioties or doing some little searches on the internet. It is not
+    an eggdrop bot.
+    </para>
+  </refsect1>
+
+  <refsect1>
+    <title>Configuration</title>
+
+    <para>The configuration file is an XML file containing the 
+following elements:</para>
+
+    <para>
+    <variablelist>
+      <varlistentry>
+        <term>manderlbot</term>
+        <listitem>
+
+          <para>the opening XML element of the configuration, it
+  contains the properties <literal>name</literal> and
+  <literal>controler</literal>. The name will be shown as the bot
+  fullname, the controller property may contain one or more nicknames
+  separated by spaces, only those people will then be allowed to
+  operate on the running bot from irc channel.  </para>
+
+  <para>All the following sections, otherwise stated, are to be found
+under this one.</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+	<term>dict</term>
+	<listitem>
+
+	  <para>is the section where to define the dictionnary server
+  you may want to use. See dict.org for details about the protocol and
+  servers. Be aware that you can run a dict server locally, and
+  download some useful dictionnaries.</para>
+
+  <para>The properties to define here are the dict server
+<literal>host</literal>, the <literal>port</literal>, and the
+<literal>default</literal> dictionnary to use.</para>
+
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+	<term>server</term>
+	<listitem>
+	<para>
+
+  allows you to define which servers manderlbot should connect to. The
+  properties are host and port.  You have to define a server section
+  for each and every irc server you want manderlbot to connect to.
+
+	</para>
+	</listitem>
+      </varlistentry>
+
+
+      <varlistentry>
+	<term>channel</term>
+	<listitem>
+
+	<para> section is where to configure the manderlbot behaviour
+  and name. This section has to be embedded in the server one. You
+  have to define a channel section per channel you want manderlbot to
+  join on a server. </para>
+
+	<para>
+	The properties of channel section are <literal>name</literal>,
+	the channel name, <literal>botname</literal>, the manderlbot
+	nickname on that channel, and <literal>behaviours</literal>, a
+	list of behaviours name you want to activate for that channel.
+	</para>
+
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+	<term>behaviours</term>
+	<listitem>
+	<para>will just contain your behaviour list</para>
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+	<term>behaviour </term>
+	<listitem>
+	<para>
+
+  have to be found under the behaviours section. You define here your
+  behaviour, which properties are <literal>name</literal>, the name to
+  use in the channel definition, the <literal>action</literal>,
+  defining what will be done, and one or more of the followings
+  pattern elements: <literal>pattern</literal>, <literal>op</literal>,
+  <literal>to</literal>, <literal>option</literal> and
+  <literal>from</literal>. You can even prefix those properties with
+  <literal>exl_</literal> to get an exclude pattern match (see 
+  <xref linkend="match" />).
+
+	</para>
+
+	<para>
+	This element contains data wich will be used as the action
+	parameter, as explain in section [sub:Implemented-actions].
+	</para>
+
+	</listitem>
+      </varlistentry>
+
+    </variablelist>
+  </refsect1>
+
+  <refsect1 id="match">
+   <title>Behaviour matching</title>
+
+   <para>
+   So when you define a behaviour, you want manderlbot to react on
+   some event on irc channel it is connected to, and take some
+   action. Here we see how to define the event you want it to react
+   to. As on irc all you do is sending lines of text, an event as to
+   be text line oriented.  </para>
+
+   <para>
+   So manderlbot configuration allows you to define some <ulink
+   url="http://www.regular-expressions.info">Regular
+   Expressions</ulink> to match the lines received. If the line is
+   matched, the associated action is done. Please note the regexp are
+   all considered case insensitive ones.
+   </para>
+
+   <para>
+   You can define some regexp on the following parts of the received
+   line (containing some server informations relative to <ulink
+   url="http://www.faqs.org/rfcs/rfc1459.html">IRC protocol</ulink>):
+   </para>
+
+   <variablelist>
+      <varlistentry>
+        <term>pattern</term>
+        <listitem>
+
+	<para> will try to match the user input, that is what your
+  ordinary irc client will show you </para>
+
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>op</term>
+        <listitem>
+
+	<para>will try to match the irc operation, see the RFC for
+  complete list (op can be <literal>kick</literal> or
+  <literal>join</literal> for example)</para>
+
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>to</term>
+        <listitem>
+
+	<para>irc protocol field, will probably contain the channel
+	name, so you won't need that...</para>
+
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>option</term>
+        <listitem>
+
+	<para>irc protocol option field</para>
+
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>from</term>
+        <listitem>
+
+	<para>the nickname of the one who typed the current line, on
+  the form <literal>nick!~user@host.domain.tld</literal></para>
+
+	</listitem>
+      </varlistentry>
+   </variablelist>
+
+   <para>
+   And in order to make it even more powerful and readable, you can
+   define the same patterns with an 'exl_' prefix, this will prevent
+   the action to being taken if it matches. So you can define the
+   parameters <literal>exl_pattern</literal>,
+   <literal>exl_op</literal>, <literal>exl_to</literal>,
+   <literal>exl_option</literal> and <literal>exl_from</literal>.
+   </para>
+
+   <para>
+   Of course, you can use any combination of the listed parameters,
+   thus being quite precise on what you want to react to.
+   </para>
+
+  </refsect1>
+
+  <refsect1>
+  <title>Implemented actions</title>
+
+  <para>
+  The action parameter of the behaviour configuration element defines
+  the manderlbot behaviour on matching a line. Here is a list of
+  provided actions you can use.  If you want manderlbot to take an
+  action not described here, you will have to write some erlang code
+  to teach him what you want!
+  </para>
+
+  <para>
+  The argument of the action is the xml data given enclosed in the
+  behaviour element.
+  </para>
+
+   <variablelist>
+      <varlistentry>
+        <term>action</term>
+        <listitem>
+
+  <para>send the given argument as if manderlbot had typed it after
+  the <command>/me</command> irc command.</para>
+
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>answer</term>
+        <listitem>
+
+  <para> send the line prefixed with the sender name and a colon.</para>
+
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>bloto</term>
+        <listitem>
+
+	<para>this will count the matched lines per user, and first
+	obtaining 5 points has won the business loto game. Just define
+	your buzzwords set and make it a regexp!</para>
+
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>debian_file</term>
+        <listitem>
+
+	<para>will search the irc given file using the debian web site
+	cgi. The argument is not used.</para>
+
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>debian_pkg</term>
+        <listitem>
+
+	<para> will search the irc given package using the debian web
+	site cgi. The argument is not used.</para>
+
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>dict</term>
+        <listitem>
+	
+	<para>will ask your defined dict server for the given
+	word. The argument may be the dictionnary name to use in the
+	query, but defaults to the 'default' entry of the dict config
+	element.</para>
+
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>google</term>
+        <listitem>
+
+	<para>will ask google for the rest of the irc line. The
+	argument is not used.</para>
+
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>mute</term>
+        <listitem>
+
+	<para>mute will mute the bot, you have to be a controler to use that. The argument is not used.</para>
+
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>pyramid</term>
+        <listitem>
+
+	<para>pyramid is a game named after a french TV game. You have
+	to make guess a world to an irc fellow on that channel, in a
+	given number or tries. The argument is not used.</para>
+
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>random</term>
+        <listitem>
+
+	<para>will say one of the sentences listed in the
+	arguments randomly. The sentences have to be separated by '%'
+	signs.</para>
+
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>fortune</term>
+        <listitem>
+
+	<para>same behaviour as <literal>random</literal>, but this
+	time the argument is the name of a traditionnal separate
+	fortune file.</para>
+
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>reconf</term>
+        <listitem>
+
+	<para>will ask the bot to re-read its configuration. It allows
+	you to handle dynamically your configuration, no need to
+	restart the bot, and irc control! You have to be in the
+	controler list to use this action.</para>
+
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>rejoin</term>
+        <listitem>
+
+	<para>allows you te rejoin a channel (useful on kick, just add
+	a op="kick" parameter to the behaviour element
+	definition).</para>
+
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>say</term>
+        <listitem>
+
+	<para>say will say the arguments.</para>
+
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>timer</term>
+        <listitem>
+
+	<para>will say the first argument, then wait for a random
+	time, and say the other arguments. The args have to be
+	separated bu a '%' char.</para>
+
+	</listitem>
+      </varlistentry>
+   </variablelist>
+  </refsect1>
+
+  <refsect1>
+  <title>Interacting with the running bot, from irc</title>
+
+  <para>
+  You can use the reconf and mute actions to control the bot from irc,
+  and you define who can do that in the first configuration element,
+  with the controler property.
+  </para>
+  </refsect1>
+
+  <refsect1>
+   <title>Example</title>
+
+   <para>Please see the given configuration file, in
+   <filename>/etc/manderlbot/config.xml</filename>.
+   </para>
+  </refsect1>
+
+  <refsect1>
+    <title>History</title>
+    <para> But why did we wrote this software ?  </para>
+
+    <para> Well, I wanted an irc bot to play with, in order to have it
+say some silly things automatically on answer to our own idioties. I
+did not want an eggdrop or whatever controlling channel bot. I saw
+that manderlbot project existing, was already familiar with erlang
+developpment, so I began using it.  </para>
+
+    <para>
+The existing project was on early stage of development, and I wanted
+the bot to do more and more things. So I wrote some code to make it
+fit my needs. As the original authors would not consider my patches, I
+forked the project, keeping the name (they seemed not to work on their
+version at all), and hosting it on the TuxFamily services.</para>
+  </refsect1>
+
+  <refsect1>
+    <title>Authors</title>
+    <para>
+      <command>manderlbot</command> was written by Dimitri Fontaine
+      <email>dim@tuxfamily.org</email> and Nicolas Niclausse
+      <email>nico@niclux.org</email>.
+  </refsect1>
+
+</refentry>
