@@ -15,6 +15,7 @@ VERSION = 0.9.0
 TARGETDIR= $(ERLANG_INSTALL_DIR)/$(APPLICATION)-$(VERSION)
 BINDIR   = $(DESTDIR)/usr/bin
 CONFFILE = config.xml
+LOGFILE  = /var/log/manderlbot.log
 
 SRC      = $(wildcard src/*.erl)
 TMP      = $(wildcard src/*~) $(wildcard inc/*~)
@@ -22,11 +23,13 @@ INC_FILES= $(wildcard $(INC)/*.hrl)
 TARGET   = $(addsuffix .beam, $(basename $(addprefix ebin/, $(notdir $(SRC)))))
 EMAKE    = $(addsuffix \'., $(addprefix \'../, $(SRC)))
 APPFILES = $(ESRC)/$(APPLICATION).app.src $(ESRC)/$(APPLICATION).rel.src
+
 SCRIPT   = $(BINDIR)/manderlbot
 BUILD_OPTIONS =	'[{app_dir, "$(TARGETDIR)"}, \
 	{systools, [{variables,[{"ROOT","$(RAW_INSTALL_DIR)"}]}]}, \
 	{sh_script, none}, {report, verbose}, {make_app, true }].'
 BUILD_OPTIONS_FILE = ./BUILD_OPTIONS 
+RUN_OPTIONS = -noshell -sname manderlbot -setcookie mdb -boot $(RAW_INSTALL_DIR)/lib/$(APPLICATION)-$(VERSION)/priv/manderlbot
 
 manderlbot: $(TARGET)
 
@@ -52,7 +55,7 @@ install: manderlbot builder.beam
 	erl -s builder go -s init stop
 # create startup script
 	@echo "#!/bin/sh" > $(SCRIPT)
-	@echo "erl -noshell -sname manderlbot -setcookie mdb -boot $(RAW_INSTALL_DIR)/lib/$(APPLICATION)-$(VERSION)/priv/manderlbot" >> $(SCRIPT)
+	@echo "$(ERL) $(RUN_OPTIONS) >> $(LOGFILE) 2>&1" >> $(SCRIPT)
 	@chmod +x $(SCRIPT)
 # added for debian
 	@cp $(CONFFILE) $(DESTDIR)/etc/manderlbot.xml
