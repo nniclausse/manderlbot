@@ -48,6 +48,14 @@ parse("<tr><td>&nbsp; <td COLSPAN=2>" ++ Data) ->
 parse("\t<td><b><a HREF=\"" ++ Data) ->
     [URL | _Other ] = string:tokens(Data,"\""),
     {continue, URL };
+%% Package short description, caps
+parse("<TR><TD>&nbsp; <TD COLSPAN=2>" ++ Data) ->
+    [Description | _Other ] = string:tokens(Data,"<"),
+    {continue, "  " ++ Description};
+%% URL of package, caps
+parse("\t<TD><B><A HREF=\"" ++ Data) ->
+    [URL | _Other ] = string:tokens(Data,"\""),
+    {continue, URL };
 parse(Data) ->
     %% search for files
 	case regexp:first_match(Data, "[^\t]+\t+\s+<a href") of
