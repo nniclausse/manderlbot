@@ -142,13 +142,13 @@ code_change(OldVsn, State, Extra) ->
 %%----------------------------------------------------------------------
 build_behaviours_list([], Acc) ->
     %% Auto add the rejoin-on-kick ability
-    Rejoin = #behaviour{id       ="rejoin",
+    Rejoin = #behaviour{id       = "rejoin",
 			pattern  = #data{header_op="KICK"},
 			function = {mdb_behaviours, rejoin},
 			data     = []
 			},
 
-    Reconf = #behaviour{id       ="reconf",
+    Reconf = #behaviour{id       = "reconf",
 			pattern  = #data{body={regexp, "^%BOTNAME.*reconf"}},
 			function = {mdb_behaviours, reconf},
 			data     = "../config.xml"
@@ -178,7 +178,7 @@ build_behaviours_list([BC=#cfg_behaviour{}|BClist], Acc) ->
 	      "think"  -> {mdb_behaviours, action};
 	      "bloto"  -> {mdb_behaviours, bloto};
 	      "google" -> {mdb_behaviours, google};
-	      "dict" -> {mdb_behaviours, dict};
+	      "dict"   -> {mdb_behaviours, dict};
 	      "jargon" -> {mdb_behaviours, jargon};
 	      Other    -> {mdb_behaviours, say}
 	  end,

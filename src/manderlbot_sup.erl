@@ -39,6 +39,9 @@ init([]) ->
     BotSup = {mdb_bot_sup, {mdb_bot_sup, start_link, []},
 	      permanent, 2000, supervisor, [mdb_bot_sup]},
 
+    BotLst = {mdb_botlist, {mdb_botlist, start_link, []},
+	      permanent, 2000, worker, [mdb_botlist]},
+
     BServ  = {config_srv, {config_srv, start_link, ["../config.xml"]},
 	      permanent, 2000, worker, [config_srv]},
 
@@ -48,7 +51,7 @@ init([]) ->
     BSearch = {mdb_search, {mdb_search, start_link, []},
 	      permanent, 2000, worker, [mdb_search]},
 
-    {ok, {{one_for_one, 3, 60}, [BotSup, BServ, BLoto, BSearch]}}.
+    {ok, {{one_for_one, 3, 60}, [BotSup, BotLst, BServ, BLoto, BSearch]}}.
 
 %%%----------------------------------------------------------------------
 %%% Internal functions

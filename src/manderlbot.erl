@@ -60,10 +60,10 @@ init() ->
 
 			  StartBot = fun(Chan = #channel{}) ->
 					     mdb_bot_sup:start_child(Name,
-								     Controler,
-								     Host,
-								     Port,
-								     Chan)
+							     Controler,
+							     Host,
+							     Port,
+							     Chan)
 				     end,
 			  lists:foreach(StartBot, ChanList)
 		  end,
