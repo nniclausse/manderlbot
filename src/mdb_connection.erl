@@ -56,17 +56,15 @@ connect(Server, Ip_port) ->
 
     case Connect() of
 	{ok, Sock} ->
-	    %% ?dbg("Connected to ~p", [Server]),
+         mdb_logger:debug("Connected to: ~p", [Reason]),
 	    {ok, Sock};
 
 	{error, Reason} ->
 	    %% If there is an error, wait 30 secondes and try to reconnect
-	    mdb_logger:debug("Server connection error: ~p", [Reason]),
+	    mdb_logger:warn("Server connection error: ~p", [Reason]),
 	    timer:sleep(30000),
 	    connect(Server, Ip_port)
     end.
-
-%% [#Port<0.80>,"#gli","h4ckd4w0rld","dtc"]},
 
 %%----------------------------------------------------------------------
 %% log/3
@@ -77,15 +75,7 @@ log(Sock, Channel = #channel{}, Passwd, RealName) ->
     log_in(Sock, Channel#channel.botname, Passwd, RealName),
 
     %% Join the given channel
-    irc_lib:join(Sock, Channel#channel.name);
-% sometimes, Channel is not a record but the channel name only (bug ?)
-log(Sock, ChannelName, Passwd, RealName) ->
-    %% Logging in
-    log_in(Sock, ChannelName, Passwd, RealName),
-
-    %% Join the given channel
-    irc_lib:join(Sock, ChannelName).
-
+    irc_lib:join(Sock, Channel#channel.name).
 
 %%----------------------------------------------------------------------
 %% log_in/3
@@ -106,9 +96,10 @@ manage_reconnect(State) ->
     Chan = State#state.channel,
     Pass = State#state.passwd,
     Nick = State#state.nickname,
+    RealName = State#state.realname,
 
     {ok, Sock} = connect(Host, Port),
-    log(Sock, Chan, Pass, Nick),
+    log(Sock, #channel{name=Chan, botname=Nick}, Pass, RealName),
 
     {ok, State#state{socket = Sock,
 		     date   = calendar:local_time(),

@@ -122,6 +122,7 @@ init([RealName, Controler, Host, Port, Passwd, Channel, BList]) ->
 		   controler  = Controler,
 		   socket     = Sock,
 		   nickname   = Channel#channel.botname,
+		   realname   = RealName,
 		   passwd     = Passwd,
 		   date       = calendar:local_time(),
 		   behaviours = RealBList,
