@@ -14,7 +14,7 @@
 -behaviour(gen_server).
 
 %% External exports
--export([start_link/0, add/1]).
+-export([start_link/0, add/2, reset/2]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
@@ -29,8 +29,8 @@
 start_link() ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
 
-add(Nick) ->
-    gen_server:call(?MODULE, {add, Nick}, ?timeout).
+add(Nick, Channel) ->
+    gen_server:call(?MODULE, {add, Nick, Channel}, ?timeout).
 
 %%%----------------------------------------------------------------------
 %%% Callback functions from gen_server
@@ -55,17 +55,18 @@ init([]) ->
 %%          {stop, Reason, Reply, State}   | (terminate/2 is called)
 %%          {stop, Reason, State}            (terminate/2 is called)
 %%----------------------------------------------------------------------
-handle_call({add, Nick}, From, List) ->
-    case lists:keysearch(Nick, 1, List) of
-	{value, {Nick, ?MAX}} ->
-	    {reply, {winner, Nick}, []};
+handle_call({add, Nick, Channel}, From, List) ->
+    case lists:keysearch({Nick, Channel}, 1, List) of
+	{value, {{Nick, Channel}, ?MAX}} ->
+	    {reply, {winner, Nick}, reset(Channel, List)};
 
-	{value, {Nick, N}} ->
-	    NewList = lists:keyreplace(Nick, 1, List, {Nick, N+1}),
+	{value, {{Nick, Channel}, N}} ->
+	    NewList = lists:keyreplace({Nick, Channel}, 1, List,
+				       {{Nick, Channel}, N+1}),
 	    {reply, ok, NewList};
 
 	false ->
-	    {reply, ok, [{Nick, 1}|List]}
+	    {reply, ok, [{{Nick, Channel}, 1}|List]}
     end;
 
 handle_call(Request, From, State) ->
@@ -108,3 +109,18 @@ code_change(OldVsn, State, Extra) ->
 %%%----------------------------------------------------------------------
 %%% Internal functions
 %%%----------------------------------------------------------------------
+
+
+%%----------------------------------------------------------------------
+%% Func: reset/3
+%%  Clean the List of all the Chan occurences
+%%----------------------------------------------------------------------
+reset(Chan, List) -> reset(Chan, List, []).
+
+reset(Chan, [], Acc) -> lists:reverse(Acc);
+
+reset(Chan, [{{_Nick, Chan}, _Score}|Tail], Acc) ->
+    reset(Chan, Tail, Acc);
+
+reset(Chan, [Head|Tail], Acc) ->
+    reset(Chan, Tail, [Head|Acc]).
