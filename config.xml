@@ -59,6 +59,14 @@
 			google
 		</behaviour>
 
+		<behaviour name="dict" action="dict" pattern="^dict">
+			dict
+		</behaviour>
+
+		<behaviour name="jargon" action="jargon" pattern="^jargon">
+			jargon
+		</behaviour>
+
 		<behaviour name="helo" action="login">
 			Salut les loutres !
 		</behaviour>

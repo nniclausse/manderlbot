@@ -10,7 +10,7 @@
 
 %% Exported behaviours
 -export([say/4, action/4, answer/4, random/4, timer/4, bloto/4,
-	 google/4, rejoin/4, reconf/4]).
+	 google/4, dict/4, jargon/4, rejoin/4, reconf/4]).
 
 -include("mdb.hrl").
 -define(TIME, 2000).
@@ -182,27 +182,37 @@ reconf(Input, BotName, ConfigFile, BotPid) ->
 google(Input, BotName, ConfigFile, BotPid) ->
     io:format("GOOGLE input: ~p~n", [Input#data.body]),
 
-    Criteria = lists:foldl(
-		 fun(Str, "") ->
-			 Str;
-		    (Str, Acc) ->
-			 Acc ++ "+" ++ Str
-		 end,
-		 "",
-		 string:tokens(
-		   string:strip(string:substr(Input#data.body,
-					      string:len("google") + 1)),
-		   " ")),
-
+    {ok, Criteria, _} = regexp:gsub(
+				 string:strip(string:substr(Input#data.body,
+											string:len("google") + 1)),
+				 "\s+", "+"),
+	
     io:format("GOOGLE criteria: ~p~n", [Criteria]),
 
-    case google:search(Criteria) of
-	{stop, connfailed} ->
-	    mdb_bot:say(BotPid, "google: connection failed !");
+    google:search(Criteria,  BotPid).
 
-	{error, Reason} ->
-	    mdb_bot:say(BotPid, "google: " ++ Reason);
+%%%----------------------------------------------------------------------
+%%% Function: dict/4
+%%% Purpose:  ask dict for a word definition
+%%%----------------------------------------------------------------------
+dict(Input, BotName, ConfigFile, BotPid) ->
+    io:format("DICT input: ~p~n", [Input#data.body]),
 
-	Result ->
-	    mdb_bot:say(BotPid, Result)
-    end.
+    Criteria  = string:strip(string:substr(Input#data.body,
+											string:len("dict") + 1)),
+   
+    io:format("DICT criteria: ~p~n", [Criteria]),
+    mdb_dict:search(Criteria, BotPid).
+
+%%%----------------------------------------------------------------------
+%%% Function: jargon/4
+%%% Purpose:  ask dict with jargon dictionnary
+%%%----------------------------------------------------------------------
+jargon(Input, BotName, ConfigFile, BotPid) ->
+    io:format("JARGON input: ~p~n", [Input#data.body]),
+
+    Criteria = string:strip(string:substr(Input#data.body,
+											string:len("jargon") + 1)),
+   
+    io:format("JARGON criteria: ~p~n", [Criteria]),
+    mdb_dict:search(Criteria, BotPid, "jargon").

@@ -1,4 +1,4 @@
-%% --------------------------
+%mdb.hrl --------------------------
 %% Parameters to start a bot
 -record(params, {server="",
 		 port=0,
@@ -75,3 +75,8 @@
 -record(srv_state, {networks=[],
 		bots=[]}).
 
+-record(search_state, {requests = []}).
+
+-record(search_param, {server,
+				port,
+				type}).

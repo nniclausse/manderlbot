@@ -178,6 +178,8 @@ build_behaviours_list([BC=#cfg_behaviour{}|BClist], Acc) ->
 	      "think"  -> {mdb_behaviours, action};
 	      "bloto"  -> {mdb_behaviours, bloto};
 	      "google" -> {mdb_behaviours, google};
+	      "dict" -> {mdb_behaviours, dict};
+	      "jargon" -> {mdb_behaviours, jargon};
 	      Other    -> {mdb_behaviours, say}
 	  end,
 

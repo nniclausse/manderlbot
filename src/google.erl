@@ -1,50 +1,47 @@
 %%% File    : google.erl
-%%% Author  : Nicolas Niclausse <nniclausse@idealx.com>
+%%% Author  : Nicolas Niclausse <nico@niclux.org>
 %%% Purpose : ask google for the first match of a given keyword
-%%% Created : 16 Jul 2002 by Nicolas Niclausse <nniclausse@idealx.com>
+%%% Created : 16 Jul 2002 by Nicolas Niclausse <nico@niclux.org>
 
 -module(google).
--author('nniclausse@idealx.com').
+-author('nico@niclux.org').
+-revision(' $Id$ ').
+-vsn(' $Revision$ ').
 
--export([search/1]).
+-export([search/2, parse/1, set_request/1]).
 
-search(Keyword) ->
-    init({"www.google.com", 80, Keyword}).
+-include("mdb.hrl").
 
-do_recv(Socket) ->
-    do_recv(Socket, [], []).
+-define(google_name, "www.google.com").
+-define(google_port, 80).
 
-do_recv(Socket, Bs, URL) ->
-    case gen_tcp:recv(Socket, 0) of
-        {ok, B} ->
-	    %% search for redirected url
-	    case regexp:first_match(B, "<A HREF=\"http://[^\"]+\">here</A>") of
+search(Keywords, From) ->
+    mdb_search:search({Keywords, From, #search_param{type   = ?MODULE, 
+                                              server = ?google_name,
+                                              port   = ?google_port }
+                      }).
+
+%%----------------------------------------------------------------------
+%% Func: parse/1
+%% Purpose: Parse data
+%% Returns: {stop, Result} | {stop} | {continue} | {continue, Result}
+%%      continue -> continue parsing of incoming data
+%%      stop     -> stop parsing of incoming data
+%%      Result   -> String to be printed by mdb
+%%----------------------------------------------------------------------
+parse(Data) ->
+	case regexp:first_match(Data, "Location: http://[^\"]+") of
 		{match,Start,Length} -> % ok, found
-		    do_recv(Socket, [Bs, B],
-			    string:substr(B, 10, length(B)-22));
+		    {stop, string:substr(Data, 11, length(Data)-12) };
 		_ -> 
-		    do_recv(Socket, [Bs, B], URL)
-	    end;
-        {error, einval} -> % non fatal error, continue
-            do_recv(Socket, Bs, URL);
-        {error, closed} -> 
-            {ok, URL}
+		    {continue}
     end.
 
-init({Server, Port, Keyword}) ->
-    case gen_tcp:connect(Server, Port,
-			 [list,
-			  {packet, line},
-			  {active, false}]) of
-	{ok, Socket} -> 
-	    Request = google_request(Keyword),
-	    gen_tcp:send(Socket, Request),
-	    {ok, URL} = do_recv(Socket),
-	    URL;
-	{error, Reason} ->
-	    {stop, connfailed}
-    end.
-
-google_request(Keyword) ->
-    "GET /search?q=" ++ Keyword ++"&hl=fr&btnI=J%27ai+de+la+chance HTTP/1.0"
+%%----------------------------------------------------------------------
+%% Func: set_request/1
+%% Purpose: Set the request given Keywords 
+%% Returns: String
+%%----------------------------------------------------------------------
+set_request(Keywords) ->
+    "GET /search?q=" ++ Keywords ++"&hl=fr&btnI=J%27ai+de+la+chance HTTP/1.0"
 	++ io_lib:nl() ++ io_lib:nl().
