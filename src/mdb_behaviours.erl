@@ -259,6 +259,10 @@ dict(Input, BotName, Data, BotPid, Channel) ->
 	    mdb_dict:search(Criteria, Input, BotPid, BotName, DictName)
     end.
 
+%%%----------------------------------------------------------------------
+%%% Function: pyramid/5
+%%% Purpose:  implements a pyramid game, see comments
+%%%----------------------------------------------------------------------
 pyramid(Input = #data{header_to=BotName}, BotName, Data, BotPid, Channel) ->
     %%  - first player giving the bot the answer, before beginning the game,
     %%    in private dialog
@@ -297,7 +301,7 @@ pyramid(Input, BotName, Data, BotPid, Channel) ->
 	    io:format("pyramid: ~p invite ~p in ~p~n",
 		      [NickFrom, Player2, Iguess]),
 
-	    {_State, SMsg} = pyramid:start(NickFrom, Channel, Player2, Iguess),
+	    {_ok, SMsg} = pyramid:start(NickFrom, Channel, Player2, Iguess),
 	    mdb_bot:say(BotPid, SMsg);
 
 	_Whatever  ->
