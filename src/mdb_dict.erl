@@ -58,7 +58,7 @@ parse(Data) ->
 		{match,Start,Length} -> % skip protocol data
 		    {continue};
 		_ -> 
-		    {silent, lists:subtract(Data,"\r\n")}
+		    {continue, lists:subtract(Data,"\r\n")}
     end.
 
 %search using Dict dictionnary
