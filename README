@@ -18,7 +18,7 @@ erl -setcookie mdb -sname control
 
 (control@node)1> 
 
-Then you hit ^G and connect to the manderbot VM:
+Then you hit ^G and connect to the manderlbot VM:
 User switch command
  --> r manderlbot@node
  --> c 3
