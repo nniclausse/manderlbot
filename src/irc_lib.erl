@@ -28,12 +28,14 @@
 -vsn(' $Revision$ ').
 
 %% IRC operations
--export([pong/2, join/2, say/3, action/3, login/3, passwd/2]).
+-export([pong/2, join/2, say/3, action/3, login/3, passwd/2, who/4]).
 
 %% IRC helper functions
 -export([is_chanop/1,
 	 nickname/1,
 	 split_nick_user/1]).
+
+-include("irc.hrl").
 
 %%----------------------------------------------------------------------
 %% Function: pong/2
@@ -91,6 +93,75 @@ login(Sock, Nickname, Realname) ->
 passwd(Sock, Password) ->
     PassCommand = ["PASS ", Password],
     command(Sock, PassCommand).    
+
+
+%%----------------------------------------------------------------------
+%% who/4
+%% Get the list of people connected to the given channel.
+%%
+%% In order not to break the way manderlbot get the data and parses them,
+%% I have prefered to open a new connexion here.
+%%----------------------------------------------------------------------
+who(Host, Port, Channel, Botname) ->
+    case mdb_connection:connect(Host, Port) of
+	{ok, Sock} ->
+	    login(Sock, "manderlbot", Botname),
+	    command(Sock, "who " ++ Channel),
+	    {ok, String} = getData(Sock, []),
+	    gen_tcp:close(Sock),
+
+	    Lines = string:tokens(String, "\r\n"),
+
+	    KeepRE = ":" ++ Host ++ " 352",
+	    UserList = lists:filter(fun(Line) ->
+					    case regexp:match(Line, KeepRE) of
+						{match, S, L} -> true;
+						NoMatch       -> false
+					    end
+				    end,
+				    Lines),
+	    lists:map(fun parseUserLine/1, UserList);
+	Whatever ->
+	    []
+    end.
+
+%%----------------------------------------------------------------------
+%% getData/2
+%% internal who/4 function, used to get the data from the server.
+%%----------------------------------------------------------------------
+getData(Sock, Buffer) ->
+    receive 
+	{tcp, Sock, Data} ->
+	    case regexp:match(binary_to_list(Data), ":End of /WHO list.") of
+		{match, S, L} ->
+		    {ok, Buffer ++ binary_to_list(Data)};
+		NoMatch ->
+		    getData(Sock, Buffer ++ binary_to_list(Data))
+	    end;
+	
+	{Error, Sock} ->
+	    io:format("Error: ~p~n", [Error]),
+	    {error, Buffer};
+	
+	Whatever ->
+	    io:format("Whatever: ~p~n", [Whatever]),
+	    getData(Sock, Buffer)
+    
+    after 10000 ->
+	    {ok, Buffer}
+    end.
+
+%%----------------------------------------------------------------------
+%% parseUserLine/1
+%% internal who/4 function, used to build the records from the irc line.
+%%----------------------------------------------------------------------
+parseUserLine(Line) ->    
+    List = string:tokens(Line, ": "),
+    #user{login = lists:nth(5, List),
+	  from  = lists:nth(6, List),
+	  nick  = lists:nth(8, List),
+	  name  = lists:nthtail(10, List)}.
+
 
 %%----------------------------------------------------------------------
 %% command/2
