@@ -6,9 +6,13 @@ Behaviours
 		switchers in the config. Then allow each behaviour to be
 		choosen on a mood base.
 
+	Mail
+		Manderlbot should be abble to send a mail a configured address
+
 	Prefix
 		To prefix the commands to be given to manderlbot. To be done on
 		a per channel base. Prefix example : '!'
+
 	Serializer
 		And we could have a behaviour:add() function to play with, and
 		we could even add behaviours from irc !
@@ -17,5 +21,34 @@ Config
 	DTD
 	Behaviours lists, inheritance
 
-        Add a fortune include, allowing to manage separately
-        traditionnal fortune files
+	Add a file parameter to channel element, where to log irc messages.
+
+
+RELEASE PLAN FOR 1.0
+-=-=-=-=-=-=-=-=-=-=-
+manderlbot 1.0 should be able to
+
+	. connect to irc server, identify itself
+
+	. register its name to nickserv when relevant
+
+	. log channels, one per file
+
+	. react to what is said on irc (matching on nick/action/to/message)
+          by launching the configured behaviour
+
+	. have some mood and be able to change whether on reaction to
+          some irc event or just with time, all configurable
+
+	. speak by itself from time to time, with some special
+          behaviours to choose what to say, depending on its mood
+
+
+LATTER PLANS
+-=-=-=-=-=-=-
+	. distributed erlang application : configure some manderlbot
+          nodes to manage failover
+
+	. manderlbot has to be abble to ghost itself (nickserv)
+
+	. edit the config from irc
