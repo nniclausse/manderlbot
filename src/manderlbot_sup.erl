@@ -60,6 +60,9 @@ start_link(Config_file, Log_file) ->
 %%          {error, Reason}   
 %%----------------------------------------------------------------------
 init([Config_file, Log_file]) ->
+    Logger = {mdb_logger, {mdb_logger, start_link, []},
+	      permanent, 2000, worker, [mdb_logger]},
+
     BotSup = {mdb_bot_sup, {mdb_bot_sup, start_link, []},
 	      permanent, 2000, supervisor, [mdb_bot_sup]},
 
@@ -79,7 +82,7 @@ init([Config_file, Log_file]) ->
 	      permanent, 2000, worker, [mdb_search]},
 
     {ok, {{one_for_one, 3, 60},
-	  [BotSup, BotLst, BServ, BLoto, Pyramid, BSearch]}}.
+	  [Logger, BotSup, BotLst, BServ, BLoto, Pyramid, BSearch]}}.
 
 %%%----------------------------------------------------------------------
 %%% Internal functions

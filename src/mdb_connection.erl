@@ -56,7 +56,7 @@ connect(Server, Ip_port) ->
 
     case Connect() of
 	{ok, Sock} ->
-	    ?dbg("Connected to ~p", [Server]),
+	    %% ?dbg("Connected to ~p", [Server]),
 	    {ok, Sock};
 
 	{error, Reason} ->

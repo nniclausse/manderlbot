@@ -67,13 +67,13 @@ process_data(Sock, Data, State=#state{joined = false}) ->
     %% So this code will manage the MOTD of the server
 
     {Line, Rest} = cut_line(Data),
-    %% misc_tools:tprint("MOTD ~p~n", [Line]),
+    %% mdb_logger:log("MOTD ~p~n", [Line]),
     
     Chan = [$: | State#state.channel],
 
     case string:tokens(Line, " ") of
 	[_Name, "JOIN", Chan | Tail] ->
-	    misc_tools:tprint(
+	    mdb_logger:log(
 	      "~s joined channel ~s~n", [State#state.nickname,
 					 State#state.channel]),
 
@@ -124,7 +124,7 @@ treat_recv(Sock, Data, State=#state{}) ->
     %% Get the list of behaviours that match to the current IRC line
     %% And for which the corresponding fun will be executed
     {ok, BList} = config_srv:getBehaviours(State#state.behaviours),
-    %% misc_tools:tprint("BList: ~p~n", [State#state.behaviours]),
+    %% mdb_logger:log("BList: ~p~n", [State#state.behaviours]),
     lists:map(fun(X) -> 
 		      MatchingList =
 			  match_event(X, BList, State#state.nickname),
@@ -135,11 +135,11 @@ treat_recv(Sock, Data, State=#state{}) ->
     %% Trace
     lists:map(fun(Res) ->
 		      [NickFrom|_] = string:tokens(Res#data.header_from, "!"),
-		      misc_tools:tprint("~s ~s <~s> ~s~n", 
-					[State#state.nickname,
-					 Res#data.header_to,
-					 NickFrom,
-					 Res#data.body])
+		      mdb_logger:log("~s ~s <~s> ~s~n", 
+				     [State#state.nickname,
+				      Res#data.header_to,
+				      NickFrom,
+				      Res#data.body])
 	      end,
     	      Parsed_result).
 
@@ -157,13 +157,15 @@ dispatch_message(Behaviours, Input, State = #state{mode=muted}) ->
 				   State#state.bot_pid,
 				   State#state.channel]);
 		 (_) ->
-		      misc_tools:tprint("~s MUTED", [State#state.nickname])
+		      mdb_logger:log("~s MUTED", [State#state.nickname])
 	      end,
 	      Behaviours);
 
 dispatch_message(Behaviours, Input, State = #state{}) ->
     lists:map(fun(Behaviour) ->
-		      io:format("Match= ~p~n", [Behaviour#behaviour.function]),
+		      mdb_logger:log("Match= ~p~n",
+				     [Behaviour#behaviour.function]),
+
 		      {M, F} = Behaviour#behaviour.function,
 		      apply(M, F, [Input,
 				   State#state.nickname,
@@ -318,7 +320,7 @@ is_matching([],[], Result, Mode) ->
     Result;
 
 is_matching([E|Elements], [C|Criteria], Result, Mode) ->
-    %% misc_tools:tprint("is_matching: ~p ~p~n", [C, E]),
+    %% mdb_logger:log("is_matching: ~p ~p~n", [C, E]),
     %%
     %% When we have no criterium, in exclude mode, we consider
     %% the match has failed.

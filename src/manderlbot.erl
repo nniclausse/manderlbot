@@ -39,8 +39,6 @@
 %% application callbacks
 -export([start/2, stop/1]).
 
--export([read_args/0]).
-
 %%%----------------------------------------------------------------------
 %%% Callback functions from application
 %%%----------------------------------------------------------------------
@@ -57,8 +55,13 @@ start(Type, StartArgs) ->
 
     case manderlbot_sup:start_link(Config_file, Log_file) of
 	{ok, Pid} -> 
-	    %% Here we init the system
+	    %% Init first the logger
+	    mdb_logger:add_handler(Log_file),
+	    mdb_logger:log("Manderlbot started with ~s~n", [Config_file]),
+
+	    %% Then init the manderlbot system
 	    init(),
+
 	    {ok, Pid};
 	Error ->
 	    Error

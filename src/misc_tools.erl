@@ -42,8 +42,7 @@
 	 upper_string/1,
 	 downcase/1,
 	 is_matching_regexp/2,
-	 is_matching_regexp/3,
-	 tprint/2]).
+	 is_matching_regexp/3]).
 
 %%----------------------------------------------------------------------
 %% Function: nth/2
