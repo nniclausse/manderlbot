@@ -108,7 +108,9 @@ init(Parent, Options, [RealName, Controler, Host, Port, Channel]) ->
 		   socket     = Sock,
 		   nickname   = Channel#channel.botname,
 		   date       = calendar:local_time(),
-		   behaviours = BList
+		   behaviours = BList,
+		   host       = Host,
+		   port       = Port
 		  },
 
     loop(State, Parent, Deb).
@@ -127,9 +129,6 @@ loop(State, Parent, Deb) ->
 	%% Socket management
 	%% Receiving data...
 	{tcp, Socket, Data} ->
-	    %% Test for server ping
-	    mdb_connection:testPingPong(Socket, Data),
-
 	    Buffer = State#state.buffer,
 	    List = lists:append(binary_to_list(Buffer), binary_to_list(Data)),
 	    
@@ -141,13 +140,13 @@ loop(State, Parent, Deb) ->
 	%% Close/error => reconnect
 	{tcp_closed, Socket} ->
 	    ?dbg("Socket closed", []),
-	    mdb_connection:manage_reconnect(State),
-	    loop(State, Parent, Deb);
+	    {ok, NewState} = mdb_connection:manage_reconnect(State),
+	    loop(NewState, Parent, Deb);
 
 	{tcp_error, Socket, Reason} ->
 	    ?dbg("Socket error: ~p", [Reason]),
-	    mdb_connection:manage_reconnect(State),
-	    loop(State, Parent, Deb);
+	    {ok, NewState} = mdb_connection:manage_reconnect(State),
+	    loop(NewState, Parent, Deb);
 
 	%% Callback management -> handle_call
 	{From, OurMsgs} ->

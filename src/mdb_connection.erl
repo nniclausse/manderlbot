@@ -30,6 +30,7 @@
 %% Configure debugging mode:
 -include("mdb_macros.hrl").
 -include("config.hrl").
+-include("mdb.hrl").
 
 %%----------------------------------------------------------------------
 %% log/2
@@ -164,6 +165,12 @@ manage_reconnect(State) ->
     %% TODO: Implement this function.
     %% When I am not connected, the connection/reconnection process is
     %% already handled by the irc server (irc_srv)
-    ok.
+
+    Host = State#state.host,
+    Port = State#state.port,
+
+    {ok, Sock} = connect(Host, Port),
+    
+    {ok, State#state{socket=Sock}}.
 
 

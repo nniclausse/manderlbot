@@ -39,7 +39,10 @@
 		buffer = <<>>,
 		behaviours = [],
 	        bot_state={},
-		date={}}).
+		date={},
+		host = "",
+		port = ""
+	       }).
 
 %% Behaviour description
 -record(behaviour, {id="",
