@@ -183,10 +183,8 @@ reconf(Input, BotName, ConfigFile, BotPid) ->
 google(Input, BotName, ConfigFile, BotPid) ->
     io:format("GOOGLE input: ~p~n", [Input#data.body]),
 
-    {ok, Criteria, _} = regexp:gsub(
-				 string:strip(string:substr(Input#data.body,
-											string:len("google") + 1)),
-				 "\s+", "+"),
+	[Key | Args] = string:tokens(Input#data.body," "),
+    {ok, Criteria, _} = regexp:gsub(string:strip(Args),"\s+", "+"),
 	
     io:format("GOOGLE criteria: ~p~n", [Criteria]),
 
@@ -199,8 +197,8 @@ google(Input, BotName, ConfigFile, BotPid) ->
 dict(Input, BotName, ConfigFile, BotPid) ->
     io:format("DICT input: ~p~n", [Input#data.body]),
 
-    Criteria  = string:strip(string:substr(Input#data.body,
-											string:len("dict") + 1)),
+	[Key | Args] = string:tokens(Input#data.body," "),
+    Criteria = string:strip(Args),
    
     io:format("DICT criteria: ~p~n", [Criteria]),
     mdb_dict:search(Criteria, Input, BotPid , BotName).
@@ -211,9 +209,8 @@ dict(Input, BotName, ConfigFile, BotPid) ->
 %%%----------------------------------------------------------------------
 jargon(Input, BotName, ConfigFile, BotPid) ->
     io:format("JARGON input: ~p~n", [Input#data.body]),
-
-    Criteria = string:strip(string:substr(Input#data.body,
-											string:len("jargon") + 1)),
+	[Key | Args] = string:tokens(Input#data.body," "),
+    Criteria = string:strip(Args),
    
     io:format("JARGON criteria: ~p~n", [Criteria]),
     mdb_dict:search(Criteria, Input, BotPid, BotName, "jargon").
