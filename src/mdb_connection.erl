@@ -59,6 +59,8 @@ connect(Server, Ip_port) ->
 	    connect(Server, Ip_port)
     end.
 
+%% [#Port<0.80>,"#gli","h4ckd4w0rld","dtc"]},
+
 %%----------------------------------------------------------------------
 %% log/3
 %% connect to a given channel
@@ -68,7 +70,15 @@ log(Sock, Channel = #channel{}, Passwd, RealName) ->
     log_in(Sock, Channel#channel.botname, Passwd, RealName),
 
     %% Join the given channel
-    irc_lib:join(Sock, Channel#channel.name).
+    irc_lib:join(Sock, Channel#channel.name);
+% sometimes, Channel is not a record but the channel name only (bug ?)
+log(Sock, ChannelName, Passwd, RealName) ->
+    %% Logging in
+    log_in(Sock, ChannelName, Passwd, RealName),
+
+    %% Join the given channel
+    irc_lib:join(Sock, ChannelName).
+
 
 %%----------------------------------------------------------------------
 %% log_in/3
