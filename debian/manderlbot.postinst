@@ -38,7 +38,7 @@ case "$1" in
 	    fi
 	fi
 	# Should find a way to determine this
-	version=0.8
+	version=0.8.1
 	
 	cfile_dest=$basedir/manderlbot-$version/config.xml
 	cfile_orig=/etc/manderlbot.xml
