@@ -37,7 +37,7 @@
 -behaviour(gen_event).
 
 %% External exports
--export([start_link/0, add_handler/1]).
+-export([start_link/0, add_handler/1, change_loglevel/1]).
 -export([log/2, log/3, emerg/2, alert/2, critic/2, error/2,
 	 warn/2, notice/2, info/2, debug/2]).
 
@@ -56,6 +56,10 @@ start_link() ->
 
 add_handler({LogFile, Level}) ->
     gen_event:add_handler(?MODULE, ?MODULE, [LogFile, Level]).
+
+%% 
+change_loglevel(Level) ->
+    gen_event:notify(?MODULE, {change_loglevel, Level}).
 
 %% Default to DEBUG level
 log(Mesg, Args) ->
@@ -110,6 +114,10 @@ init([LogFile, Level]) ->
 %%          {swap_handler, Args1, State1, Mod2, Args2} |
 %%          remove_handler                              
 %%----------------------------------------------------------------------
+handle_event({change_loglevel, Level}, State) ->
+    Level_num = lvl2numeric(Level),
+    {ok, State#log{level=Level_num}};
+
 handle_event({log, Mesg, Args}, State) ->
     do_log(Mesg, Args, State#log.fd),
     {ok, State};
