@@ -99,11 +99,18 @@ handle_call({start, Nick, Channel, Player2, Nguess}, From, State) ->
 	    {reply, {error, "Game already started"}, State};
 
 	false ->
-	    %% We can start a new game
-	    NewState = [{{Nick, Channel}, noword, Player2, Nguess, 1}|State],
-	    {reply,
-	     {ok,
-	      Nick ++ ": please give me the word to guess (pv)"}, NewState}
+	    %% Check the second player is not engaged
+	    case lists:keysearch(Player2, 3, State) of
+		{value, _} ->
+		    {reply, {error, Player2 ++ " is already playing."}, State};
+
+		false -> 
+		    %% We can start a new game
+		    {reply,
+		     {ok,
+		      Nick ++ ": please give me the word to guess (pv)"},
+		     [{{Nick, Channel}, noword, Player2, Nguess, 1}|State]}
+	    end
     end;
 
 handle_call({guess, Nick, Channel, Word}, From, State) ->
