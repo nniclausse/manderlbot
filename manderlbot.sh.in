@@ -6,8 +6,9 @@
 
 # $Id$
 
-INSTALL_DIR=%INSTALL_DIR%
-VERSION=%VERSION%
+INSTALL_DIR=@prefix@/lib/erlang/
+ERL=@ERL@
+VERSION=@PACKAGE_VERSION@
 
 BOOT_SCRIPT="$INSTALL_DIR/lib/manderlbot-$VERSION/priv/manderlbot"
 RUN_OPTIONS="-detached -setcookie mdb"
@@ -20,19 +21,19 @@ usage() {
 start() {
     echo "erl -sname manderlbot $RUN_OPTIONS -boot $BOOT_SCRIPT $CONF_OPT $LOG_OPT \
 	    $LOG_LEVEL_OPT"
-    erl -sname manderlbot $RUN_OPTIONS -boot $BOOT_SCRIPT $CONF_OPT $LOG_OPT \
+    $ERL -sname manderlbot $RUN_OPTIONS -boot $BOOT_SCRIPT $CONF_OPT $LOG_OPT \
 	    $LOG_LEVEL_OPT
 }
 
 stop() {
-    erl -sname control $RUN_OPTIONS -s mdb_control stop
+    $ERL -sname control $RUN_OPTIONS -s mdb_control stop
 }
 
 status() {
     pid=`ps -edaf | awk '/-[s]name manderlbot/ {print $2}'`
 
     if [ "zz$pid" != "zz" ]; then
-	erl -sname control $RUN_OPTIONS -s mdb_control status
+	$ERL -sname control $RUN_OPTIONS -s mdb_control status
 	echo $LOG_OPT
 	echo $CONF_OPT
     else

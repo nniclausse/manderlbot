@@ -1,0 +1,256 @@
+#### CONFIGURE VARIABLE
+
+# export ERLC_EMULATOR to fix a bug in R9B with native compilation
+ERLC_EMULATOR=@ERL@
+export ERLC_EMULATOR
+ERL=@ERL@
+ERLC=@ERLC@
+SED=@SED@
+ERL_OPTS=@ERL_OPTS@
+
+ERLDIR=@ERLDIR@
+export ERLDIR
+
+ERLANG_XMERL_DIR=@ERLANG_XMERL_DIR@
+
+raw_erlang_prefix=@libdir@/erlang/
+
+prefix=$(DESTDIR)@prefix@
+exec_prefix=@exec_prefix@
+bindir=@bindir@
+libdir=@libdir@
+datadir=@datadir@
+TEMPLATES_SUBDIR=@TEMPLATES_SUBDIR@
+
+CONFIGURE_DEPENDENCIES=@CONFIGURE_DEPENDENCIES@
+CONFIG_STATUS_DEPENDENCIES=@CONFIG_STATUS_DEPENDENCIES@
+
+VERSION=@PACKAGE_VERSION@
+PACKAGE=@PACKAGE_NAME@
+DTD=@DTD@
+
+#### END OF SUBSTITUTION
+
+SVN_REVISION=$Revision$
+
+ERL_COMPILER_OPTIONS="[warn_unused_vars]"
+export ERL_COMPILER_OPTIONS
+
+ifeq ($(TYPE),debug)
+OPT =+debug_info -DDEBUG
+else 
+ ifeq ($(TYPE),native)
+   OPT:=+native
+  else
+   OPT =
+  endif	
+endif
+INC = ./inc
+CC  = $(ERLC)
+
+ESRC = ./src
+EBIN = ./ebin
+ifeq ($(TYPE),snapshot)
+DAY=$(shell date +"%Y%m%d")
+distdir = $(PACKAGE)-$(VERSION)-$(DAY)
+else 
+distdir = $(PACKAGE)-$(VERSION)
+endif
+
+# installation path
+BINDIR    = $(bindir)
+LIBDIR    = $(libdir)/manderlbot/bin/
+CONFDIR   = $(datadir)/doc/manderlbot/examples
+SHARE_DIR = $(datadir)/manderlbot/
+TEMPLATES_DIR = $(datadir)/$(TEMPLATES_SUBDIR)
+MAN_DIR   = $(datadir)/man/man1/
+DOC_DIR   = $(datadir)/doc/manderlbot
+
+ERLANG_LIB_DIR = $(libdir)/erlang/lib
+
+APPLICATION = manderlbot
+
+TARGETDIR = $(ERLANG_LIB_DIR)/$(APPLICATION)-$(VERSION)
+
+TEMPLATES = $(wildcard $(ESRC)/templates/*.thtml)
+TMP       = $(wildcard *~) $(wildcard src/*~) $(wildcard inc/*~)
+INC_FILES = $(wildcard $(INC)/*.hrl)
+LIBSRC    = $(wildcard $(ESRC)/lib/*.erl)
+SRC       = $(wildcard $(ESRC)/*.erl)
+CONFFILE_SRC = $(wildcard examples/*.xml.in)
+CONFFILE = $(basename $(CONFFILE_SRC))
+USERMANUAL = doc/user_manual.html  doc/IDXDOC.css
+USERMANUAL_IMG = $(wildcard doc/images/*.png)
+USERMANUAL_SRC = doc/user_manual.tex
+PERL_SCRIPTS_SRC = $(wildcard $(ESRC)/*.pl.in)
+PERL_SCRIPTS = $(basename $(PERL_SCRIPTS_SRC))
+
+TARGET   = $(addsuffix .beam, $(basename \
+             $(addprefix $(EBIN)/, $(notdir $(SRC)))))
+LIB_TARGET   = $(addsuffix .beam, $(basename \
+             $(addprefix $(EBIN)/, $(notdir $(LIBSRC)))))
+DEBIAN    = debian/changelog debian/control debian/compat debian/copyright debian/docs debian/manderlbot.dirs debian/rules
+
+SRC_APPFILES   = $(ESRC)/$(APPLICATION).app.src $(ESRC)/$(APPLICATION).rel.src
+TGT_APPFILES_E = $(EBIN)/$(APPLICATION).app
+TGT_APPFILES_P = priv/$(APPLICATION)*
+
+SCRIPT   = $(BINDIR)/manderlbot
+PWD = $(shell pwd)
+BUILD_OPTIONS =	'[{systools, \
+        [{variables,[ \
+         {"MANDERLBOTPATH", "$(PWD)/temp/"}] \
+        }]}, \
+	    {sh_script, none}, \
+        {make_app, true }, {make_rel, true}].'
+
+BUILD_OPTIONS_DOT = $(subst $(PWD)/temp/,./,$(BUILD_OPTIONS))
+
+BUILD_OPTIONS_FILE = ./BUILD_OPTIONS 
+
+DIST_COMMON=Makefile.in $(CONFFILE_SRC) $(PERL_SCRIPTS_SRC) manderlbot.sh.in
+
+
+.PHONY: doc
+
+manderlbot: Makefile config.status $(PERL_SCRIPTS) manderlbot.sh  $(TARGET) $(RECORDER_TARGET) $(CONTROLLER_TARGET) $(LIB_TARGET)
+
+all: clean manderlbot
+
+debug:
+	$(MAKE) TYPE=debug
+
+native:
+	$(MAKE) TYPE=native
+
+validate: $(CONFFILE)
+	@for i in $(CONFFILE); do xmlproc_val $$i; done
+
+deb:
+	fakeroot debian/rules clean
+	debian/rules build
+	fakeroot debian/rules binary
+
+clean:
+	-cd priv && rm -f $(shell ls priv | grep -v builder\.erl| grep -v CVS) && cd ..
+	-rm -f $(TARGET) $(TMP) $(BUILD_OPTIONS_FILE) builder.beam
+	-rm -f $(TGT_APPFILES) manderlbot.sh $(PERL_SCRIPTS) $(CONFFILE)
+	-rm -f ebin/*.beam manderlbot.sh  manderlbot.xml
+
+install: doc boot install_recorder install_controller $(CONFFILE)
+	-rm -f $(TMP)
+
+	install -d $(TARGETDIR)/priv
+	install -d $(TARGETDIR)/ebin
+	install -d $(TARGETDIR)/src
+	install -d $(TARGETDIR)/include
+	install -d $(LIBDIR)/
+	install -d $(BINDIR)/
+
+	cp $(INC_FILES) $(TARGETDIR)/include
+	cp $(TARGET) $(TARGETDIR)/ebin
+	cp $(LIB_TARGET) $(TARGETDIR)/ebin
+	cp builder.beam $(TARGETDIR)/ebin
+
+	cp $(TGT_APPFILES_E) $(TARGETDIR)/ebin
+	cp $(TGT_APPFILES_P) $(TARGETDIR)/priv
+
+	cp $(SRC) $(SRC_APPFILES) $(TARGETDIR)/src
+	echo $(BUILD_OPTIONS_DOT) > $(TARGETDIR)/BUILD_OPTIONS
+
+# install the man page & user's manual
+	install -d $(MAN_DIR)
+	install doc/manderlbot.1 $(MAN_DIR)
+	install -d $(DOC_DIR)/images
+	install $(USERMANUAL) $(DOC_DIR)
+	install $(USERMANUAL_IMG) $(DOC_DIR)/images
+
+# create startup script
+	install manderlbot.sh $(SCRIPT)
+	install $(PERL_SCRIPTS) $(LIBDIR)/
+
+	install -d $(CONFDIR)
+	cp $(CONFFILE) $(CONFDIR)
+
+	install -d $(TEMPLATES_DIR)
+	cp $(TEMPLATES) $(TEMPLATES_DIR)
+	cp $(DTD) $(SHARE_DIR)
+
+uninstall:
+	rm -rf $(TARGETDIR) $(SCRIPT)
+
+boot: manderlbot priv/manderlbot.boot
+
+priv/manderlbot.boot: builder.beam  $(SRC_APPFILES)
+# use builder to make boot file
+	@rm -rf temp
+	@mkdir -p temp/lib/$(APPLICATION)-$(VERSION)
+	@ln -sf $(PWD)/ebin temp/lib/$(APPLICATION)-$(VERSION)/ebin
+	@ln -sf $(PWD)/src/$(APPLICATION) temp/lib/$(APPLICATION)-$(VERSION)/src
+	@ln -sf $(PWD)/include temp/lib/$(APPLICATION)-$(VERSION)/include
+	@ln -sf $(PWD)/priv temp/lib/$(APPLICATION)-$(VERSION)/priv
+	@ln -sf $(PWD)/builder.beam temp/lib/$(APPLICATION)-$(VERSION)/
+	@ln -sf $(PWD) temp/lib/$(APPLICATION)-$(VERSION)
+	@echo -n "build main app boot script ... "
+	@(cd temp/lib/$(APPLICATION)-$(VERSION) \
+	 && echo $(BUILD_OPTIONS) > $(BUILD_OPTIONS_FILE) \
+	 && $(ERL) -s builder go -s init stop > /dev/null 2>&1 \
+	)
+	@rm -rf temp
+	@echo "done"
+
+Makefile: Makefile.in config.status
+	@$(SHELL) ./config.status --file=$@
+
+%.pl:  %.pl.in vsn.mk
+	@$(SHELL) ./config.status --file=$@
+
+%.xml:  %.xml.in
+	@$(SHELL) ./config.status --file=$@
+
+%.sh :%.sh.in vsn.mk
+	@$(SHELL) ./config.status --file=$@
+
+config.status: configure $(CONFIG_STATUS_DEPENDENCIES)
+	$(SHELL) ./config.status --recheck
+
+configure: configure.in $(CONFIGURE_DEPENDENCIES)
+	@echo "running autoconf"
+	@autoconf
+
+doc: 
+	$(MAKE) -C doc
+
+release: Makefile  doc
+	rm -fr $(distdir)
+	mkdir -p $(distdir)
+	tar zcf tmp.tgz $(SRC) $(SRC_APPFILES) $(INC_FILES) $(LIBSRC) \
+		 $(TEMPLATES) \
+		doc/*.erl doc/*.txt doc/*.fig doc/*.png doc/Makefile doc/*.sgml doc/*.1 \
+		$(USERMANUAL) $(USERMANUAL_SRC) $(USERMANUAL_IMG) $(DTD) \
+		COPYING README LISEZMOI TODO $(CONFFILE_SRC) \
+		priv/builder.erl manderlbot.sh.in vsn.mk \
+		$(DEBIAN)  $(PERL_SCRIPTS_SRC) CONTRIBUTORS CHANGES \
+		configure configure.in config.guess config.sub Makefile.in
+	tar -C $(distdir) -zxf tmp.tgz
+	mkdir $(distdir)/ebin
+	tar zvcf  $(distdir).tar.gz $(distdir)
+	rm -fr $(distdir)
+	rm -fr tmp.tgz
+
+snapshot:
+	$(MAKE) TYPE=snapshot release
+
+builder.beam: priv/builder.erl 
+	@$(CC) -W0 $(OPT) -I $(INC) $<
+
+ebin/%.beam: src/lib/%.erl $(INC_FILES)
+	@echo  "Compiling  $< ... "
+	@$(CC) -W0 $(OPT) -I $(INC) -I $(ERLANG_XMERL_DIR) -o ebin $<
+
+ebin/%.beam: src/%.erl $(INC_FILES)
+	@echo  "Compiling  $< ... "
+	@$(CC) $(OPT) -I $(INC) -I $(ERLANG_XMERL_DIR) -o ebin $<
+
+%:%.sh
+# Override makefile default implicit rule

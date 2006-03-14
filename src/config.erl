@@ -33,7 +33,7 @@
 -author('dim@tuxfamily.org').
 
 -include("config.hrl").
--include_lib("xmerl/inc/xmerl.hrl").
+-include_lib("xmerl.hrl").
 -include("log.hrl").
 
 -define(default_passwd, "h4ckd4w0rld").
