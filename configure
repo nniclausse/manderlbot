@@ -274,7 +274,7 @@ PACKAGE_STRING='manderlbot 0.9.3'
 PACKAGE_BUGREPORT='dev@manderlbot.org'
 
 ac_unique_file="src/manderlbot.erl"
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CONFIG_STATUS_DEPENDENCIES CONFIGURE_DEPENDENCIES SED ERLC ac_pt_ERLC ERL ac_pt_ERL ac_prefix_program ERL_OPTS ERLANG_XMERL_DIR ERLDIR DTD SET_MAKE LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CONFIG_STATUS_DEPENDENCIES CONFIGURE_DEPENDENCIES SED ERLC ac_pt_ERLC ERL ac_pt_ERL ac_prefix_program ERLANG_XMERL_DIR ERLDIR DTD SET_MAKE LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -1584,30 +1584,6 @@ echo "$as_me: error: xmerl not found" >&2;}
    { (exit 1); exit 1; }; }
 fi
 
-echo "$as_me:$LINENO: checking for '+Mea r10b' option" >&5
-echo $ECHO_N "checking for '+Mea r10b' option... $ECHO_C" >&6
-if ! $ERL -noshell +Mea r10b -s init stop 2> /dev/null; then
-  echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6
-  ERL_OPTS=""
-else
-  echo "$as_me:$LINENO: result: yes" >&5
-echo "${ECHO_T}yes" >&6
-  ERL_OPTS="+Mea r10b"
-fi
-
-echo "$as_me:$LINENO: checking for '-shared' option" >&5
-echo $ECHO_N "checking for '-shared' option... $ECHO_C" >&6
-if ! $ERL -noshell -shared -s init stop 2> /dev/null; then
-  echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6
-else
-  echo "$as_me:$LINENO: result: yes" >&5
-echo "${ECHO_T}yes" >&6
-  ERL_OPTS="-shared $ERL_OPTS"
-fi
-
-
 
 
 
@@ -2293,7 +2269,6 @@ s,@ac_pt_ERLC@,$ac_pt_ERLC,;t t
 s,@ERL@,$ERL,;t t
 s,@ac_pt_ERL@,$ac_pt_ERL,;t t
 s,@ac_prefix_program@,$ac_prefix_program,;t t
-s,@ERL_OPTS@,$ERL_OPTS,;t t
 s,@ERLANG_XMERL_DIR@,$ERLANG_XMERL_DIR,;t t
 s,@ERLDIR@,$ERLDIR,;t t
 s,@DTD@,$DTD,;t t

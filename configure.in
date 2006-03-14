@@ -69,7 +69,6 @@ else
   AC_MSG_ERROR([xmerl not found])
 fi
 
-AC_SUBST(ERL_OPTS)
 AC_SUBST(ERLANG_XMERL_DIR)
 AC_SUBST(SED)
 AC_SUBST(ERL)
