@@ -98,7 +98,8 @@
     <para>
       <command>manderlbot</command> was written by Dimitri Fontaine
       <email>dim@tuxfamily.org</email> and Nicolas Niclausse
-      <email>nico@niclux.org</email>.
+      <email>nico@niclux.org</email>. It is based on a earlier version
+      made by Mickael Rémond and Thierry Mallard.
   </refsect1>
   
 </refentry>
