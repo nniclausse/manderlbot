@@ -1,13 +1,18 @@
 # $Id$
 
-MANPAGES  = manderlbot.1.sgml manderlbot.conf.5.sgml
+MANPAGES  = manderlbot.1 manderlbot.conf.5
 
 all: man
 
-man: $(MANPAGE)
-	docbook2man manderlbot.1.sgml >/dev/null 2>&1
-	docbook2man manderlbot.conf.5.sgml >/dev/null 2>&1
+man: $(MANPAGES)
+
+%.1:%.1.sgml
+	docbook2man $< >/dev/null 2>&1
+
+%.5:%.5.sgml
+	docbook2man $< >/dev/null 2>&1
+
 
 clean:
 	-rm -f *~
-	-rm -f manpage.links manpage.refs
+	-rm -f manpage.links manpage.refs *.1 *.5

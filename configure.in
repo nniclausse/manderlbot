@@ -1,7 +1,7 @@
 DNA define([AC_CACHE_LOAD], )dnl
 dnl define([AC_CACHE_SAVE], )dnl
 
-AC_INIT([tsung], m4_normalize(m4_include([vsn.mk])),[dev@manderlbot.org])
+AC_INIT([manderlbot], m4_normalize(m4_include([vsn.mk])),[dev@manderlbot.org])
 AC_CONFIG_SRCDIR(src/manderlbot.erl)
 dnl AM_INIT_AUTOMAKE()
 
