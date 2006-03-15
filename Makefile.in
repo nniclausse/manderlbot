@@ -125,7 +125,7 @@ deb:
 clean:
 	-cd priv && rm -f $(shell ls priv | grep -v builder\.erl| grep -v CVS) && cd ..
 	-rm -f $(TARGET) $(TMP) $(BUILD_OPTIONS_FILE) builder.beam
-	-rm -f $(TGT_APPFILES) manderlbot.sh
+	-rm -f $(TGT_APPFILES_P) $(TGT_APPFILES_E) manderlbot.sh
 	-rm -f ebin/*.beam manderlbot.sh  manderlbot.xml
 
 install: doc boot $(CONFFILE)
@@ -167,8 +167,8 @@ priv/manderlbot.boot: builder.beam  $(SRC_APPFILES)
 	@rm -rf temp
 	@mkdir -p temp/lib/$(APPLICATION)-$(VERSION)
 	@ln -sf $(PWD)/ebin temp/lib/$(APPLICATION)-$(VERSION)/ebin
-	@ln -sf $(PWD)/src/$(APPLICATION) temp/lib/$(APPLICATION)-$(VERSION)/src
-	@ln -sf $(PWD)/include temp/lib/$(APPLICATION)-$(VERSION)/include
+	@ln -sf $(PWD)/src/ temp/lib/$(APPLICATION)-$(VERSION)/src
+	@ln -sf $(PWD)/inc temp/lib/$(APPLICATION)-$(VERSION)/include
 	@ln -sf $(PWD)/priv temp/lib/$(APPLICATION)-$(VERSION)/priv
 	@ln -sf $(PWD)/builder.beam temp/lib/$(APPLICATION)-$(VERSION)/
 	@ln -sf $(PWD) temp/lib/$(APPLICATION)-$(VERSION)

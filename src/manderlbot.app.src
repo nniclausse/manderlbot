@@ -4,7 +4,7 @@
 {application, manderlbot,
  [
   {description, "Manderlbot"},
-  {vsn, "&manderlbot_vsn&"},
+  {vsn, "%VSN%"},
   {id, "Manderlbot"},
   {modules, [misc_tools, manderlbot, manderlbot_sup,
 	     mdb_connection, mdb_dispatch, mdb_logger,
