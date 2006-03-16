@@ -60,12 +60,12 @@
 behaviour(Input, BotName, Data, BotPid, Channel) ->
     [NickFrom|IpFrom] = string:tokens(Input#data.header_from, "!"),
 
-    case bloto:add(NickFrom, Channel) of
-	{winner, Nick} ->
-	    mdb_bot:say(BotPid, Nick ++ " " ++ Data);
-
-	Other ->
-	    ok
+    case add(NickFrom, Channel) of
+        {winner, Nick} ->
+            mdb_bot:say(BotPid, Nick ++ " " ++ Data);
+        
+        Other ->
+            ok
     end.
 
 start_link() ->
