@@ -74,7 +74,7 @@ parse("<tr><td>&nbsp; <td COLSPAN=2>" ++ Data) ->
     [Description | _Other ] = string:tokens(Data,"<"),
     {continue, "  " ++ Description};
 %% URL and description of package (new version of packages.debian.org)
-parse("<li><a href=\"" ++ Data) ->
+parse("<li><a href=\"/" ++ Data) ->
     [URL | List ] = string:tokens(Data,"\""),
     Desc= lists:append(List),
     mdb_logger:debug("Debian got desc ~p~n", [Desc]),
