@@ -39,7 +39,7 @@
 
 -define(debian_name, "packages.debian.org").
 -define(debian_port, 80).
--define(package_desc_start, "</a>").
+-define(package_desc_start, "):").
 -define(margin, 50). % left margin for file results
 
 search(Keywords, Input, BotPid, BotName, Channel) ->
@@ -67,6 +67,9 @@ parse("</body>" ++ Data) ->
 parse("No responses" ++ Data) ->
     {stop,"not found"};
 %% Package short description
+parse("<h3>Package " ++ Data) ->
+    [Description | _Other ] = string:tokens(Data,"<"),
+    {continue, "  " ++ Description};
 parse("<tr><td>&nbsp; <td COLSPAN=2>" ++ Data) ->
     [Description | _Other ] = string:tokens(Data,"<"),
     {continue, "  " ++ Description};
