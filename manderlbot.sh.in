@@ -22,7 +22,7 @@ usage() {
 start() {
     echo "erl -sname manderlbot $RUN_OPTIONS -boot $BOOT_SCRIPT $CONF_OPT $LOG_OPT \
 	    $LOG_LEVEL_OPT"
-    $ERL -sname manderlbot $RUN_OPTIONS -boot $BOOT_SCRIPT $CONF_OPT $LOG_OPT \
+    $ERL -sname manderlbot -pa $MANDERLBOTPATH $RUN_OPTIONS -boot $BOOT_SCRIPT $CONF_OPT $LOG_OPT \
 	    $LOG_LEVEL_OPT -boot_var MANDERLBOTPATH  $INSTALL_DIR
 }
 
