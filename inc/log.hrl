@@ -15,4 +15,4 @@
 -define(WARN,  4). % A significant event that may require attention has occurred. 
 -define(NOTICE,5). % An event that does not affect system operation has occurred. 
 -define(INFO,  6). % An normal operation has occurred. 
--define(DEBUG, 7). % Debugging info
+-define(DEB, 7). % Debugging info

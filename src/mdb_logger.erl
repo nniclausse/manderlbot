@@ -63,7 +63,7 @@ change_loglevel(Level) ->
 
 %% Default to DEBUG level
 log(Mesg, Args) ->
-    log(Mesg, Args, ?DEBUG).
+    log(Mesg, Args, ?DEB).
 
 %% log with given level
 log(Mesg, Args, Level) ->
@@ -92,7 +92,7 @@ info(Mesg, Args) ->
     gen_event:notify(?MODULE, {log, Mesg, Args, ?INFO}).
 
 debug(Mesg, Args) ->
-    gen_event:notify(?MODULE, {log, Mesg, Args, ?DEBUG}).
+    gen_event:notify(?MODULE, {log, Mesg, Args, ?DEB}).
 
 %%%----------------------------------------------------------------------
 %%% Callback functions from gen_event
@@ -178,5 +178,5 @@ lvl2numeric(err)    -> ?ERR;
 lvl2numeric(warn)   -> ?WARN;
 lvl2numeric(notice) -> ?NOTICE;
 lvl2numeric(info)   -> ?INFO;
-lvl2numeric(debug)  -> ?DEBUG;
-lvl2numeric(_)      -> ?DEBUG.
+lvl2numeric(debug)  -> ?DEB;
+lvl2numeric(_)      -> ?DEB.
