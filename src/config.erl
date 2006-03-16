@@ -46,7 +46,7 @@
 %%% Purpose:  read the xml config file
 %%%----------------------------------------------------------------------
 read(Filename) ->
-    case xmerl_scan:file(Filename) of
+    case xmerl_scan:file(Filename,[{space, normalize}]) of
         {ok, Root = #xmlElement{}} ->  % xmerl-0.15
             mdb_logger:debug("root: ~p~n~p~n", [Root#xmlElement.name,
                                                 Root#xmlElement.content]),
