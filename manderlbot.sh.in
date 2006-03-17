@@ -11,8 +11,12 @@ ERL=@ERL@
 VERSION=@PACKAGE_VERSION@
 
 BOOT_SCRIPT="$INSTALL_DIR/lib/manderlbot-$VERSION/priv/manderlbot"
-RUN_OPTIONS="-detached -setcookie mdb"
+COOKIE="-setcookie mdb"
+RUN_OPTIONS="-detached $COOKIE"
 MANDERLBOTPATH=$INSTALL_DIR/lib/manderlbot-$VERSION/ebin
+
+ERTS_RUN=`$ERL -version 2>&1 | tr -d '[A-Za-z] (),\f\n\r'`
+ERTS_BOOT=`grep erts $MANDERLBOTPATH/../priv/manderlbot.rel | tr -d 'a-z{}"" ,\n'`
 
 usage() {
     prog=`basename $1`
@@ -35,8 +39,8 @@ status() {
     pid=`ps -edaf | awk '/-[s]name manderlbot/ {print $2}'`
 
     if [ "zz$pid" != "zz" ]; then
-	$ERL -sname control $RUN_OPTIONS -s mdb_control status  \
-         -boot_var MANDERLBOTPATH  $INSTALL_DIR
+	$ERL -sname control -noshell $COOKIE -s mdb_control status  \
+         -boot_var MANDERLBOTPATH  $INSTALL_DIR -pa $MANDERLBOTPATH
 	echo $LOG_OPT
 	echo $CONF_OPT
     else
@@ -44,6 +48,21 @@ status() {
 	echo $LOG_OPT
 	echo $CONF_OPT
     fi
+}
+
+checkversion() {
+    if [ $ERTS_RUN != $ERTS_BOOT ]
+    then
+		echo "Erlang version has changed ! [$ERTS_BOOT] != [$ERTS_RUN]"
+		echo "Must create new boot files (you may have to run this one time as root ! )"
+		makebootfiles
+    fi
+}
+
+makebootfiles() {
+    cd $MANDERLBOTPATH/..
+    echo "creating boot file"
+    $ERL -noshell -pa $MANDERLBOTPATH -s builder go -s init stop > /dev/null
 }
 
 while getopts ":c:l:f:" Option
@@ -57,7 +76,9 @@ do
 done	
 shift $(($OPTIND - 1))	
 case $1 in
-    start) start;;
+    start) 
+       checkversion
+       start;;
 
     stop)  stop;;
 
