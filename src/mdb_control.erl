@@ -27,7 +27,7 @@ status() ->
     {ok, List} = rpc:call(getNode(), mdb_botlist, list, []),
     
     lists:map(fun({Host, Chan = #channel{}}) ->
-		      mdb_logger:notice("~s connected on ~s ~s~n", 
+		      io:format("~s connected on ~s ~s~n", 
 					[Chan#channel.botname,
 					 Host,
 					 Chan#channel.name])
