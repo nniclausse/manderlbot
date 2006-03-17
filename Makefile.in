@@ -61,7 +61,7 @@ endif
 BINDIR    = $(bindir)
 CONFDIR   = $(sysconfdir)/manderlbot/
 SHARE_DIR = $(datadir)/manderlbot/
-MAN_DIR   = $(datadir)/man/man1/
+MAN_DIR   = $(datadir)/man/
 DOC_DIR   = $(datadir)/doc/manderlbot
 
 ERLANG_LIB_DIR = $(libdir)/erlang/lib
@@ -148,8 +148,10 @@ install: doc boot $(CONFFILE)
 	echo $(BUILD_OPTIONS_DOT) > $(TARGETDIR)/BUILD_OPTIONS
 
 # install the man pages
-	install -d $(MAN_DIR)
-	install doc/manderlbot.1 $(MAN_DIR)
+	install -d $(MAN_DIR)/man1
+	install -d $(MAN_DIR)/man5
+	install doc/manderlbot.1 $(MAN_DIR)/man1
+	install doc/manderlbot.conf.5 $(MAN_DIR)/man5
 
 # create startup script
 	install manderlbot.sh $(SCRIPT)
