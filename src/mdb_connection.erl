@@ -56,12 +56,12 @@ connect(Server, Ip_port) ->
 
     case Connect() of
 	{ok, Sock} ->
-         mdb_logger:debug("Connected to: ~p", [Server]),
+         mdb_logger:debug("Connected to: ~p~n", [Server]),
 	    {ok, Sock};
 
 	{error, Reason} ->
 	    %% If there is an error, wait 30 secondes and try to reconnect
-	    mdb_logger:warn("Server connection error: ~p", [Reason]),
+	    mdb_logger:warn("Server connection error: ~p~n", [Reason]),
 	    timer:sleep(30000),
 	    connect(Server, Ip_port)
     end.
@@ -103,5 +103,6 @@ manage_reconnect(State) ->
 
     {ok, State#state{socket = Sock,
 		     date   = calendar:local_time(),
+		     buffer   = << >>,
 		     joined = false
 		    }}.
