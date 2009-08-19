@@ -104,7 +104,7 @@ DIST_COMMON=Makefile.in $(CONFFILE) manderlbot.sh.in
 
 .PHONY: doc
 
-manderlbot: Makefile config.status manderlbot.sh  $(TARGET)
+manderlbot: Makefile config.status manderlbot.sh  ebin $(TARGET)
 
 all: clean manderlbot
 
@@ -122,6 +122,8 @@ deb:
 	debian/rules build
 	fakeroot debian/rules binary
 
+ebin:
+	mkdir ebin
 clean:
 	-cd priv && rm -f $(shell ls priv | grep -v builder\.erl| grep -v CVS) && cd ..
 	-rm -f $(TARGET) $(TMP) $(BUILD_OPTIONS_FILE) builder.beam
@@ -223,6 +225,9 @@ snapshot:
 
 builder.beam: priv/builder.erl 
 	@$(CC) -W0 $(OPT) -I $(INC) $<
+
+ebin:
+	mkdir ebin
 
 ebin/%.beam: src/lib/%.erl $(INC_FILES)
 	@echo  "Compiling  $< ... "
